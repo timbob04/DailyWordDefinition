@@ -1,0 +1,13 @@
+Function/class for:
+
+Text (each is a class, where the properties are set using constructor inputs, and it is made using a function called 'make')
+> Edit text box.  Inputs: starting text, font (size, type, italic, bold), pixel position of textbox, text alignment in box. 
+> Static text box.  Inputs: same as above.
+
+
+
+Button
+> Toggle: 
+
+
+
