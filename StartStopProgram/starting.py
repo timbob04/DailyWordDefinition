@@ -1,39 +1,58 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QCheckBox, QLabel,  QLineEdit, QFileDialog, QSpacerItem, QSizePolicy, QScrollArea
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QCheckBox, QLabel,  QLineEdit, QFileDialog, QScrollArea
 from PyQt5.QtGui import QFontMetrics, QFont
 from PyQt5.QtCore import Qt
 import os
 import platform
+import re
 
-# Functions
+# Classes/functions/etc
 
-# Implement button clicked - action
-def startButtonPressed(toggle_button,getStartupFolder,window):
-    # 1) Set time in timeToRunProgram.txt
-    # 2) Change .bin file boolean to '1'
-    # 3) Adds exe of main program to startup folder (if toggle pressed) - below
-    # 4) Saves the startup folder in a text file (only if toggle pressed)
-    
-    # Number 3
-    toggle_state = toggle_button.isChecked() # if true, add relevant file to startup folder
-    if toggle_state:
-        print(f'This is where I will add the main exe file to the startup folder, which is {getStartupFolder.startupFolder}')
-   
-   # And then close the window
-    window.close() 
+def startButtonPressed(window,checkTimeEntered,HH,MM,startupToggle,startupFolOb):   
+    checkTimeEntered.startButtonPressed = True
+    checkTimeEntered.showOrHideText()
+    if checkTimeEntered.correctYN_both:        
+        # Get path of accessory files
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        common_dir = os.path.join(base_dir, '..', 'accessoryFiles')
+        # Write time to run program to .txt file
+        curFilePath = os.path.join(common_dir, 'timeToRunApplication.txt')
+        with open(curFilePath, 'w') as file:
+            file.write(f"{HH}:{MM}")
+        # Startup folder stuff
+        if startupToggle.isChecked():
+            # Save startup folder
+            curFilePath = os.path.join(common_dir, 'startupFolder.txt')
+            with open(curFilePath, 'w') as file:
+                file.write(startupFolOb.startupFolder)            
+            # Here put the main program in the startup folder
+            print("Here put the main exe file in the startup folder")
+        # Change application running boolean to true
+        curFilePath = os.path.join(common_dir, 'applicationRunning_YN.txt')
+        with open(curFilePath, 'w') as file:
+            file.write("1")
+        # Start the main program's exe file running
+        print("Here run the main program's exe file")
+        # Close window
+        window.close() 
 
 class Fonts:
     def __init__(self):
+        # Initialize fonts
+        self.font_tiny = None
         self.font_small = None
         self.font_medium = None
         self.font_large = None
         self.font_large_bold = None
+        # Default values
+        self.fontFamily = "Arial"
     
     def makeFonts(self):
-        self.font_small = QFont("", 9, QFont.Normal, False)
-        self.font_medium = QFont("", 11, QFont.Normal, False)
-        self.font_large = QFont("", 17, QFont.Normal, False)    
-        self.font_large_bold = QFont("", 17, QFont.Bold, False)
+        self.font_tiny = QFont(self.fontFamily, 8, QFont.Normal, False)
+        self.font_small = QFont(self.fontFamily, 9, QFont.Normal, False)
+        self.font_medium = QFont(self.fontFamily, 11, QFont.Normal, False)
+        self.font_large = QFont(self.fontFamily, 17, QFont.Normal, False)    
+        self.font_large_bold = QFont(self.fontFamily, 17, QFont.Bold, False)
     
 class GetAndShowStartupFolder:
     def __init__(self, position, window):
@@ -43,8 +62,9 @@ class GetAndShowStartupFolder:
         self.font = QFont("", 7, QFont.Normal, False)
         self.textAlignment = Qt.AlignLeft
         self.wordWrap = False
-        # Initialize text box
+        # Initialize text box and scroll area
         self.textBox = None
+        self.scroll_area = None
         # Functions to run on initialization
         self.startupFolder = self.getStartupFolderAutomatically()
         self.showStartupFolTextBox()
@@ -67,14 +87,16 @@ class GetAndShowStartupFolder:
         self.textBox.setAlignment(self.textAlignment) 
         self.textBox.setGeometry(*(int(x) for x in self.positionOfText))  
         self.textBox.setFont(self.font)  
+        self.textBox.hide() # show when startup folder toggle pressed
 
     def makeScrollBarForStartupText(self):
-        scroll_area = QScrollArea(self.window)
-        scroll_area.setWidgetResizable(True)  
-        scroll_area.setWidget(self.textBox)  
-        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)  
-        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  
-        scroll_area.setGeometry(*(int(x) for x in self.positionOfText))
+        self.scroll_area = QScrollArea(self.window)
+        self.scroll_area.setWidgetResizable(True)  
+        self.scroll_area.setWidget(self.textBox)  
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)  
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  
+        self.scroll_area.setGeometry(*(int(x) for x in self.positionOfText))
+        self.scroll_area.hide() # show when startup folder toggle pressed
 
     def manuallySelectPath(self):
         file_dialog = QFileDialog()
@@ -97,10 +119,12 @@ class StaticText:
         self.position = position
         # Default values
         self.wordWrap = True
-        self.fontMetrics = QFontMetrics(font)        
+        self.fontMetrics = QFontMetrics(font)  
+        self.color = 'black'
+        # Initialize some variables
         self.positionAdjust = None
         self.Vcenter = None
-        self.Hcenter = None
+        self.Hcenter = None    
         # Constructor functions
         self.getActualPosition()
         self.getVandHcenter()
@@ -113,8 +137,11 @@ class StaticText:
         self.Hcenter = self.positionAdjust[0] + self.positionAdjust[2]/2
         self.Vcenter = self.positionAdjust[1] + self.positionAdjust[3]/2
 
-    def centerAlign(self):
+    def centerAlign_V(self):
         self.positionAdjust[1] = int(self.positionAdjust[1] - self.positionAdjust[3]/2)
+
+    def centerAlign_H(self):
+        self.positionAdjust[0] = int(self.positionAdjust[0] - self.positionAdjust[2]/2)
             
     def makeTextObject(self):
         textOb = QLabel(self.text, self.window)
@@ -122,6 +149,8 @@ class StaticText:
         textOb.setFont(self.font)
         textOb.setAlignment(self.textAlignment)
         textOb.setGeometry(*self.positionAdjust) 
+        textOb.setStyleSheet(f"QLabel {{ color : {self.color}; }}")
+        return textOb
 
 class PushButton:
     def __init__(self, window, font, text, position):
@@ -151,17 +180,17 @@ class PushButton:
         self.Hcenter = self.positionAdjust[0] + self.positionAdjust[2]/2
         self.Vcenter = self.positionAdjust[1] + self.positionAdjust[3]/2
 
-    def centerAlign(self):
+    def centerAlign_V(self):
         self.positionAdjust[1] = int(self.positionAdjust[1] - self.positionAdjust[3]/2)
+
+    def centerAlign_H(self):
+        self.positionAdjust[0] = int(self.positionAdjust[0] - self.positionAdjust[2]/2)
             
     def makeButton(self):
         button = QPushButton(self.text, self.window)
         button.setGeometry(*(int(x) for x in self.positionAdjust))    
         button.setFont(self.font)
-        # button.setWordWrap = True
         button.setStyleSheet("QPushButton { text-align: center; }")
-        # button.setMinimumSize(self.positionAdjust[2], self.positionAdjust[3])
-        
         return button
 
 class EditText:
@@ -186,8 +215,11 @@ class EditText:
     def forceWidth(self):
         self.positionAdjust[2] = self.position[2]
 
-    def centerAlign(self):
+    def centerAlign_V(self):
         self.positionAdjust[1] = int(self.positionAdjust[1] - self.positionAdjust[3]/2)
+
+    def centerAlign_H(self):
+        self.positionAdjust[0] = int(self.positionAdjust[0] - self.positionAdjust[2]/2)
             
     def makeEditTextBox(self):        
         editBox = QLineEdit(self.window) # Make edit box
@@ -196,6 +228,7 @@ class EditText:
         editBox.setFixedWidth(self.positionAdjust[2])  # Set the width of the text box to fit the text, with added padding
         editBox.setAlignment(self.textAlignment) 
         editBox.setGeometry(*(int(x) for x in self.positionAdjust))
+        return editBox
 
 def centerWindowOnScreen(window, app):
     frameGm = window.frameGeometry()
@@ -203,6 +236,59 @@ def centerWindowOnScreen(window, app):
     centerPoint = screen.availableGeometry().center()
     frameGm.moveCenter(centerPoint)
     window.move(frameGm.topLeft())        
+
+def startupTogglePressed(h_toggle, h_changeButton, h_startupTextObject):
+    if h_toggle.isChecked():
+        h_changeButton.show()
+        h_startupTextObject.textBox.show()
+        h_startupTextObject.scroll_area.show()
+    else:
+        h_changeButton.hide()
+        h_startupTextObject.textBox.hide()
+        h_startupTextObject.scroll_area.hide()
+
+class CheckTimeEntered():
+    def __init__(self):        
+        # Default values
+        self.handleText = None
+        self.correctYN_HH = False
+        self.correctYN_MM = False
+        self.correctYN_both = False  
+        self.startButtonPressed = False # becomes true once the Start button is pressed
+
+    def checkTime_HH(self, newText):
+        if re.fullmatch(r'([0-1]?[0-9]|2[0-3])', newText): # is the hour entered between 00 and 23
+            self.correctYN_HH = True
+        else: 
+            self.correctYN_HH = False
+        self.bothCorrect()    
+        self.showOrHideText()
+
+    def checkTime_MM(self, newText):
+        if re.fullmatch(r'([0-5]?[0-9])', newText): # is the minute entered between 00 and 59
+            self.correctYN_MM = True
+        else: 
+            self.correctYN_MM = False
+        self.bothCorrect()
+        self.showOrHideText()
+
+    def bothCorrect(self):
+        if self.correctYN_HH & self.correctYN_MM:
+            self.correctYN_both = True
+        else:
+            self.correctYN_both = False
+
+    def showOrHideText(self):
+        if not self.startButtonPressed:
+            return
+        if self.correctYN_both:
+            self.handleText.hide()
+        else:
+            self.handleText.show()
+
+
+
+        
 
 def main():
 
@@ -244,38 +330,57 @@ def main():
     rightMostPoint = ST_chooseTime.positionAdjust[0] + ST_chooseTime.positionAdjust[2]
     centerV = ST_chooseTime.Vcenter
 
+    # Object to check if HH and MM entered correctly
+    checkTimeEntered = CheckTimeEntered()
+
     # Edit text box - enter hours (top right)    
     position = (rightMostPoint+padding_large,centerV,width_button_change,0)
-    ET_hours = EditText(window,fonts.font_medium,"HH",position)
-    ET_hours.centerAlign()    
-    ET_hours.forceWidth()
-    ET_hours.makeEditTextBox()
+    editText_hours = EditText(window,fonts.font_medium,"HH",position)
+    editText_hours.centerAlign_V()    
+    editText_hours.forceWidth()
+    ET_hours = editText_hours.makeEditTextBox()
+    ET_hours.textChanged.connect(checkTimeEntered.checkTime_HH) # slot for checking if HH entered correct using class CheckTimeEntered
 
-    rightMostPoint = rightMostPoint + padding_large + ET_hours.positionAdjust[2]
+    rightMostPoint = rightMostPoint + padding_large + editText_hours.positionAdjust[2]
 
     # Static text - colon (top right)
     position = (rightMostPoint+padding_small, centerV, 0, 0)
     textAlignment = Qt.AlignCenter | Qt.AlignVCenter
     ST_colon = StaticText(window,fonts.font_medium,":",position,textAlignment)
-    ST_colon.centerAlign()
+    ST_colon.centerAlign_V()
     ST_colon.makeTextObject()
 
     rightMostPoint = rightMostPoint + padding_small + ST_colon.positionAdjust[2]
+    centerH = ST_colon.positionAdjust[0] + ST_colon.positionAdjust[2]/2
 
     # Edit text box - enter minutes (top right)
     position = (rightMostPoint+padding_small,centerV,width_button_change,0)
-    ET_mins = EditText(window,fonts.font_medium,"MM",position)
-    ET_mins.centerAlign()    
-    ET_mins.forceWidth()    
-    ET_mins.makeEditTextBox()
+    editText_mins = EditText(window,fonts.font_medium,"MM",position)
+    editText_mins.centerAlign_V()    
+    editText_mins.forceWidth()    
+    ET_mins = editText_mins.makeEditTextBox()
+    ET_mins.textChanged.connect(checkTimeEntered.checkTime_MM) # slot for checking if MM entered correct using class CheckTimeEntered
 
-    rightMostPoint_topRow = position[0] + ET_mins.positionAdjust[2]
+    rightMostPoint_topRow = position[0] + editText_mins.positionAdjust[2]
+    bottomOfEditBox = editText_mins.positionAdjust[1] + editText_mins.positionAdjust[3]
+
+    # Static text - time entered incorrectly
+    position = (centerH,bottomOfEditBox+padding_small,110,0)
+    text = 'Time entered incorrectly'
+    textAlignment = Qt.AlignCenter | Qt.AlignVCenter | Qt.TextWordWrap 
+    ST_incorrectTime = StaticText(window,fonts.font_small,text,position,textAlignment)
+    ST_incorrectTime.color = 'red'
+    ST_incorrectTime.centerAlign_H()
+    text_incorrectTime = ST_incorrectTime.makeTextObject()
+    text_incorrectTime.hide()
+    checkTimeEntered.handleText = text_incorrectTime
 
     # Toggle button - add to startup folder (bottom left)
     toggle_startup = QCheckBox('', window)
     toggle_startup.setGeometry(padding_large,startingY_checkBox,width_toggle,width_toggle)
     toggle_startup.setStyleSheet(f"QCheckBox::indicator {{ width: {width_toggle}px; height: {width_toggle}px; }}")
     toggle_startup.setChecked(False)
+    toggle_startup.clicked.connect(lambda: startupTogglePressed(toggle_startup,button_change,getAndShowStartupFolder))
 
     rightMostPoint = padding_large + width_toggle
     centerV_toggleButton = startingY_checkBox + width_toggle/2
@@ -285,7 +390,7 @@ def main():
     textAlignment = Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap    
     position = (rightMostPoint+padding_medium, centerV_toggleButton, width_ST_startupToggle, 0)    
     ST_startup = StaticText(window,fonts.font_small,text,position,textAlignment)
-    ST_startup.centerAlign()
+    ST_startup.centerAlign_V()
     ST_startup.makeTextObject()
 
     rightMostPoint_startupText = position[0] + position[2]
@@ -302,8 +407,9 @@ def main():
     text = 'Change'      
     position = (rightMostPoint+padding_medium,centerV,0,0)
     PB_change = PushButton(window,fonts.font_medium,text,position)
-    PB_change.centerAlign()
+    PB_change.centerAlign_V()
     button_change = PB_change.makeButton()
+    button_change.hide() # hide button until toggle is pressed
     # Make slot for button for when it is pressed
     button_change.clicked.connect(getAndShowStartupFolder.updatePath)
 
@@ -311,11 +417,12 @@ def main():
     text = 'Start'
     position = (rightMostPoint_startupText+padding_large, centerV_toggleButton, 0, 0)
     PB_start = PushButton(window,fonts.font_large_bold,text,position)
-    PB_start.centerAlign()
+    PB_start.centerAlign_V()
     button_start = PB_start.makeButton()
-    # button_start.clicked.connect(lambda: startButtonPressed(function inputs...))
+    button_start.clicked.connect(lambda: startButtonPressed(window,checkTimeEntered,ET_hours.text(),ET_mins.text(),toggle_startup,getAndShowStartupFolder))
 
-    # Step 5: Center the window - put in the function (pass it 'window' and 'app')
+
+    # Center the window - put in the function (pass it 'window' and 'app')
     centerWindowOnScreen(window, app)
 
     # Step 5: Show the window
