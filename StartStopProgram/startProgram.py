@@ -1,23 +1,18 @@
 # My functions/classes
-from startProgram_functionsClasses import Sizes_startProgram, GetAndShowStartupFolder, startupTogglePressed, startButtonPressed
-from startStopProgram_commonFunctions import Fonts, StaticText, PushButton, EditText, centerWindowOnScreen, CheckTimeEntered
+from startProgram_functionsClasses import Sizes_startProgram, GetAndShowStartupFolder, startupTogglePressed, startButtonPressed, CheckTimeEntered
+from startStopProgram_commonFunctions import Fonts, StaticText, PushButton, EditText, centerWindowOnScreen
 
 # Other functions/classes
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox
 from PyQt5.QtCore import Qt
 
-
-
-
-     
-
 def startProgram():
 
     # Make window
     app = QApplication(sys.argv)
     window = QMainWindow()    
-    window.setWindowTitle('Program currently not running')
+    window.setWindowTitle('Program not currently running')
 
     # Fonts
     fonts = Fonts()
@@ -144,6 +139,3 @@ def startProgram():
 
     # Run application's event loop
     sys.exit(app.exec_())
-
-startProgram() # this will go in the main startStop function and be called if the 'runningYN' boolean file is '0'
-

@@ -86,7 +86,7 @@ class GetAndShowStartupFolder:
             self.textBox.setText(new_folder) # update window text for startup folder
 
 def startButtonPressed(window,checkTimeEntered,HH,MM,startupToggle,startupFolOb):   
-    checkTimeEntered.startButtonPressed = True
+    checkTimeEntered.buttonPressed = True
     checkTimeEntered.showOrHideText()
     if checkTimeEntered.correctYN_both:        
         # Get path of accessory files
@@ -127,3 +127,43 @@ def startupTogglePressed(h_toggle, h_changeButton, h_startupTextObject):
         h_changeButton.hide()
         h_startupTextObject.textBox.hide()
         h_startupTextObject.scroll_area.hide()
+
+# Class to determine if the HH and MM text in the edit text box is correct
+class CheckTimeEntered():
+    def __init__(self):        
+        # Default values
+        self.handleText = None
+        self.correctYN_HH = False
+        self.correctYN_MM = False
+        self.correctYN_both = False  
+        self.buttonPressed = False # becomes true once the Start button is pressed
+
+    def checkTime_HH(self, newText):
+        if re.fullmatch(r'([0-1]?[0-9]|2[0-3])', newText): # is the hour entered between 00 and 23
+            self.correctYN_HH = True
+        else: 
+            self.correctYN_HH = False
+        self.bothCorrect()    
+        self.showOrHideText()
+
+    def checkTime_MM(self, newText):
+        if re.fullmatch(r'([0-5]?[0-9])', newText): # is the minute entered between 00 and 59
+            self.correctYN_MM = True
+        else: 
+            self.correctYN_MM = False
+        self.bothCorrect()
+        self.showOrHideText()
+
+    def bothCorrect(self):
+        if self.correctYN_HH & self.correctYN_MM:
+            self.correctYN_both = True
+        else:
+            self.correctYN_both = False
+
+    def showOrHideText(self):
+        if not self.buttonPressed:
+            return
+        if self.correctYN_both:
+            self.handleText.hide()
+        else:
+            self.handleText.show() 
