@@ -76,7 +76,6 @@ class CheckTimeEntered():
         else:
             self.handleText.show() # otherwise show text
 
-
 def OkButtonPressed(window,checkTimeEntered,stopProgramToggle,HH,MM): 
     
     checkTimeEntered.OkbuttonPressed = True
@@ -87,13 +86,13 @@ def OkButtonPressed(window,checkTimeEntered,stopProgramToggle,HH,MM):
     common_dir = os.path.join(base_dir, '..', 'accessoryFiles')
 
     if stopProgramToggle.isChecked():
-        print('All the things for stopping the program')
+        print('All the things for stopping the program and removing it from the startup folder')
         # 1) Stop to main exe
         # 2) Remove the main exe from the startup folder
         # 3) Change application running boolean to false
-        # curFilePath = os.path.join(common_dir, 'applicationRunning_YN.txt')
-        # with open(curFilePath, 'w') as file:
-        #     file.write("0")
+        curFilePath = os.path.join(common_dir, 'applicationRunning_YN.txt')
+        with open(curFilePath, 'w') as file:
+            file.write("0")            
     elif checkTimeEntered.correctYN_both:
         print('All the things for editing the time for the program to run')
         # Write time to run program to .txt file
