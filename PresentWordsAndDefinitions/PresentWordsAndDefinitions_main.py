@@ -6,7 +6,6 @@
 # 3) Collecting any user input and adjusting the word/definition/code list
 
 import os
-import json
 
 from PresentWordsAndDefinitions_functionsClasses import readJSONfile, WODandDef, RODandDef 
 
@@ -29,8 +28,7 @@ def main():
     curRODandDef = RODandDef(data, curFilePath)
     ROD, ROD_definition = curRODandDef.getAndreturnROD()
  
-    # print(f"WOD is: {WOD}.  Def is: {WOD_definition}")
-    # print(f"Rod is: {ROD}.  Def is: {ROD_definition}")
-
+    print(f"WOD is: {WOD}.  Def is: {WOD_definition}")
+    print(f"Rod is: {ROD}.  Def is: {ROD_definition}")
 
 main()    

@@ -3,6 +3,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QScrollArea, QFileDialog
 import platform
+import re
 
 # Predefined sizes for text boxes, etc
 class Sizes_startProgram:
