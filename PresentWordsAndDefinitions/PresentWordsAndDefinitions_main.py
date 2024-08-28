@@ -7,9 +7,24 @@
 
 import os
 
-from PresentWordsAndDefinitions_functionsClasses import readJSONfile, WODandDef, RODandDef 
+from .PresentWordsAndDefinitions_functionsClasses import readJSONfile, WODandDef, RODandDef, Sizes_presentWODAPI
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow
+import sys
+
+from commonClassesFunctions.functionsClasses import Fonts, calculateTextboxDim, centerWindowOnScreen
 
 def main():
+
+    # Make window
+    app = QApplication(sys.argv)
+    window = QMainWindow()    
+    window.setWindowTitle('Program not currently running')
+
+    # Predefined sizes of things
+    sizes = Sizes_presentWODAPI()
+    sizes.defineSizes()
     
     # Get path of accessory files
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -30,5 +45,34 @@ def main():
  
     print(f"WOD is: {WOD}.  Def is: {WOD_definition}")
     print(f"Rod is: {ROD}.  Def is: {ROD_definition}")
+
+    fonts = Fonts()
+    fonts.makeFonts()
+
+    # Get the text height for the WOD and its definition
+    textAlignment = Qt.AlignRight | Qt.AlignTop | Qt.TextWordWrap  
+    fonts.font_medium
+    text = WOD + ": " + WOD_definition
+    textHeight_WOD = calculateTextboxDim(text, sizes.WODwidth, fonts.font_medium, textAlignment)
+
+    
+    
+
+
+    # Resize window
+    rightMostPoint_final = max(rightMostPoint_botRow,rightMostPoint_topRow)
+    window.resize(rightMostPoint_final+sizes.padding_large, lowestPoint+sizes.padding_large)
+
+    # Center the window - put in the function (pass it 'window' and 'app')
+    centerWindowOnScreen(window, app)
+
+    # Show window
+    window.show()
+
+    # Run application's event loop
+    sys.exit(app.exec_())
+
+    
+
 
 main()    

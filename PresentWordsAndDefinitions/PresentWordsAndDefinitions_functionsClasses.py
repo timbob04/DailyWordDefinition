@@ -1,5 +1,21 @@
 import json
 
+class Sizes_presentWODAPI:
+    def __init__(self):
+        self.padding_small = None
+        self.padding_medium = None
+        self.padding_large = None
+        self.WODwidth = None
+        self.maxWODheight = None
+
+    def defineSizes(self):
+        self.padding_small = 5
+        self.padding_medium = 10
+        self.padding_large = 20
+        self.WODwidth = 300
+        self.maxWODheight = 300
+
+
 def readJSONfile(filepath):
     try:
         with open(filepath, 'r') as file:

@@ -1,11 +1,13 @@
 # My functions/classes
-from startProgram_functionsClasses import Sizes_startProgram, GetAndShowStartupFolder, startupTogglePressed, startButtonPressed, CheckTimeEntered
-from startStopProgram_commonFunctions import Fonts, StaticText, PushButton, EditText, centerWindowOnScreen
+from .startProgram_functionsClasses import Sizes_startProgram, GetAndShowStartupFolder, startupTogglePressed, startButtonPressed, CheckTimeEntered
+from .startStopProgram_commonFunctions import StaticText, PushButton, EditText
 
 # Other functions/classes
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox
 from PyQt5.QtCore import Qt
+
+from commonClassesFunctions.functionsClasses import Fonts, centerWindowOnScreen
 
 def startProgram():
 

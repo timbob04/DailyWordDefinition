@@ -149,11 +149,3 @@ class EditText:
         editBox.setGeometry(*(int(x) for x in self.positionAdjust))
         return editBox    
     
-def centerWindowOnScreen(window, app):
-    frameGm = window.frameGeometry()
-    screen = app.primaryScreen()
-    centerPoint = screen.availableGeometry().center()
-    frameGm.moveCenter(centerPoint)
-    window.move(frameGm.topLeft())   
-
-  
