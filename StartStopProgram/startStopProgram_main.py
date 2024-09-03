@@ -5,6 +5,6 @@
 from .startProgram import startProgram
 from .stopProgram import stopProgram
 
-# startProgram()
+startProgram()
 
-stopProgram()
+# stopProgram()

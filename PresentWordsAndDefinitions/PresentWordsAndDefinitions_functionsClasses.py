@@ -7,13 +7,17 @@ class Sizes_presentWODAPI:
         self.padding_large = None
         self.WODwidth = None
         self.maxWODheight = None
+        self.smallTextWidth = None
+        self.width_toggle = None
 
     def defineSizes(self):
         self.padding_small = 5
         self.padding_medium = 10
         self.padding_large = 20
-        self.WODwidth = 300
-        self.maxWODheight = 300
+        self.WODwidth = 450
+        self.maxWODheight = 200
+        self.smallTextWidth = 80
+        self.width_toggle = 22
 
 
 def readJSONfile(filepath):
@@ -85,7 +89,6 @@ class WODandDef():
             self.definition = self.dataIn[self.positionOfWOD]['definition']
         return self.WOD, self.definition
 
-    
 class RODandDef():
     def __init__(self,dataIn,fileName):       
         # Inputs
@@ -150,7 +153,18 @@ class RODandDef():
         if self.RODpresent:
             self.ROD = self.dataIn[self.positionOfROD]['word']
             self.definition = self.dataIn[self.positionOfROD]['definition']
-        return self.ROD, self.definition              
+        return self.ROD, self.definition      
+
+class ToggleChoices:
+    def __init__(self):
+        self.addWOD = False
+        self.remPriorityWOD = False
+
+def addWODtogglePressed(h_toggle,toggleChoicesClass):
+    if h_toggle.isChecked():
+        toggleChoicesClass.addWOD = True
+    else:
+        toggleChoicesClass.addWOD = False    
         
         
 

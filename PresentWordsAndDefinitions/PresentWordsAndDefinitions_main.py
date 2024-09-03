@@ -7,13 +7,15 @@
 
 import os
 
-from .PresentWordsAndDefinitions_functionsClasses import readJSONfile, WODandDef, RODandDef, Sizes_presentWODAPI
+from .PresentWordsAndDefinitions_functionsClasses import readJSONfile, WODandDef, RODandDef, Sizes_presentWODAPI, ToggleChoices, addWODtogglePressed
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox
 import sys
 
-from commonClassesFunctions.functionsClasses import Fonts, calculateTextboxDim, centerWindowOnScreen
+from PyQt5.QtGui import QTextDocument
+
+from commonClassesFunctions.functionsClasses import Fonts, MakeTextWithMaxHeight, centerWindowOnScreen, StaticText
 
 def main():
 
@@ -24,7 +26,7 @@ def main():
 
     # Predefined sizes of things
     sizes = Sizes_presentWODAPI()
-    sizes.defineSizes()
+    sizes.defineSizes()    
     
     # Get path of accessory files
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -50,18 +52,42 @@ def main():
     fonts.makeFonts()
 
     # Get the text height for the WOD and its definition
-    textAlignment = Qt.AlignRight | Qt.AlignTop | Qt.TextWordWrap  
-    fonts.font_medium
+    textAlignment = Qt.AlignLeft | Qt.AlignTop 
     text = WOD + ": " + WOD_definition
-    textHeight_WOD = calculateTextboxDim(text, sizes.WODwidth, fonts.font_medium, textAlignment)
-
+    makeTextWithMaxHeight = MakeTextWithMaxHeight(window,text,sizes.padding_large, \
+                                                  sizes.padding_large,sizes.WODwidth, \
+                                                  sizes.maxWODheight,fonts.font_large,\
+                                                    textAlignment) 
     
-    
+    rightMostPoint = sizes.padding_large + sizes.WODwidth
+    lowestPoint = sizes.padding_large + makeTextWithMaxHeight.textPos[3]  
 
+    # Class to save the toggle button choices
+    toggleChoices = ToggleChoices()
+
+    # Toggle button - add WOD to priority word list
+    toggle_addWOD = QCheckBox('', window)
+    leftPoint = rightMostPoint + sizes.padding_large + (sizes.smallTextWidth/2) - (sizes.width_toggle/2)
+    topPoint = sizes.padding_large + sizes.padding_medium
+    textPos = (leftPoint,topPoint,sizes.width_toggle,sizes.width_toggle)
+    toggle_addWOD.setGeometry(*(int(x) for x in textPos))
+    toggle_addWOD.setStyleSheet(f"QCheckBox::indicator {{ width: {sizes.width_toggle}px; height: {sizes.width_toggle}px; }}")
+    toggle_addWOD.setChecked(False)
+    toggle_addWOD.clicked.connect(lambda: addWODtogglePressed(toggle_addWOD,toggleChoices))
+
+    text = 'Add word to priority word list'
+    textAlignment = Qt.AlignCenter | Qt.AlignTop | Qt.TextWordWrap   
+    leftPoint = rightMostPoint + sizes.padding_large
+    topPoint = topPoint + sizes.width_toggle + sizes.padding_small
+    textPos = (leftPoint, topPoint, sizes.smallTextWidth, 0)
+    ST_addWODtext = StaticText(window,fonts.font_small,text,textPos,textAlignment)
+    ST_addWODtext.makeTextObject()
+
+    rightMostPoint = leftPoint + sizes.smallTextWidth
+    lowestPoint = max(lowestPoint,topPoint+ST_addWODtext.positionAdjust[3])
 
     # Resize window
-    rightMostPoint_final = max(rightMostPoint_botRow,rightMostPoint_topRow)
-    window.resize(rightMostPoint_final+sizes.padding_large, lowestPoint+sizes.padding_large)
+    window.resize(int(rightMostPoint+sizes.padding_large), int(lowestPoint+sizes.padding_large))
 
     # Center the window - put in the function (pass it 'window' and 'app')
     centerWindowOnScreen(window, app)
@@ -71,8 +97,5 @@ def main():
 
     # Run application's event loop
     sys.exit(app.exec_())
-
     
-
-
 main()    
