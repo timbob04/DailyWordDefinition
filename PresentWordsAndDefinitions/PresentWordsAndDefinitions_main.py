@@ -13,14 +13,17 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox
 import sys
 
-from PyQt5.QtGui import QTextDocument
+from commonClassesFunctions.functionsClasses import Fonts, MakeTextWithMaxHeight, centerWindowOnScreen, StaticText, PushButton
 
-from commonClassesFunctions.functionsClasses import Fonts, MakeTextWithMaxHeight, centerWindowOnScreen, StaticText
+def revealButtonPressed(textOb,word,wordDef):
+    # Change the word definition to include the definition as well as the word, using the WOD object
+    textOb.text = word + ": " + wordDef
+    textOb.makeText()
 
 def main():
 
     # Make window
-    app = QApplication(sys.argv)
+    app = QApplication(sys.argv)    
     window = QMainWindow()    
     window.setWindowTitle('Program not currently running')
 
@@ -53,11 +56,16 @@ def main():
 
     # Get the text height for the WOD and its definition
     textAlignment = Qt.AlignLeft | Qt.AlignTop 
-    text = WOD + ": " + WOD_definition
+    text = WOD + ": " + WOD_definition 
     makeTextWithMaxHeight = MakeTextWithMaxHeight(window,text,sizes.padding_large, \
                                                   sizes.padding_large,sizes.WODwidth, \
                                                   sizes.maxWODheight,fonts.font_large,\
-                                                    textAlignment) 
+                                                    textAlignment)     
+    # Make the text using the WOD without definition to start
+    makeTextWithMaxHeight.text = WOD + ": "
+    makeTextWithMaxHeight.makeText()
+    # Adjust the text inside makeTextWithMaxHeight for chaning later when the reveal button is pressed
+    makeTextWithMaxHeight.text = WOD + ": " + WOD_definition
     
     rightMostPoint = sizes.padding_large + sizes.WODwidth
     lowestPoint = sizes.padding_large + makeTextWithMaxHeight.textPos[3]  
@@ -73,6 +81,7 @@ def main():
     toggle_addWOD.setGeometry(*(int(x) for x in textPos))
     toggle_addWOD.setStyleSheet(f"QCheckBox::indicator {{ width: {sizes.width_toggle}px; height: {sizes.width_toggle}px; }}")
     toggle_addWOD.setChecked(False)
+    toggle_addWOD.hide()
     toggle_addWOD.clicked.connect(lambda: addWODtogglePressed(toggle_addWOD,toggleChoices))
 
     text = 'Add word to priority word list'
@@ -80,11 +89,21 @@ def main():
     leftPoint = rightMostPoint + sizes.padding_large
     topPoint = topPoint + sizes.width_toggle + sizes.padding_small
     textPos = (leftPoint, topPoint, sizes.smallTextWidth, 0)
-    ST_addWODtext = StaticText(window,fonts.font_small,text,textPos,textAlignment)
-    ST_addWODtext.makeTextObject()
+    ST_addWODtext = StaticText(window,fonts.font_small,text,textPos,textAlignment)     
 
     rightMostPoint = leftPoint + sizes.smallTextWidth
     lowestPoint = max(lowestPoint,topPoint+ST_addWODtext.positionAdjust[3])
+
+    # Make 'Reveal word definition' button and define its actions (clicked.connect)
+    text = 'Reveal word definition'      
+    position = (sizes.padding_large,lowestPoint+sizes.padding_large,0,0)
+    pushButton = PushButton(window,fonts.font_medium,text,position)     
+    revealButton = pushButton.makeButton()
+    revealButton.clicked.connect(makeTextWithMaxHeight.editText)    
+    revealButton.clicked.connect(lambda: toggle_addWOD.show())    
+    revealButton.clicked.connect(ST_addWODtext.makeTextObject)
+
+    lowestPoint = lowestPoint + pushButton.positionAdjust[2] + sizes.padding_large
 
     # Resize window
     window.resize(int(rightMostPoint+sizes.padding_large), int(lowestPoint+sizes.padding_large))

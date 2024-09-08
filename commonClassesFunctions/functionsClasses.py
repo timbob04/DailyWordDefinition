@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QFont, QTextDocument, QFontMetrics
-from PyQt5.QtWidgets import QLabel, QScrollArea 
+from PyQt5.QtWidgets import QLabel, QScrollArea, QPushButton
 from PyQt5.QtCore import Qt
 
 class Fonts:
@@ -65,15 +65,10 @@ class MakeTextWithMaxHeight:
         self.font = font
         self.textAlignment = textAlignment
         self.setWordWrap = True
+        self.textPos = None
         # Methods        
-        self.textHeight = self.getTextHeight()        
-        if self.textHeight > self.maxHeight:
-            self.textPos = (leftPos,topPos,width,self.maxHeight)
-            self.showText()
-            self.makeVerticalScrollBar()
-        else:
-            self.textPos = (leftPos,topPos,width,self.textHeight)
-            self.showText()                    
+        self.textHeight = self.getTextHeight()   
+        self.getTextPos()                   
 
     def getTextHeight(self):
         
@@ -101,6 +96,17 @@ class MakeTextWithMaxHeight:
         
         return height
     
+    def getTextPos(self):
+        if self.textHeight > self.maxHeight:
+            self.textPos = (self.leftPos,self.topPos,self.width,self.maxHeight)
+        else:
+            self.textPos = (self.leftPos,self.topPos,self.width,self.textHeight)
+
+    def makeText(self):
+        self.showText()
+        if self.textHeight > self.maxHeight:                    
+            self.makeVerticalScrollBar()               
+    
     def showText(self):
         self.textBox = QLabel(self.text,self.window)
         self.textBox.setWordWrap(self.setWordWrap) 
@@ -114,7 +120,10 @@ class MakeTextWithMaxHeight:
         self.scroll_area.setWidget(self.textBox)  
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)  
-        self.scroll_area.setGeometry(*(int(x) for x in self.textPos))    
+        self.scroll_area.setGeometry(*(int(x) for x in self.textPos))   
+
+    def editText(self):
+        self.textBox.setText(self.text)
 
 # Create static text boxes
 class StaticText:
@@ -158,4 +167,55 @@ class StaticText:
         textOb.setAlignment(self.textAlignment)
         textOb.setGeometry(*self.positionAdjust) 
         textOb.setStyleSheet(f"QLabel {{ color : {self.color}; }}")
+        textOb.show()
         return textOb
+    
+# Create a single line push button
+class PushButton:
+    def __init__(self, window, font, text, position):
+        # Input values
+        self.window = window
+        self.font = font
+        self.text = text        
+        self.position = position
+        # Default values
+        self.wordWrap = True
+        self.fontMetrics = QFontMetrics(font)        
+        self.positionAdjust = None
+        self.Vcenter = None
+        self.Hcenter = None
+        self.buttonPadding = 7        
+        self.textAlignment = Qt.AlignVCenter | Qt.TextWordWrap | Qt.AlignHCenter
+        # Constructor functions
+        self.getActualPosition()
+        self.getVandHcenter()
+
+    def getActualPosition(self):
+        if self.position[2] == 0: # if width given
+            text_width = self.fontMetrics.horizontalAdvance(self.text)             
+        else:
+            text_width = self.position[2]              
+        text_height = self.fontMetrics.height()                
+        self.positionAdjust = [int(self.position[0]), int(self.position[1]), \
+                                int(text_width+self.buttonPadding*2), int(text_height+self.buttonPadding*2)]
+
+    def getVandHcenter(self):
+        self.Hcenter = self.positionAdjust[0] + self.positionAdjust[2]/2
+        self.Vcenter = self.positionAdjust[1] + self.positionAdjust[3]/2
+
+    def centerAlign_V(self):
+        self.positionAdjust[1] = int(self.positionAdjust[1] - self.positionAdjust[3]/2)
+
+    def centerAlign_H(self):
+        self.positionAdjust[0] = int(self.positionAdjust[0] - self.positionAdjust[2]/2)
+
+    def rightAlign(self,rightPoint):
+        diff = (self.positionAdjust[0] + self.positionAdjust[2]) - rightPoint 
+        self.positionAdjust[0] = self.positionAdjust[0] - diff
+            
+    def makeButton(self):
+        button = QPushButton(self.text, self.window)
+        button.setGeometry(*(int(x) for x in self.positionAdjust))    
+        button.setFont(self.font)
+        button.setStyleSheet("QPushButton { text-align: center }")
+        return button       

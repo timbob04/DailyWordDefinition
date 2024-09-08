@@ -9,21 +9,21 @@
     {
         "word": "aberration",
         "definition": "A departure from what is normal, usual, or expected, typically one that is unwelcome. A departure from what is normal, usual, or expected, typically one that is unwelcome. A departure from what is normal, usual, or expected, typically one that is unwelcome. A departure from what is normal, usual, or expected, typically one that is unwelcome. A departure from what is normal, usual, or expected, typically one that is unwelcome.",
-        "WOD_shown": false,
+        "WOD_shown": true,
         "is_ROD": false,
         "ROD_shown": false
     },
     {
         "word": "quixotic",
         "definition": "Exceedingly idealistic; unrealistic and impractical.",
-        "WOD_shown": false,
+        "WOD_shown": true,
         "is_ROD": true,
-        "ROD_shown": true
+        "ROD_shown": false
     },
     {
         "word": "entropy",
         "definition": "A measure of the disorder or randomness in a system.",
-        "WOD_shown": false,
+        "WOD_shown": true,
         "is_ROD": false,
         "ROD_shown": true
     },
