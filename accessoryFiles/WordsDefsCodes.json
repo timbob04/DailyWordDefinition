@@ -3,35 +3,35 @@
         "word": "ubiquitous",
         "definition": "Present, appearing, or found everywhere.",
         "WOD_shown": true,
-        "is_ROD": true,
-        "ROD_shown": true
+        "is_POD": true,
+        "POD_shown": true
     },
     {
         "word": "aberration",
         "definition": "A departure from what is normal, usual, or expected, typically one that is unwelcome. A departure from what is normal, usual, or expected, typically one that is unwelcome. A departure from what is normal, usual, or expected, typically one that is unwelcome. A departure from what is normal, usual, or expected, typically one that is unwelcome. A departure from what is normal, usual, or expected, typically one that is unwelcome.",
         "WOD_shown": true,
-        "is_ROD": false,
-        "ROD_shown": false
+        "is_POD": false,
+        "POD_shown": false
     },
     {
         "word": "quixotic",
-        "definition": "Exceedingly idealistic; unrealistic and impractical.",
+        "definition": "Exceedingly idealistic",
         "WOD_shown": true,
-        "is_ROD": true,
-        "ROD_shown": false
+        "is_POD": true,
+        "POD_shown": false
     },
     {
         "word": "entropy",
         "definition": "A measure of the disorder or randomness in a system.",
         "WOD_shown": true,
-        "is_ROD": false,
-        "ROD_shown": true
+        "is_POD": false,
+        "POD_shown": true
     },
     {
         "word": "aesthetic",
-        "definition": "Concerned with beauty or the appreciation of beauty.",
+        "definition": "Concerned",
         "WOD_shown": false,
-        "is_ROD": true,
-        "ROD_shown": false
+        "is_POD": true,
+        "POD_shown": false
     }
 ]

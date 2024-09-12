@@ -7,6 +7,8 @@ class Fonts:
         # Initialize fonts
         self.font_tiny = None
         self.font_small = None
+        self.font_small_italic = None
+        self.font_small_italic_bold = None
         self.font_medium = None
         self.font_large = None
         self.font_large_bold = None
@@ -16,6 +18,8 @@ class Fonts:
     def makeFonts(self):
         self.font_tiny = QFont(self.fontFamily, 8, QFont.Normal, False)
         self.font_small = QFont(self.fontFamily, 9, QFont.Normal, False)
+        self.font_small_italic = QFont(self.fontFamily, 9, QFont.Normal, True)
+        self.font_small_italic_bold = QFont(self.fontFamily, 9, QFont.Bold, True)
         self.font_medium = QFont(self.fontFamily, 11, QFont.Normal, False)
         self.font_large = QFont(self.fontFamily, 17, QFont.Normal, False)    
         self.font_large_bold = QFont(self.fontFamily, 17, QFont.Bold, False)
@@ -101,6 +105,9 @@ class MakeTextWithMaxHeight:
             self.textPos = (self.leftPos,self.topPos,self.width,self.maxHeight)
         else:
             self.textPos = (self.leftPos,self.topPos,self.width,self.textHeight)
+
+    def centerH(self):
+            self.textPos = (self.textPos[0] - (self.width / 2), self.textPos[1],self.textPos[2],self.textPos[3])
 
     def makeText(self):
         self.showText()
