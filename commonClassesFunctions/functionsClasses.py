@@ -10,6 +10,7 @@ class Fonts:
         self.font_small_italic = None
         self.font_small_italic_bold = None
         self.font_medium = None
+        self.font_mediumLarge = None
         self.font_large = None
         self.font_large_bold = None
         # Default values
@@ -21,6 +22,7 @@ class Fonts:
         self.font_small_italic = QFont(self.fontFamily, 9, QFont.Normal, True)
         self.font_small_italic_bold = QFont(self.fontFamily, 9, QFont.Bold, True)
         self.font_medium = QFont(self.fontFamily, 11, QFont.Normal, False)
+        self.font_mediumLarge = QFont(self.fontFamily, 14, QFont.Normal, False)
         self.font_large = QFont(self.fontFamily, 17, QFont.Normal, False)    
         self.font_large_bold = QFont(self.fontFamily, 17, QFont.Bold, False)
 

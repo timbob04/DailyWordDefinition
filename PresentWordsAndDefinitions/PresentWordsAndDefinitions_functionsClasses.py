@@ -16,11 +16,11 @@ class Sizes_presentWODAPI:
         self.padding_small = 5
         self.padding_medium = 10
         self.padding_large = 20
-        self.WODwidth = 450
+        self.WODwidth = 400
         self.maxWODheight = 200
-        self.smallTextWidth = 80
+        self.smallTextWidth = 120
         self.width_toggle = 22
-        self.PODwidth = self.WODwidth * 0.7
+        self.PODwidth = self.WODwidth * 0.8
         self.maxPODheight = 150
 
 
@@ -171,6 +171,12 @@ def addWODtogglePressed(h_toggle,toggleChoicesClass):
         toggleChoicesClass.addWOD = True
     else:
         toggleChoicesClass.addWOD = False    
+
+def remPODtogglePressed(h_toggle,toggleChoicesClass):
+    if h_toggle.isChecked():
+        toggleChoicesClass.remPriorityWOD = True
+    else:
+        toggleChoicesClass.remPriorityWOD = False    
         
         
 
