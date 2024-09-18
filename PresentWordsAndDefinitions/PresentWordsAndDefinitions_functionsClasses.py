@@ -131,8 +131,7 @@ class PODandDef():
 
     def areAllPODshown(self):
         self.allPODshown = all(self.dataIn[i]['POD_shown'] for i in self.PODpositions)
-        
-    
+            
     def getPODposAndUpdateList(self):
         if self.allPODshown:
             # Get position of first is_POD    
@@ -162,21 +161,43 @@ class PODandDef():
         return self.POD, self.definition      
 
 class ToggleChoices:
-    def __init__(self):
+    def __init__(self, jsonData, jsonFilePath, WODob, PODob):
+        self.jsonData = jsonData
+        self.jsonFilePath = jsonFilePath
+        self.WODob = WODob
+        self.PODob = PODob
         self.addWOD = False
-        self.remPriorityWOD = False
+        self.remPriorityWOD = False        
 
-def addWODtogglePressed(h_toggle,toggleChoicesClass):
-    if h_toggle.isChecked():
-        toggleChoicesClass.addWOD = True
-    else:
-        toggleChoicesClass.addWOD = False    
+    def addWODtogglePressed(self,h_toggle):
+        if h_toggle.isChecked():
+            self.addWOD = True
+        else:
+            self.addWOD = False    
 
-def remPODtogglePressed(h_toggle,toggleChoicesClass):
-    if h_toggle.isChecked():
-        toggleChoicesClass.remPriorityWOD = True
-    else:
-        toggleChoicesClass.remPriorityWOD = False    
+    def remPODtogglePressed(self,h_toggle):
+        if h_toggle.isChecked():
+            self.remPriorityWOD = True
+        else:
+            self.remPriorityWOD = False   
+
+    def saveToggleChoices(self):
+        # Determine if WOD is now a POD and save choice - for the WOD, change its 'is_POD'
+        if self.addWOD:
+            self.jsonData[self.WODob.positionOfWOD]['is_POD'] = True
+        else:
+            self.jsonData[self.WODob.positionOfWOD]['is_POD'] = False
+        # Determine if POD is now not a POD, and save choices - for the POD, change its 'is_POD'
+        if self.remPriorityWOD:
+            self.jsonData[self.PODob.positionOfPOD]['is_POD'] = False
+        else:
+            self.jsonData[self.PODob.positionOfPOD]['is_POD'] = True    
+        # Save changes to json file
+        with open(self.jsonFilePath, 'w') as file:
+            json.dump(self.jsonData, file, indent=4)      
+
+
+                     
         
         
 

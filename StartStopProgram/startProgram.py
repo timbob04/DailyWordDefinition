@@ -120,10 +120,10 @@ def startProgram():
 
     # Start button
     text = 'Start'
-    position = (rightMostPoint_startupText+sizes.padding_large, centerV_toggleButton, 0, 0)
+    position = (rightMostPoint_topRow, centerV_toggleButton, 0, 0)
     PB_start = PushButton(window,fonts.font_large_bold,text,position)
     PB_start.centerAlign_V()
-    PB_start.rightAlign(rightMostPoint_topRow)
+    PB_start.rightAlign()
     button_start = PB_start.makeButton()
     button_start.clicked.connect(lambda: startButtonPressed(window,checkTimeEntered,ET_hours.text(),ET_mins.text(),toggle_startup,getAndShowStartupFolder))
 

@@ -7,18 +7,13 @@
 
 import os
 
-from .PresentWordsAndDefinitions_functionsClasses import readJSONfile, WODandDef, PODandDef, Sizes_presentWODAPI, ToggleChoices, addWODtogglePressed, remPODtogglePressed
+from .PresentWordsAndDefinitions_functionsClasses import readJSONfile, WODandDef, PODandDef, Sizes_presentWODAPI, ToggleChoices
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox
 import sys
 
 from commonClassesFunctions.functionsClasses import Fonts, MakeTextWithMaxHeight, centerWindowOnScreen, StaticText, PushButton
-
-
-
-
- 
 
 def main():
 
@@ -46,7 +41,7 @@ def main():
 
     # Get ROD and its definition (and update JSON file accordingly)
     curPODandDef = PODandDef(data, curFilePath)
-    POD, POD_definition = curPODandDef.getAndreturnPOD()
+    POD, POD_definition = curPODandDef.getAndreturnPOD()    
  
     print(f"WOD is: {WOD}.  Def is: {WOD_definition}")
     print(f"POD is: {POD}.  Def is: {POD_definition}")
@@ -71,8 +66,8 @@ def main():
     lowestPoint = sizes.padding_large + makeTextWithMaxHeight_WOD.textPos[3]  
     centerH_WOD = makeTextWithMaxHeight_WOD.textPos[0] + ( makeTextWithMaxHeight_WOD.textPos[2] / 2 ) 
 
-    # Class to save the toggle button choices
-    toggleChoices = ToggleChoices()
+    # Class to save the toggle button choices (for updating the 'is_POD' status in the json file)
+    toggleChoices = ToggleChoices(data,curFilePath,curWODandDef,curPODandDef)    
 
     # Toggle button - add WOD to priority word list
     toggle_addWOD = QCheckBox('', window)
@@ -83,7 +78,7 @@ def main():
     toggle_addWOD.setStyleSheet(f"QCheckBox::indicator {{ width: {sizes.width_toggle}px; height: {sizes.width_toggle}px; }}")
     toggle_addWOD.setChecked(False)
     toggle_addWOD.hide()
-    toggle_addWOD.clicked.connect(lambda: addWODtogglePressed(toggle_addWOD,toggleChoices))
+    toggle_addWOD.clicked.connect(lambda: toggleChoices.addWODtogglePressed(toggle_addWOD))
 
     centerH = textPos[0] + ( textPos[2] / 2 )
     leftPoint_toggleWOD = leftPoint
@@ -93,24 +88,12 @@ def main():
     textAlignment = Qt.AlignCenter | Qt.AlignTop | Qt.TextWordWrap       
     topPoint = topPoint + sizes.width_toggle + sizes.padding_small
     textPos = (centerH, topPoint, sizes.smallTextWidth, 0)
-    ST_addWODtext = StaticText(window,fonts.font_small,text,textPos,textAlignment)     
+    ST_addWODtext = StaticText(window,fonts.font_tiny,text,textPos,textAlignment)     
     ST_addWODtext.centerAlign_H()
 
-    rightMostPoint = centerH + sizes.smallTextWidth
+    rightMostPoint = centerH + (sizes.smallTextWidth/2)
     lowestPoint = max(lowestPoint,topPoint+ST_addWODtext.positionAdjust[3])
     rightMostPoint_top = rightMostPoint
-
-    # Make 'Reveal word definition' button and define its actions (clicked.connect)
-    text = 'Reveal word definition'      
-    position = (sizes.padding_large,lowestPoint+sizes.padding_large,0,0)
-    pushButton = PushButton(window,fonts.font_medium,text,position)     
-    revealButton = pushButton.makeButton()
-    # Actions for when the reveal button is pressed (more for other text/buttons/etc defined below)
-    revealButton.clicked.connect(makeTextWithMaxHeight_WOD.editText) # reveal the WOD and its defintion
-    revealButton.clicked.connect(lambda: toggle_addWOD.show()) # reveal toggle to add WOD to priority words    
-    revealButton.clicked.connect(ST_addWODtext.makeTextObject) # reeal text for the add WOD toggle
-
-    lowestPoint = lowestPoint + pushButton.positionAdjust[3] + sizes.padding_large  
 
     # Print the priority word title
     text = 'Priority word of day'
@@ -118,8 +101,7 @@ def main():
     topPoint = lowestPoint + sizes.padding_large
     textPos = (centerH_WOD, topPoint, sizes.PODwidth, 0)
     ST_PODtitle = StaticText(window,fonts.font_small_italic_bold,text,textPos,textAlignment)     
-    ST_PODtitle.centerAlign_H()
-    revealButton.clicked.connect(ST_PODtitle.makeTextObject)    
+    ST_PODtitle.centerAlign_H()    
 
     lowestPoint = ST_PODtitle.positionAdjust[1] + ST_PODtitle.positionAdjust[3]
     topPoint_PODtitle = topPoint
@@ -136,7 +118,6 @@ def main():
     makeTextWithMaxHeight_POD.text = ""
     makeTextWithMaxHeight_POD.makeText()
     makeTextWithMaxHeight_POD.text = text
-    revealButton.clicked.connect(makeTextWithMaxHeight_POD.editText)    
 
     lowestPoint = lowestPoint + makeTextWithMaxHeight_POD.textPos[3]    
     rightMostPoint = makeTextWithMaxHeight_POD.textPos[0] + makeTextWithMaxHeight_POD.textPos[2]
@@ -150,28 +131,47 @@ def main():
     toggle_remPOD.setStyleSheet(f"QCheckBox::indicator {{ width: {sizes.width_toggle}px; height: {sizes.width_toggle}px; }}")
     toggle_remPOD.setChecked(False)
     toggle_remPOD.hide()
-    toggle_remPOD.clicked.connect(lambda: remPODtogglePressed(toggle_remPOD,toggleChoices))
-    revealButton.clicked.connect(lambda: toggle_remPOD.show())
+    toggle_remPOD.clicked.connect(lambda: toggleChoices.remPODtogglePressed(toggle_remPOD))    
 
     centerH = textPos[0] + (textPos[2] / 2)
 
     # Toggle button text - Rem POD
-    text = 'Remove word from priority word list'
+    text = 'Remove priority word from priority word list'
     textAlignment = Qt.AlignCenter | Qt.AlignTop | Qt.TextWordWrap   
     topPoint = topPoint + sizes.width_toggle + sizes.padding_small
     textPos = (centerH, topPoint, sizes.smallTextWidth, 0)
-    ST_remPODtext = StaticText(window,fonts.font_small,text,textPos,textAlignment) 
-    ST_remPODtext.centerAlign_H()
-    # ST_remPODtext.makeTextObject()
-    revealButton.clicked.connect(ST_remPODtext.makeTextObject)
+    ST_remPODtext = StaticText(window,fonts.font_tiny,text,textPos,textAlignment) 
+    ST_remPODtext.centerAlign_H()        
 
-    rightMostPoint = leftPoint + sizes.smallTextWidth
+    rightMostPoint = centerH + (sizes.smallTextWidth/2)
     lowestPoint = max(lowestPoint,ST_remPODtext.positionAdjust[1]+ST_remPODtext.positionAdjust[3])
 
+    # Make 'Reveal word definition' button and define its actions (clicked.connect)
+    text = 'Reveal word definition'      
+    position = (sizes.padding_large,lowestPoint+sizes.padding_large,0,0)
+    pushButton_reveal = PushButton(window,fonts.font_medium,text,position)     
+    revealButton = pushButton_reveal.makeButton()
+    # Actions for when the reveal button is pressed (more for other text/buttons/etc defined below)
+    revealButton.clicked.connect(makeTextWithMaxHeight_WOD.editText) # reveal the WOD and its defintion
+    revealButton.clicked.connect(lambda: toggle_addWOD.show()) # reveal toggle to add WOD to priority words    
+    revealButton.clicked.connect(ST_addWODtext.makeTextObject) # reeal text for the add WOD toggle
+    revealButton.clicked.connect(ST_PODtitle.makeTextObject)    
+    revealButton.clicked.connect(makeTextWithMaxHeight_POD.editText)  
+    revealButton.clicked.connect(lambda: toggle_remPOD.show())  
+    revealButton.clicked.connect(ST_remPODtext.makeTextObject)
+    
+    # Make 'Reveal word definition' button and define its actions (clicked.connect)
+    text = 'Save choices'      
+    position = (centerH,lowestPoint+sizes.padding_large,0,0)
+    pushButton_saveChoices = PushButton(window,fonts.font_medium,text,position)     
+    pushButton_saveChoices.centerAlign_H()
+    saveChoicesButton = pushButton_saveChoices.makeButton() 
+    saveChoicesButton.clicked.connect(toggleChoices.saveToggleChoices)   
 
-    rightMostPoint_bottom = rightMostPoint
+    lowestPoint = lowestPoint + pushButton_reveal.positionAdjust[3] + sizes.padding_large  
+
+    rightMostPoint_bottom = max(rightMostPoint,pushButton_saveChoices.positionAdjust[0]+pushButton_saveChoices.positionAdjust[2])
     rightMostPoint_all = max(rightMostPoint_top,rightMostPoint_bottom) 
-
 
     # Resize window
     window.resize(int(rightMostPoint_all+sizes.padding_large), int(lowestPoint+sizes.padding_large))

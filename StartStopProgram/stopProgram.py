@@ -115,9 +115,9 @@ def stopProgram():
 
     # Ok button
     text = 'Ok'
-    position = (rightMostPoint+sizes.padding_large, lowestPoint, 0, 0)
+    position = (rightMostPoint_topRow, lowestPoint, 0, 0)
     PB_Ok = PushButton(window,fonts.font_large,text,position)
-    PB_Ok.rightAlign(rightMostPoint_topRow)
+    PB_Ok.rightAlign()
     button_Ok = PB_Ok.makeButton()
     button_Ok.clicked.connect(lambda: OkButtonPressed(window,checkTimeEntered,toggle_stopProgram,ET_hours.text(),ET_mins.text()))
 

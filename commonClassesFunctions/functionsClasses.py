@@ -218,9 +218,8 @@ class PushButton:
     def centerAlign_H(self):
         self.positionAdjust[0] = int(self.positionAdjust[0] - self.positionAdjust[2]/2)
 
-    def rightAlign(self,rightPoint):
-        diff = (self.positionAdjust[0] + self.positionAdjust[2]) - rightPoint 
-        self.positionAdjust[0] = self.positionAdjust[0] - diff
+    def rightAlign(self):
+        self.positionAdjust[0] = self.positionAdjust[0] - self.positionAdjust[2]        
             
     def makeButton(self):
         button = QPushButton(self.text, self.window)
