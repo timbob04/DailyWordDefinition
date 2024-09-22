@@ -40,14 +40,14 @@ class WODandDef():
         # Class variables
         self.allWordsPrevShown = None
         self.positionOfWOD = None
-        self.WOD = None
-        self.definition = None
+        self.WOD = "Currently no words/definitions.  Add some using the add/edit word API"
+        self.definition = ""
         self.dataExists = False
-        self.WODpresent = None
+        self.WODpresent = False
         # Methods on initiation
         self.doesDataExist()
         if self.dataExists:
-            self.areWordsPreset()
+            self.areWordsPresent()
         if self.WODpresent:   
             self.areAllWordsPrevShown() # if yes, go back to start of list
             self.getWODpositionAndUpdateList()
@@ -56,7 +56,7 @@ class WODandDef():
     def doesDataExist(self):    
         self.dataExists = not (self.dataIn is None)
 
-    def areWordsPreset(self):
+    def areWordsPresent(self):
         wordPresent = any(word['word'] for word in self.dataIn)
         defPresent = any(word['definition'] for word in self.dataIn)
         WODshownPresent = any(word['WOD_shown'] for word in self.dataIn)
@@ -103,8 +103,7 @@ class PODandDef():
         self.PODpresent = False
         self.allPODshown = False
         self.positionOfPOD = None
-        self.POD = None
-        self.definition = None
+        self.PODandDef = "Currently no priority words"        
         # Methods on initiation
         self.doesDataExist()
         if self.dataExists:
@@ -113,9 +112,7 @@ class PODandDef():
             self.getPODpositions()
             self.areAllPODshown()
             self.getPODposAndUpdateList()
-            self.updateJSONfile()
-        else:
-            self.POD = "Currently no priority words"
+            self.updateJSONfile()        
 
     def doesDataExist(self):    
         self.dataExists = not (self.dataIn is None)        
@@ -156,9 +153,10 @@ class PODandDef():
 
     def getAndreturnPOD(self): 
         if self.PODpresent:
-            self.POD = self.dataIn[self.positionOfPOD]['word']
-            self.definition = self.dataIn[self.positionOfPOD]['definition']
-        return self.POD, self.definition      
+            POD = self.dataIn[self.positionOfPOD]['word']
+            definition = self.dataIn[self.positionOfPOD]['definition']            
+            self.PODandDef = POD + ": " + definition
+        return self.PODandDef
 
 class ToggleChoices:
     def __init__(self, jsonData, jsonFilePath, WODob, PODob):

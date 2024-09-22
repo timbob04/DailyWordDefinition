@@ -20,7 +20,7 @@ def main():
     # Make window
     app = QApplication(sys.argv)    
     window = QMainWindow()    
-    window.setWindowTitle('Program not currently running')
+    window.setWindowTitle('Word of the day')
 
     # Predefined sizes of things
     sizes = Sizes_presentWODAPI()
@@ -29,7 +29,7 @@ def main():
     # Get path of accessory files
     base_dir = os.path.dirname(os.path.abspath(__file__))
     accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
-    # Write time to run program to .txt file
+    # Path to json file for words and definitions
     curFilePath = os.path.join(accessoryFiles_dir, 'WordsDefsCodes.json')
 
     # Read WordsDefsCodes.json
@@ -38,29 +38,33 @@ def main():
     # Get WOD and its definition (and update JSON file accordingly)
     curWODandDef = WODandDef(data, curFilePath)
     WOD, WOD_definition = curWODandDef.getAndreturnWOD()
-
-    # Get ROD and its definition (and update JSON file accordingly)
+    
+    # Get POD and its definition (and update JSON file accordingly)
     curPODandDef = PODandDef(data, curFilePath)
-    POD, POD_definition = curPODandDef.getAndreturnPOD()    
- 
-    print(f"WOD is: {WOD}.  Def is: {WOD_definition}")
-    print(f"POD is: {POD}.  Def is: {POD_definition}")
+    PODwithDef = curPODandDef.getAndreturnPOD()    
+
+    # Are the WOD and POD the same?
+    PODisWOD = PODwithDef[:len(WOD)] == WOD    
 
     fonts = Fonts()
     fonts.makeFonts()
 
     # Get the text height for the WOD and its definition
     textAlignment = Qt.AlignLeft | Qt.AlignTop 
-    text = WOD + ": " + WOD_definition 
-    makeTextWithMaxHeight_WOD = MakeTextWithMaxHeight(window,text,sizes.padding_large, \
+    WODwithDef = WOD + ": " + WOD_definition
+    if curWODandDef.WODpresent: # if there is a word present
+        text = WOD + ": "
+    else:
+        text = WOD
+    makeTextWithMaxHeight_WOD = MakeTextWithMaxHeight(window,WODwithDef,sizes.padding_large, \
                                                   sizes.padding_large,sizes.WODwidth, \
                                                   sizes.maxWODheight,fonts.font_mediumLarge,\
                                                     textAlignment)     
     # Make the text using the WOD without definition to start
-    makeTextWithMaxHeight_WOD.text = WOD + ": "
+    makeTextWithMaxHeight_WOD.text = text
     makeTextWithMaxHeight_WOD.makeText()
     # Adjust the text inside makeTextWithMaxHeight_WOD for chaning later when the reveal button is pressed
-    makeTextWithMaxHeight_WOD.text = WOD + ": " + WOD_definition
+    makeTextWithMaxHeight_WOD.text = WODwithDef
     
     rightMostPoint = sizes.padding_large + sizes.WODwidth
     lowestPoint = sizes.padding_large + makeTextWithMaxHeight_WOD.textPos[3]  
@@ -77,6 +81,8 @@ def main():
     toggle_addWOD.setGeometry(*(int(x) for x in textPos))
     toggle_addWOD.setStyleSheet(f"QCheckBox::indicator {{ width: {sizes.width_toggle}px; height: {sizes.width_toggle}px; }}")
     toggle_addWOD.setChecked(False)
+    if PODisWOD:
+        toggle_addWOD.setEnabled(False)
     toggle_addWOD.hide()
     toggle_addWOD.clicked.connect(lambda: toggleChoices.addWODtogglePressed(toggle_addWOD))
 
@@ -90,6 +96,10 @@ def main():
     textPos = (centerH, topPoint, sizes.smallTextWidth, 0)
     ST_addWODtext = StaticText(window,fonts.font_tiny,text,textPos,textAlignment)     
     ST_addWODtext.centerAlign_H()
+    toggleText_addWOD = ST_addWODtext.makeTextObject()
+    toggleText_addWOD.hide()
+    if PODisWOD:
+        toggleText_addWOD.setStyleSheet("color: gray;")
 
     rightMostPoint = centerH + (sizes.smallTextWidth/2)
     lowestPoint = max(lowestPoint,topPoint+ST_addWODtext.positionAdjust[3])
@@ -98,7 +108,7 @@ def main():
     # Print the priority word title
     text = 'Priority word of day'
     textAlignment = Qt.AlignCenter    
-    topPoint = lowestPoint + sizes.padding_large
+    topPoint = lowestPoint + (sizes.padding_large*2)
     textPos = (centerH_WOD, topPoint, sizes.PODwidth, 0)
     ST_PODtitle = StaticText(window,fonts.font_small_italic_bold,text,textPos,textAlignment)     
     ST_PODtitle.centerAlign_H()    
@@ -108,7 +118,7 @@ def main():
 
     # Print the priority word
     textAlignment = Qt.AlignHCenter | Qt.AlignTop 
-    text = POD + ": " + POD_definition  
+    text = PODwithDef
     makeTextWithMaxHeight_POD = MakeTextWithMaxHeight(window,text,centerH_WOD, \
                                                   lowestPoint + sizes.padding_small,sizes.PODwidth, \
                                                   sizes.maxPODheight,fonts.font_small_italic,\
@@ -148,13 +158,15 @@ def main():
 
     # Make 'Reveal word definition' button and define its actions (clicked.connect)
     text = 'Reveal word definition'      
-    position = (sizes.padding_large,lowestPoint+sizes.padding_large,0,0)
+    position = (sizes.padding_large,lowestPoint+(sizes.padding_large*2),0,0)
     pushButton_reveal = PushButton(window,fonts.font_medium,text,position)     
     revealButton = pushButton_reveal.makeButton()
+    if not curWODandDef.WODpresent:
+        revealButton.setEnabled(False)
     # Actions for when the reveal button is pressed (more for other text/buttons/etc defined below)
     revealButton.clicked.connect(makeTextWithMaxHeight_WOD.editText) # reveal the WOD and its defintion
     revealButton.clicked.connect(lambda: toggle_addWOD.show()) # reveal toggle to add WOD to priority words    
-    revealButton.clicked.connect(ST_addWODtext.makeTextObject) # reeal text for the add WOD toggle
+    revealButton.clicked.connect(lambda: toggleText_addWOD.show()) # reeal text for the add WOD toggle
     revealButton.clicked.connect(ST_PODtitle.makeTextObject)    
     revealButton.clicked.connect(makeTextWithMaxHeight_POD.editText)  
     revealButton.clicked.connect(lambda: toggle_remPOD.show())  
@@ -162,13 +174,15 @@ def main():
     
     # Make 'Reveal word definition' button and define its actions (clicked.connect)
     text = 'Save choices'      
-    position = (centerH,lowestPoint+sizes.padding_large,0,0)
+    position = (centerH,lowestPoint+(sizes.padding_large*2),0,0)
     pushButton_saveChoices = PushButton(window,fonts.font_medium,text,position)     
     pushButton_saveChoices.centerAlign_H()
     saveChoicesButton = pushButton_saveChoices.makeButton() 
+    saveChoicesButton.hide()
     saveChoicesButton.clicked.connect(toggleChoices.saveToggleChoices)   
+    revealButton.clicked.connect(saveChoicesButton.show)
 
-    lowestPoint = lowestPoint + pushButton_reveal.positionAdjust[3] + sizes.padding_large  
+    lowestPoint = lowestPoint + pushButton_reveal.positionAdjust[3] + (sizes.padding_large*2)
 
     rightMostPoint_bottom = max(rightMostPoint,pushButton_saveChoices.positionAdjust[0]+pushButton_saveChoices.positionAdjust[2])
     rightMostPoint_all = max(rightMostPoint_top,rightMostPoint_bottom) 
