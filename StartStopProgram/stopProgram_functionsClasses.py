@@ -71,7 +71,7 @@ class CheckTimeEntered():
     def showOrHideText(self):
         if not self.OkbuttonPressed: # don't do anything if Ok button not pressed yet
             return
-        if self.correctYN_both | self.stopToggleState: # hide text if both HH and MM correct, or 'Stop program' toggle checked
+        if self.correctYN_both or self.stopToggleState: # hide text if both HH and MM correct, or 'Stop program' toggle checked
             self.handleText.hide()
         else:
             self.handleText.show() # otherwise show text

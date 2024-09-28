@@ -23,15 +23,6 @@ class Sizes_presentWODAPI:
         self.PODwidth = self.WODwidth * 0.8
         self.maxPODheight = 150
 
-
-def readJSONfile(filepath):
-    try:
-        with open(filepath, 'r') as file:
-            data = json.load(file)
-            return data
-    except (json.JSONDecodeError, FileNotFoundError, IOError):
-        return None
-
 class WODandDef():
     def __init__(self,dataIn,fileName):
         # Inputs
@@ -54,13 +45,12 @@ class WODandDef():
             self.updateJSONfile()
 
     def doesDataExist(self):    
-        self.dataExists = not (self.dataIn is None)
+        self.dataExists = not (self.dataIn is None) and len(self.dataIn) > 0
 
     def areWordsPresent(self):
         wordPresent = any(word['word'] for word in self.dataIn)
-        defPresent = any(word['definition'] for word in self.dataIn)
-        WODshownPresent = any(word['WOD_shown'] for word in self.dataIn)
-        self.WODpresent = wordPresent & defPresent & WODshownPresent
+        defPresent = any(word['definition'] for word in self.dataIn)        
+        self.WODpresent = wordPresent and defPresent
 
     def areAllWordsPrevShown(self):
         # Check to see if the entire list of words has been presented (for this round)
@@ -115,7 +105,7 @@ class PODandDef():
             self.updateJSONfile()        
 
     def doesDataExist(self):    
-        self.dataExists = not (self.dataIn is None)        
+        self.dataExists = not (self.dataIn is None) and len(self.dataIn) > 0   
 
     def isPODpresent(self):
         self.PODpresent = any(word['is_POD'] for word in self.dataIn)
@@ -137,10 +127,13 @@ class PODandDef():
             for i in self.PODpositions[1:]: 
                 self.dataIn[i]['POD_shown'] = False            
         else:
-            # Get position of current is_POD (first with False in POD_shown)
-            self.positionOfPOD = self.firstFalsePos_POD()            
-            # Make the POD_shown at this position True
-            self.dataIn[self.positionOfPOD]['POD_shown'] = True
+            self.positionOfPOD = self.firstFalsePos_POD() # get the position of the first 'Pod_shown' is false
+            if self.positionOfPOD is not None:
+                # Make the POD_shown at this position True
+                self.dataIn[self.positionOfPOD]['POD_shown'] = True
+            else:
+                # Handle the case where no unshown POD is found (e.g., reset or log an error)
+                self.positionOfPOD = self.PODpositions[0]  # or other appropriate action
 
     def firstFalsePos_POD(self):    
         for i in self.PODpositions: 
@@ -192,7 +185,8 @@ class ToggleChoices:
             self.jsonData[self.PODob.positionOfPOD]['is_POD'] = True    
         # Save changes to json file
         with open(self.jsonFilePath, 'w') as file:
-            json.dump(self.jsonData, file, indent=4)      
+            json.dump(self.jsonData, file, indent=4)    
+
 
 
                      

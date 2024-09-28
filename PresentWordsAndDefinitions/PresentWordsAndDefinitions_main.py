@@ -1,19 +1,12 @@
-
-# Intial
-# Functions for:
-# 1) Getting the words and finding the right one - class, with methods getWOD and getROD
-# 2) Making the API
-# 3) Collecting any user input and adjusting the word/definition/code list
-
 import os
 
-from .PresentWordsAndDefinitions_functionsClasses import readJSONfile, WODandDef, PODandDef, Sizes_presentWODAPI, ToggleChoices
+from .PresentWordsAndDefinitions_functionsClasses import WODandDef, PODandDef, Sizes_presentWODAPI, ToggleChoices
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox
 import sys
 
-from commonClassesFunctions.functionsClasses import Fonts, MakeTextWithMaxHeight, centerWindowOnScreen, StaticText, PushButton
+from commonClassesFunctions.functionsClasses import Fonts, readJSONfile, MakeTextWithMaxHeight, centerWindowOnScreen, StaticText, PushButton
 
 def main():
 
@@ -38,6 +31,8 @@ def main():
     # Get WOD and its definition (and update JSON file accordingly)
     curWODandDef = WODandDef(data, curFilePath)
     WOD, WOD_definition = curWODandDef.getAndreturnWOD()
+
+    print(f"Screen size: {WOD} x {WOD_definition} pixels")
     
     # Get POD and its definition (and update JSON file accordingly)
     curPODandDef = PODandDef(data, curFilePath)
@@ -49,7 +44,7 @@ def main():
     fonts = Fonts()
     fonts.makeFonts()
 
-    # Get the text height for the WOD and its definition
+    # Make WOD and its definition - only reveals WOD until the reveal button is pressed
     textAlignment = Qt.AlignLeft | Qt.AlignTop 
     WODwithDef = WOD + ": " + WOD_definition
     if curWODandDef.WODpresent: # if there is a word present

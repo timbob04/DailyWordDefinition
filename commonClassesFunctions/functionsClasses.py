@@ -1,6 +1,7 @@
 from PyQt5.QtGui import QFont, QTextDocument, QFontMetrics
 from PyQt5.QtWidgets import QLabel, QScrollArea, QPushButton
 from PyQt5.QtCore import Qt
+import json
 
 class Fonts:
     def __init__(self):
@@ -227,3 +228,22 @@ class PushButton:
         button.setFont(self.font)
         button.setStyleSheet("QPushButton { text-align: center }")
         return button       
+    
+def getScreenWidthHeight(app):
+    # Get screen geometry
+    screen = app.primaryScreen()
+    screen_geometry = screen.availableGeometry()
+
+    # Get the screen width and height
+    width = screen_geometry.width()
+    height = screen_geometry.height()
+
+    return width, height    
+
+def readJSONfile(filepath):
+    try:
+        with open(filepath, 'r') as file:
+            data = json.load(file)
+            return data
+    except (json.JSONDecodeError, FileNotFoundError, IOError):
+        return None
