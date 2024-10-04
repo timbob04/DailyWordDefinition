@@ -147,7 +147,7 @@ class StaticText:
         # Default values
         self.wordWrap = True
         self.fontMetrics = QFontMetrics(font)  
-        self.color = 'black'
+        self.color = 'black'        
         # Initialize some variables
         self.positionAdjust = None
         self.Vcenter = None
@@ -176,7 +176,7 @@ class StaticText:
         textOb.setFont(self.font)
         textOb.setAlignment(self.textAlignment)
         textOb.setGeometry(*self.positionAdjust) 
-        textOb.setStyleSheet(f"QLabel {{ color : {self.color}; }}")
+        textOb.setStyleSheet(f"QLabel {{ color : {self.color}; }}")        
         textOb.show()
         return textOb
     
@@ -194,8 +194,8 @@ class PushButton:
         self.positionAdjust = None
         self.Vcenter = None
         self.Hcenter = None
-        self.buttonPadding = 7        
-        self.textAlignment = Qt.AlignVCenter | Qt.TextWordWrap | Qt.AlignHCenter
+        self.buttonPadding_H = 7
+        self.buttonPadding_V = 7                
         # Constructor functions
         self.getActualPosition()
         self.getVandHcenter()
@@ -207,7 +207,7 @@ class PushButton:
             text_width = self.position[2]              
         text_height = self.fontMetrics.height()                
         self.positionAdjust = [int(self.position[0]), int(self.position[1]), \
-                                int(text_width+self.buttonPadding*2), int(text_height+self.buttonPadding*2)]
+                                int(text_width+self.buttonPadding_H*2), int(text_height+self.buttonPadding_V*2)]
 
     def getVandHcenter(self):
         self.Hcenter = self.positionAdjust[0] + self.positionAdjust[2]/2
@@ -220,7 +220,13 @@ class PushButton:
         self.positionAdjust[0] = int(self.positionAdjust[0] - self.positionAdjust[2]/2)
 
     def rightAlign(self):
-        self.positionAdjust[0] = self.positionAdjust[0] - self.positionAdjust[2]        
+        self.positionAdjust[0] = self.positionAdjust[0] - self.positionAdjust[2] 
+
+    def setButtonPadding(self, padding_H, padding_V): # for adjusting the button padding
+        self.buttonPadding_H = padding_H
+        self.buttonPadding_V = padding_V
+        self.getActualPosition() 
+        self.getVandHcenter()      
             
     def makeButton(self):
         button = QPushButton(self.text, self.window)

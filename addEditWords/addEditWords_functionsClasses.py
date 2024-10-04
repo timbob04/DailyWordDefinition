@@ -1,4 +1,4 @@
-
+import json
 
 class Sizes_addEditWords:
     def __init__(self):
@@ -14,3 +14,25 @@ class Sizes_addEditWords:
         self.padding_large = 20
         self.APIwidth = 1400
         self.APIheight = 1000
+
+def addWordToJSONfile(fileName,data,QLineEditText_word,QLineEditText_Def):
+
+    # Get the word and definition from the QLineEdit text lines
+    newWord = QLineEditText_word.text()
+    newDef = QLineEditText_Def.text()
+
+    # Make the new word/def json entry
+    new_entry = {
+    "word": newWord,
+    "definition": newDef,
+    "WOD_shown": False,
+    "is_POD": False,
+    "POD_shown": False
+    }
+
+    # Append new word/def to current word/def json list
+    data.append(new_entry)
+
+    # Save new list with new word/def
+    with open(fileName, 'w') as file:
+        json.dump(data, file, indent=4)         
