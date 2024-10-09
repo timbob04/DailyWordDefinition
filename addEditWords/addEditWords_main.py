@@ -1,7 +1,7 @@
 import sys, os
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit
-from PyQt5.QtGui import QPainter, QPen
+from PyQt5.QtGui import QPainter, QPen, QFontMetrics
 
 from commonClassesFunctions.functionsClasses import centerWindowOnScreen, getScreenWidthHeight, Fonts, StaticText, readJSONfile, PushButton
 
@@ -16,39 +16,74 @@ class makeWordList:
     # For this above, make sure to save some space on the right for this appear
     # Also, I want to do this for the edit words section only, without including the 'Edit words' title, or the small 'Priority words' and 'Word: definition' titles
     # For this, I will use QScrollArea for this bottom section if the contents are too tall, or just regular coding (not QScrollArea) if not
-    def __init__(self,dataIn):
+    def __init__(self,dataIn,fonts,sizes,APIwidth):
         # Inputs
         self.dataIn = dataIn
-        # Predefined
+        self.fonts = fonts
+        self.sizes = sizes
+        self.APIwidth = APIwidth
+        # Predefined sizes
         self.Vspacing_wordDefs = 50 # the vertical spacing between each word/def
-        self.Hspacing_1 = 10 # horizontal spacing for the word/def lines - option 1
-        self.Hspacing_2 = 20 # horizontal spacing for the word/def lines - option 2
-        self.Hspacing_word = 100
+        self.Hspacing = 10 # horizontal spacing for the word/def lines    
+        self.textMaxWidth_PW = 40 # priority word title max with
+        self.buttonPadding = 7
+        # Predefined fonts
+        self.font_priortyWordTitle = fonts.font_small
+        self.font_deleteButton = fonts.font_mediumLarge   
+        self.font_wordAndDef = fonts.font_medium   
+        # Other
+        self.wordDefDetails = []  
+        self.numWordDefs = dataIn.len()
 
-    def getHorizontalSpacing(self):
-        print("Here figure out the horizontal spacing for each main area")    
-        # priority word toggle button (need to consider its title)
-        # Delete button - get its width (with button padding)
-        # Edit button - get its width (with button padding)
-        # Word width (predefined) - will need to decide what to do if longer than box (make this unilikely using the box size, and the word's fontsize)
-        # Definition box width (remaining left over)
-        # And all the horizontal spacing between these things (predefined)
-
-    def getAllWordDefs_oneLine(self):
-        print("Here get all the words and defs on one line for each word/def")    
+    def getHorizontalSpacing(self):        
+        # Priority word toggle title width and height
+        curText = "Priority word"
+        fontMetrics = QFontMetrics(self.font_priortyWordTitle)
+        bounding_rect = fontMetrics.boundingRect(0,0,int(self.textMaxWidth_PW),0, Qt.AlignCenter, curText)       
+        self.width_priorityWord = bounding_rect.width()
+        self.height_priorityWord = bounding_rect.height()
+        # Delete button width
+        curText = "Delete"
+        fontMetrics = QFontMetrics(self.font_deleteButton)
+        bounding_rect = fontMetrics.boundingRect(0,0,0,0, Qt.AlignCenter, curText)       
+        self.width_deleteButton = bounding_rect.width()        
+        # Edit button width
+        curText = "Edit"        
+        bounding_rect = fontMetrics.boundingRect(0,0,0,0, Qt.AlignCenter, curText)       
+        self.width_editButton = bounding_rect.width()   
+        # Width of everything apart from word/def box, from left to right
+        width_excludeWordDef = self.sizes.padding_large + self.width_priorityWord + \
+            self.Hspacing + self.width_deleteButton + self.Hspacing + self.width_editButton + \
+            self.Hspacing + self.sizes.padding_large
+        # Width of word and definition area
+        self.width_wordDef = self.APIwidth - width_excludeWordDef
+  
+    def putEachWordDefsInOneLine(self):        
+        for i in range(self.numWordDefs-1):
+            wordDetails = {
+                'wordAndDef': self.dataIn[i]["word"] + ": " + self.dataIn[i]["definition"]             
+            }
+        self.wordDefDetails.append(wordDetails)
 
     def wordDefHeights(self):
-        print("Here figure out the height of each word/def, and the total height of all word/defs (with the spacing between)")    
+        fontMetrics = QFontMetrics(self.font_wordAndDef)
+        for i in range(self.numWordDefs-1):
+            curText = self.wordDefDetails[i].wordAndDef
+            bounding_rect = fontMetrics.boundingRect(0,0,int(self.width_wordDef),0, Qt.AlignCenter, curText)       
+            self.wordDefDetails[i]['textHeight'] = bounding_rect.height()
 
     def makeWordDefList(self):
         print("Here I will make the word and def list with all the extras - delete buttons, etc")
-        # I will need to store a handle to each thing (toggle button, StaticText, etc).
-        # For this, I can use a widget to handle a single toggle/button/button/word/def entry for each word/def (chatGPT chat).
-        # The entries are 1) priority toggle button, delete button, edit button, word text, definition text
+        # For each thing (e.g., toggle button), I will need to collect its handle, and also its position.
+        # Store these things in self.wordDefDetails
+        # The position will be needed for later, when I have to move everything down after I add a new word/def (top part of API)
+        # The things I need to make for each row, and save a handle and positio for, are:
+        # the 1) priority toggle button, delete button, edit button, word and def text.
+        # One more thing... for the lowest point of each row, use either the edit (or delete) button bottom, or the text (whichever is lowest) 
+        # Start the next row using this value
 
     def updateListWithNewEntry(newWord,newDef):
         print("Here update the list, putting the new word/def at the top")
-
 
 def main():
 

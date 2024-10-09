@@ -1,15 +1,29 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Current File",
+            "name": "Debug an API",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
+            "module": "addEditWords.addEditWords_main",  // Main module
+            "cwd": "${workspaceFolder}",  // Working directory
+            "justMyCode": false  // Allows debugging external libraries if needed
+        },
+        {
+            "name": "Debug another API",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "PresentWordsAndDefinitions.PresentWordsAndDefinitions_main",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "Debug another API",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "StartStopProgram.StartStopProgram_main",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
         }
     ]
 }
