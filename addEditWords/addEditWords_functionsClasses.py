@@ -7,6 +7,7 @@ class Sizes_addEditWords:
         self.padding_large = None
         self.APIwidth = None
         self.APIheight = None
+        self.width_toggle = None
 
     def defineSizes(self):
         self.padding_small = 5
@@ -14,6 +15,7 @@ class Sizes_addEditWords:
         self.padding_large = 20
         self.APIwidth = 1400
         self.APIheight = 1000
+        self.width_toggle = 22
 
 def addWordToJSONfile(fileName,data,QLineEditText_word,QLineEditText_Def):
 

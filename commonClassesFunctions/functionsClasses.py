@@ -144,8 +144,7 @@ class StaticText:
         self.text = text
         self.textAlignment = textAlignment
         self.position = position
-        # Default values
-        self.wordWrap = True
+        # Default values        
         self.fontMetrics = QFontMetrics(font)  
         self.color = 'black'        
         # Initialize some variables
@@ -157,7 +156,7 @@ class StaticText:
         self.getVandHcenter()
 
     def getActualPosition(self):
-        bounding_rect = self.fontMetrics.boundingRect(0,0,int(self.position[2]),int(self.position[3]), self.textAlignment, self.text)       
+        bounding_rect = self.fontMetrics.boundingRect(0,0,int(self.position[2]),int(self.position[3]), self.textAlignment | Qt.TextWordWrap, self.text)       
         self.positionAdjust = [int(self.position[0]), int(self.position[1]), int(bounding_rect.width()), int(bounding_rect.height())]
 
     def getVandHcenter(self):
@@ -169,10 +168,13 @@ class StaticText:
 
     def centerAlign_H(self):
         self.positionAdjust[0] = int(self.positionAdjust[0] - self.positionAdjust[2]/2)
+
+    def alignBottom(self):
+        self.positionAdjust[1] = int(self.positionAdjust[1] - self.positionAdjust[3])
             
     def makeTextObject(self):
         textOb = QLabel(self.text, self.window)
-        textOb.setWordWrap(self.wordWrap)    
+        textOb.setWordWrap(True)    
         textOb.setFont(self.font)
         textOb.setAlignment(self.textAlignment)
         textOb.setGeometry(*self.positionAdjust) 

@@ -1,6 +1,6 @@
 import sys, os
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit, QCheckBox, QScrollArea, QWidget
 from PyQt5.QtGui import QPainter, QPen, QFontMetrics
 
 from commonClassesFunctions.functionsClasses import centerWindowOnScreen, getScreenWidthHeight, Fonts, StaticText, readJSONfile, PushButton
@@ -16,30 +16,46 @@ class makeWordList:
     # For this above, make sure to save some space on the right for this appear
     # Also, I want to do this for the edit words section only, without including the 'Edit words' title, or the small 'Priority words' and 'Word: definition' titles
     # For this, I will use QScrollArea for this bottom section if the contents are too tall, or just regular coding (not QScrollArea) if not
-    def __init__(self,dataIn,fonts,sizes,APIwidth):
+    def __init__(self,dataIn,fonts,sizes,APIwidth,APIheight,startY,window):
         # Inputs
         self.dataIn = dataIn
         self.fonts = fonts
         self.sizes = sizes
         self.APIwidth = APIwidth
+        self.APIheight = APIheight
+        self.startY = startY
+        self.window = window
         # Predefined sizes
         self.Vspacing_wordDefs = 50 # the vertical spacing between each word/def
         self.Hspacing = 10 # horizontal spacing for the word/def lines    
-        self.textMaxWidth_PW = 40 # priority word title max with
+        self.textMaxWidth_PW = 30 # priority word title max with
         self.buttonPadding = 7
+        self.VspaceAfterSmallTitles = 22
         # Predefined fonts
         self.font_priortyWordTitle = fonts.font_small
         self.font_deleteButton = fonts.font_mediumLarge   
         self.font_wordAndDef = fonts.font_medium   
         # Other
         self.wordDefDetails = []  
-        self.numWordDefs = dataIn.len()
+        self.numWordDefs = len(dataIn)
+        # Initialize dictionary for holding details for each row (word/def with buttons, etc)
+        self.wordDefDetails = [{} for _ in range(self.numWordDefs)]
+        # Run starter functions
+        self.getHorizontalSpacing()
+        self.putEachWordDefsInOneLine()
+        self.wordDefHeights()
+        self.getTotalTextAreaHeight()
+        self.makeTitles()
+        self.getTopOfScrollArea()
+        self.makeScrollableArea()
+        self.getFirstRowCenter()
+        self.makePriorityWordToggles()
 
     def getHorizontalSpacing(self):        
         # Priority word toggle title width and height
         curText = "Priority word"
         fontMetrics = QFontMetrics(self.font_priortyWordTitle)
-        bounding_rect = fontMetrics.boundingRect(0,0,int(self.textMaxWidth_PW),0, Qt.AlignCenter, curText)       
+        bounding_rect = fontMetrics.boundingRect(0,0,int(self.textMaxWidth_PW),0, Qt.AlignCenter | Qt.TextWordWrap, curText)       
         self.width_priorityWord = bounding_rect.width()
         self.height_priorityWord = bounding_rect.height()
         # Delete button width
@@ -57,22 +73,76 @@ class makeWordList:
             self.Hspacing + self.sizes.padding_large
         # Width of word and definition area
         self.width_wordDef = self.APIwidth - width_excludeWordDef
-  
+        # Starting position of word and definition area
+        self.startX_wordAndDef = width_excludeWordDef - self.sizes.padding_large
+
     def putEachWordDefsInOneLine(self):        
-        for i in range(self.numWordDefs-1):
-            wordDetails = {
-                'wordAndDef': self.dataIn[i]["word"] + ": " + self.dataIn[i]["definition"]             
-            }
-        self.wordDefDetails.append(wordDetails)
+        for i in range(self.numWordDefs):
+            self.wordDefDetails[i]['wordAndDef'] = self.dataIn[i]["word"] + ": " + self.dataIn[i]["definition"]
 
     def wordDefHeights(self):
         fontMetrics = QFontMetrics(self.font_wordAndDef)
-        for i in range(self.numWordDefs-1):
-            curText = self.wordDefDetails[i].wordAndDef
+        for i in range(self.numWordDefs):
+            curText = self.wordDefDetails[i]['wordAndDef']
             bounding_rect = fontMetrics.boundingRect(0,0,int(self.width_wordDef),0, Qt.AlignCenter, curText)       
             self.wordDefDetails[i]['textHeight'] = bounding_rect.height()
 
-    def makeWordDefList(self):
+    def getTotalTextAreaHeight(self):
+        self.totalTextheight = 0
+        for i in range(self.numWordDefs):
+            self.totalTextheight += self.wordDefDetails[i]['textHeight']
+
+    def makeTitles(self):
+        # 'Priority words' title
+        text = 'Priority words'
+        textAlignment = Qt.AlignCenter
+        self.PW_H = self.sizes.padding_large + (self.width_priorityWord/2)
+        textPos = (self.PW_H, self.startY, self.width_priorityWord, 0)
+        self.ST_priorityWordTitle = StaticText(self.window,self.font_priortyWordTitle,text,textPos,textAlignment)         
+        self.ST_priorityWordTitle.centerAlign_H()
+        self.ST_priorityWordTitle.makeTextObject()
+        # 'Word: definition
+        text = 'Word: definition'
+        textAlignment = Qt.AlignLeft
+        bottomOfPWtitle = self.ST_priorityWordTitle.positionAdjust[1] + self.ST_priorityWordTitle.positionAdjust[3]        
+        textPos = (self.startX_wordAndDef+4, bottomOfPWtitle, self.width_wordDef, 0)
+        self.ST_wordDefTitle = StaticText(self.window,self.font_priortyWordTitle,text,textPos,textAlignment)         
+        self.ST_wordDefTitle.alignBottom()
+        self.ST_wordDefTitle.makeTextObject()
+        
+    def getTopOfScrollArea(self):
+        self.topOfScrollArea = self.ST_priorityWordTitle.positionAdjust[1] + self.ST_priorityWordTitle.positionAdjust[3]
+
+    def makeScrollableArea(self):
+        # Create scrollable area for the current words/defs
+        scroll_area = QScrollArea(self.window)
+        scroll_area.setGeometry(0, self.topOfScrollArea, self.APIwidth, self.APIheight-self.topOfScrollArea)  # Set the size of the API area which can be scrolled
+        # Create a widget to contain the scrollable area's contents
+        currentTextHeight = self.totalTextheight
+        scrollable_content = QWidget()
+        scrollable_content.setFixedSize(self.APIwidth, self.totalTextheight+self.sizes.padding_large)  # Set size of the scrollable content
+
+    def getFirstRowCenter(self):
+        self.startY = self.topOfScrollArea + self.VspaceAfterSmallTitles
+
+    def makePriorityWordToggles(self):
+        toggleStartX = self.PW_H - self.sizes.width_toggle/2
+        curRowCenter = self.startY
+        for i in range(self.numWordDefs):
+            curToggleHandle = QCheckBox('', self.window)            
+            togglePos = (toggleStartX,curRowCenter-(self.sizes.width_toggle/2), \
+                         self.sizes.width_toggle,self.sizes.width_toggle)
+            curToggleHandle.setGeometry(*(int(x) for x in togglePos))
+            curToggleHandle.setStyleSheet(f"QCheckBox::indicator {{ width: {self.sizes.width_toggle}px; height: {self.sizes.width_toggle}px; }}")            
+            curRowCenter = curRowCenter + self.wordDefDetails[i]['textHeight'] + self.Vspacing_wordDefs
+            if self.dataIn[i]['is_POD']:
+                curToggleHandle.setChecked(True)
+            else:
+                curToggleHandle.setChecked(False)
+            self.wordDefDetails[i]['priorityWordTogggles'] = curToggleHandle    
+            
+            # Add part about making the toggle checked or not checked based on the json file
+
         print("Here I will make the word and def list with all the extras - delete buttons, etc")
         # For each thing (e.g., toggle button), I will need to collect its handle, and also its position.
         # Store these things in self.wordDefDetails
@@ -201,7 +271,10 @@ def main():
 
     lowestPoint = ST_editWordsTitle.positionAdjust[1] + ST_editWordsTitle.positionAdjust[3]
 
-
+    # Make the word list in the edit words section
+    startingY = lowestPoint + sizes.padding_large*2
+    wordList = makeWordList(data,fonts,sizes,width,height,startingY,window)
+       
     # Center the window - put in the function (pass it 'window' and 'app')
     centerWindowOnScreen(window, app)
 
