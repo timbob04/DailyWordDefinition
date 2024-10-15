@@ -18,12 +18,12 @@
             "justMyCode": false
         },
         {
-            "name": "Debug another API",
+            "name": "Debug an API",
             "type": "debugpy",
             "request": "launch",
-            "module": "StartStopProgram.StartStopProgram_main",
-            "cwd": "${workspaceFolder}",
-            "justMyCode": false
+            "module": "addEditWords.addEditWords_main",  // Main module
+            "cwd": "${workspaceFolder}",  // Working directory
+            "justMyCode": false  // Allows debugging external libraries if needed
         }
     ]
 }

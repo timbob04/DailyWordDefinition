@@ -1,6 +1,6 @@
 import sys, os
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit, QCheckBox, QScrollArea, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit, QCheckBox, QScrollArea, QWidget, QFrame
 from PyQt5.QtGui import QPainter, QPen, QFontMetrics
 
 from commonClassesFunctions.functionsClasses import centerWindowOnScreen, getScreenWidthHeight, Fonts, StaticText, readJSONfile, PushButton
@@ -27,83 +27,102 @@ class makeWordList:
         self.window = window
         # Predefined sizes
         self.Vspacing_wordDefs = 50 # the vertical spacing between each word/def
-        self.Hspacing = 10 # horizontal spacing for the word/def lines    
+        self.Hspacing = 15 # horizontal spacing for the word/def lines    
         self.textMaxWidth_PW = 30 # priority word title max with
         self.buttonPadding = 7
-        self.VspaceAfterSmallTitles = 22
+        self.VspaceAfterSmallTitles = 9
         # Predefined fonts
         self.font_priortyWordTitle = fonts.font_small
-        self.font_deleteButton = fonts.font_mediumLarge   
+        self.font_deleteButton = fonts.font_medium  
         self.font_wordAndDef = fonts.font_medium   
-        # Other
-        self.wordDefDetails = []  
+        # Other        
         self.numWordDefs = len(dataIn)
         # Initialize dictionary for holding details for each row (word/def with buttons, etc)
         self.wordDefDetails = [{} for _ in range(self.numWordDefs)]
         # Run starter functions
         self.getHorizontalSpacing()
         self.putEachWordDefsInOneLine()
-        self.wordDefHeights()
+        self.getWordDefHeights()
         self.getTotalTextAreaHeight()
         self.makeTitles()
         self.getTopOfScrollArea()
         self.makeScrollableArea()
-        self.getFirstRowCenter()
-        self.makePriorityWordToggles()
-
+        self.getFirstRowCenter()        
+        self.makeInitialWordList()            
+        self.addScrollableContent()
+    
     def getHorizontalSpacing(self):        
-        # Priority word toggle title width and height
+        # Priority word toggle title width, height and x position
         curText = "Priority word"
         fontMetrics = QFontMetrics(self.font_priortyWordTitle)
         bounding_rect = fontMetrics.boundingRect(0,0,int(self.textMaxWidth_PW),0, Qt.AlignCenter | Qt.TextWordWrap, curText)       
         self.width_priorityWord = bounding_rect.width()
         self.height_priorityWord = bounding_rect.height()
+        # Get toggle x position
+        self.toggleStartX = self.sizes.padding_large + (self.width_priorityWord/2) - (self.sizes.width_toggle/2) 
         # Delete button width
         curText = "Delete"
         fontMetrics = QFontMetrics(self.font_deleteButton)
         bounding_rect = fontMetrics.boundingRect(0,0,0,0, Qt.AlignCenter, curText)       
-        self.width_deleteButton = bounding_rect.width()        
+        self.width_deleteButton = bounding_rect.width()  
+        height_deleteButton = bounding_rect.height()  
+        self.height_wPad_delButton = height_deleteButton + (self.buttonPadding*2)
+        width_wPad_delButton = self.width_deleteButton + (self.buttonPadding*2)
+        self.startX_delButton = self.sizes.padding_large + self.width_priorityWord + self.Hspacing
         # Edit button width
         curText = "Edit"        
         bounding_rect = fontMetrics.boundingRect(0,0,0,0, Qt.AlignCenter, curText)       
         self.width_editButton = bounding_rect.width()   
+        self.startX_editButton = self.startX_delButton + width_wPad_delButton + self.Hspacing
         # Width of everything apart from word/def box, from left to right
         width_excludeWordDef = self.sizes.padding_large + self.width_priorityWord + \
             self.Hspacing + self.width_deleteButton + self.Hspacing + self.width_editButton + \
-            self.Hspacing + self.sizes.padding_large
+            self.Hspacing + (self.sizes.padding_large*2) + \
+            (self.buttonPadding*4) # 2 buttons, so 4 paddings                                   
         # Width of word and definition area
         self.width_wordDef = self.APIwidth - width_excludeWordDef
         # Starting position of word and definition area
-        self.startX_wordAndDef = width_excludeWordDef - self.sizes.padding_large
+        self.startX_wordAndDef = width_excludeWordDef - (self.sizes.padding_large*2)
+        # Height of a sigle line piece of text                
+        fontMetrics = QFontMetrics(self.font_wordAndDef)       
+        bounding_rect = fontMetrics.boundingRect(0,0,int(self.width_wordDef),0, Qt.AlignCenter, "A")       
+        self.singleLineTextHeight = bounding_rect.height()    
 
     def putEachWordDefsInOneLine(self):        
         for i in range(self.numWordDefs):
             self.wordDefDetails[i]['wordAndDef'] = self.dataIn[i]["word"] + ": " + self.dataIn[i]["definition"]
 
-    def wordDefHeights(self):
-        fontMetrics = QFontMetrics(self.font_wordAndDef)
+    def wordDefHeight(self,text):
+        fontMetrics = QFontMetrics(self.font_wordAndDef)                
+        bounding_rect = fontMetrics.boundingRect(0,0,int(self.width_wordDef),0, Qt.AlignCenter | Qt.TextWordWrap, text)       
+        return bounding_rect.height()
+        
+    def getWordDefHeights(self):
         for i in range(self.numWordDefs):
             curText = self.wordDefDetails[i]['wordAndDef']
-            bounding_rect = fontMetrics.boundingRect(0,0,int(self.width_wordDef),0, Qt.AlignCenter, curText)       
-            self.wordDefDetails[i]['textHeight'] = bounding_rect.height()
+            self.wordDefDetails[i]['textHeight'] = self.wordDefHeight(curText)
 
     def getTotalTextAreaHeight(self):
         self.totalTextheight = 0
         for i in range(self.numWordDefs):
-            self.totalTextheight += self.wordDefDetails[i]['textHeight']
+            curRowHeight = max(self.wordDefDetails[i]['textHeight'],self.height_wPad_delButton)
+            if i < self.numWordDefs - 1:
+                self.totalTextheight += (curRowHeight + self.Vspacing_wordDefs)
+            else:
+                self.totalTextheight += curRowHeight
 
     def makeTitles(self):
         # 'Priority words' title
         text = 'Priority words'
         textAlignment = Qt.AlignCenter
-        self.PW_H = self.sizes.padding_large + (self.width_priorityWord/2)
-        textPos = (self.PW_H, self.startY, self.width_priorityWord, 0)
+        centerH = self.sizes.padding_large + (self.width_priorityWord/2)
+        textPos = (centerH, self.startY, self.width_priorityWord, 0)
         self.ST_priorityWordTitle = StaticText(self.window,self.font_priortyWordTitle,text,textPos,textAlignment)         
         self.ST_priorityWordTitle.centerAlign_H()
         self.ST_priorityWordTitle.makeTextObject()
         # 'Word: definition
         text = 'Word: definition'
-        textAlignment = Qt.AlignLeft
+        textAlignment = Qt.AlignVCenter | Qt.AlignLeft
         bottomOfPWtitle = self.ST_priorityWordTitle.positionAdjust[1] + self.ST_priorityWordTitle.positionAdjust[3]        
         textPos = (self.startX_wordAndDef+4, bottomOfPWtitle, self.width_wordDef, 0)
         self.ST_wordDefTitle = StaticText(self.window,self.font_priortyWordTitle,text,textPos,textAlignment)         
@@ -115,45 +134,91 @@ class makeWordList:
 
     def makeScrollableArea(self):
         # Create scrollable area for the current words/defs
-        scroll_area = QScrollArea(self.window)
-        scroll_area.setGeometry(0, self.topOfScrollArea, self.APIwidth, self.APIheight-self.topOfScrollArea)  # Set the size of the API area which can be scrolled
-        # Create a widget to contain the scrollable area's contents
-        currentTextHeight = self.totalTextheight
-        scrollable_content = QWidget()
-        scrollable_content.setFixedSize(self.APIwidth, self.totalTextheight+self.sizes.padding_large)  # Set size of the scrollable content
+        self.scroll_area = QScrollArea(self.window)
+        self.scroll_area.setGeometry(0, self.topOfScrollArea, self.APIwidth, self.APIheight-self.topOfScrollArea)  # Set the size of the API area which can be scrolled
+        self.scroll_area.setFrameShape(QFrame.NoFrame) # Remove borderaround from the scroll area
+        # Create a widget to contain the scrollable area's contents        
+        self.scrollable_content = QWidget()
+        self.scrollable_content.setFixedSize(self.APIwidth, self.totalTextheight+self.sizes.padding_large)  # Set size of the scrollable content
 
     def getFirstRowCenter(self):
         self.startY = self.topOfScrollArea + self.VspaceAfterSmallTitles
 
-    def makePriorityWordToggles(self):
-        toggleStartX = self.PW_H - self.sizes.width_toggle/2
-        curRowCenter = self.startY
+    def makeToggle(self,curRowTop,ind):
+        # Positioning
+        curRowCenter = curRowTop + (self.height_wPad_delButton/2)
+        togglePos = (self.toggleStartX,curRowCenter-(self.sizes.width_toggle/2), \
+                        self.sizes.width_toggle,self.sizes.width_toggle)
+        # Make toggle
+        curToggleHandle = QCheckBox('', self.scrollable_content)                    
+        curToggleHandle.setGeometry(*(int(x) for x in togglePos))
+        curToggleHandle.setStyleSheet(f"QCheckBox::indicator {{ width: {self.sizes.width_toggle}px; height: {self.sizes.width_toggle}px; }}")            
+        # Set toggle to checked (is_pod == true) or unchecked
+        if self.dataIn[ind]['is_POD']:
+            curToggleHandle.setChecked(True)
+        else:
+            curToggleHandle.setChecked(False)
+        # Store toggle handle
+        self.wordDefDetails[ind]['priorityWordTogggles'] = curToggleHandle 
+
+    def makeDeleteButton(self,curRowTop,ind):              
+        text = 'Delete'        
+        position = (self.startX_delButton,curRowTop,0,0)
+        pushButton_del = PushButton(self.scrollable_content,self.font_deleteButton,text,position) 
+        pushButton_del.setButtonPadding(self.buttonPadding,self.buttonPadding)
+        DelButton = pushButton_del.makeButton()             
+        self.wordDefDetails[ind]['DeleteButtons'] = DelButton             
+        #DelButton.clicked.connect(lambda: addWordToJSONfile(curFilePath,data,addWordInput,addDefInput))
+
+    def makeEditButton(self,curRowTop,ind):              
+        text = 'Edit'        
+        position = (self.startX_editButton,curRowTop,0,0)
+        pushButton_edit = PushButton(self.scrollable_content,self.font_deleteButton,text,position) 
+        pushButton_edit.setButtonPadding(self.buttonPadding,self.buttonPadding)
+        EditButton = pushButton_edit.makeButton()           
+        self.wordDefDetails[ind]['EditButtons'] = EditButton            
+        #EditButton.clicked.connect(lambda: addWordToJSONfile(curFilePath,data,addWordInput,addDefInput))    
+      
+    def makeWordDef(self,curRowTop,ind):  
+        curRowTop += (self.height_wPad_delButton/2) - (self.singleLineTextHeight/2)
+        textAlignment = Qt.AlignVCenter | Qt.AlignLeft        
+        text = self.wordDefDetails[ind]['wordAndDef']            
+        textPos = (self.startX_wordAndDef, curRowTop, self.width_wordDef, 0)
+        curSTob = StaticText(self.scrollable_content,self.font_wordAndDef,text,textPos,textAlignment)
+        curSTob.makeTextObject()     
+
+    def makeInitialWordList(self):
+        curRowTop = self.VspaceAfterSmallTitles # Starting row top position        
         for i in range(self.numWordDefs):
-            curToggleHandle = QCheckBox('', self.window)            
-            togglePos = (toggleStartX,curRowCenter-(self.sizes.width_toggle/2), \
-                         self.sizes.width_toggle,self.sizes.width_toggle)
-            curToggleHandle.setGeometry(*(int(x) for x in togglePos))
-            curToggleHandle.setStyleSheet(f"QCheckBox::indicator {{ width: {self.sizes.width_toggle}px; height: {self.sizes.width_toggle}px; }}")            
-            curRowCenter = curRowCenter + self.wordDefDetails[i]['textHeight'] + self.Vspacing_wordDefs
-            if self.dataIn[i]['is_POD']:
-                curToggleHandle.setChecked(True)
-            else:
-                curToggleHandle.setChecked(False)
-            self.wordDefDetails[i]['priorityWordTogggles'] = curToggleHandle    
-            
-            # Add part about making the toggle checked or not checked based on the json file
+            # Make API things
+            self.makeToggle(curRowTop,i)
+            self.makeDeleteButton(curRowTop,i)
+            self.makeEditButton(curRowTop,i)
+            self.makeWordDef(curRowTop,i)
+            # Set new row top position
+            rowHeight = max(self.wordDefDetails[i]['textHeight'],self.height_wPad_delButton)
+            curRowTop = curRowTop + rowHeight + self.Vspacing_wordDefs              
 
-        print("Here I will make the word and def list with all the extras - delete buttons, etc")
-        # For each thing (e.g., toggle button), I will need to collect its handle, and also its position.
-        # Store these things in self.wordDefDetails
-        # The position will be needed for later, when I have to move everything down after I add a new word/def (top part of API)
-        # The things I need to make for each row, and save a handle and positio for, are:
-        # the 1) priority toggle button, delete button, edit button, word and def text.
-        # One more thing... for the lowest point of each row, use either the edit (or delete) button bottom, or the text (whichever is lowest) 
-        # Start the next row using this value
+    def addScrollableContent(self):
+        # Set scroll area properties (should be set after the scrollable content is populated)
+        self.scroll_area.setWidget(self.scrollable_content)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Disable horizontal scrolling
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded) 
 
-    def updateListWithNewEntry(newWord,newDef):
-        print("Here update the list, putting the new word/def at the top")
+    def updateListWithNewWord(self,newWord,newDef):
+        textOnOneLine = newWord + ": " + newDef        
+        wordDefHeight = self.wordDefHeight(textOnOneLine)
+        new_entry = { 'wordAndDef': textOnOneLine,
+                     'textHeight': wordDefHeight,
+                     'priorityWordTogggles': None,
+                     'DeleteButtons': None,
+                     'EditButtons': None
+                     }
+        self.wordDefDetails.append(new_entry)
+        self.numWordDefs += 1        
+
+    def updateAPIwithNewEntry(self):
+        print("Here update the API list")
 
 def main():
 
@@ -205,14 +270,14 @@ def main():
 
     # Small label for 'Add word' edit text box
     text = 'Add word'
-    textAlignment = Qt.AlignCenter
+    textAlignment = Qt.AlignVCenter | Qt.AlignLeft
     textPos = (sizes.padding_large, lowestPoint+sizes.padding_large, 0, 0)
     ST_addWordLabel = StaticText(window,fonts.font_medium,text,textPos,textAlignment)         
     addWordLabel = ST_addWordLabel.makeTextObject()
 
     # Small label for 'Add definition' edit text box
     text = 'Add definition'
-    textAlignment = Qt.AlignCenter
+    textAlignment = Qt.AlignVCenter | Qt.AlignLeft
     leftPos = sizes.padding_large + width_addWord + sizes.padding_large
     textPos = (leftPos, lowestPoint+sizes.padding_large, 0, 0)
     ST_addDefLabel = StaticText(window,fonts.font_medium,text,textPos,textAlignment)         
