@@ -1,3 +1,5 @@
+from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtCore import Qt
 import json
 
 class Sizes_addEditWords:
@@ -17,24 +19,56 @@ class Sizes_addEditWords:
         self.APIheight = 1000
         self.width_toggle = 22
 
-def addWordToJSONfile(fileName,data,QLineEditText_word,QLineEditText_Def):
+class addNewWordTextBoxes:
+    def __init__(self,window,sizes,fonts,dataIn,jsonFileName):
+        self.window = window
+        self.sizes = sizes
+        self.fonts = fonts 
+        self.dataIn = dataIn        
+        self.jsonFileName = jsonFileName
+        self.addWordInput = None
+        self.addDefInput = None   
+        self.newWord = None
+        self.newDefinition = None        
 
-    # Get the word and definition from the QLineEdit text lines
-    newWord = QLineEditText_word.text()
-    newDef = QLineEditText_Def.text()
+    def makeAddWordEditTextBox(self,left,top,width):    
+        self.addWordInput = QLineEdit(self.window)    
+        self.addWordInput.setGeometry(int(left), int(top), int(width), 40 )
+        self.addWordInput.setFont(self.fonts.font_mediumLarge)
+        self.addWordInput.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.addWordInput.setStyleSheet("QLineEdit { border: 1px solid black; }")
 
-    # Make the new word/def json entry
-    new_entry = {
-    "word": newWord,
-    "definition": newDef,
-    "WOD_shown": False,
-    "is_POD": False,
-    "POD_shown": False
-    }
+    def makeAddDefEditTextBox(self,left,top,width):    
+        self.addDefInput = QLineEdit(self.window)    
+        self.addDefInput.setGeometry(int(left), int(top), int(width), 40 )
+        self.addDefInput.setFont(self.fonts.font_mediumLarge)
+        self.addDefInput.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.addDefInput.setStyleSheet("QLineEdit { border: 1px solid black; }")
 
-    # Append new word/def to current word/def json list
-    data.append(new_entry)
+    def getNewWordDef(self):
+        self.newWord = self.addWordInput.text()
+        self.newDefinition = self.addDefInput.text()            
+    
+    def addWordToJSONfile(self):            
+        # Make the new word/def json entry
+        new_entry = {
+            "word": self.newWord,
+            "definition": self.newDefinition,
+            "WOD_shown": False,
+            "is_POD": False,
+            "POD_shown": False
+            }
+        # Append new word/def to current word/def json list
+        self.dataIn.append(new_entry)
+        # Save new list with new word/def
+        with open(self.jsonFileName, 'w') as file:
+            json.dump(self.dataIn, file, indent=4) 
 
-    # Save new list with new word/def
-    with open(fileName, 'w') as file:
-        json.dump(data, file, indent=4)         
+    def clearEditTextBoxes(self):
+        self.addWordInput.clear()
+        self.addDefInput.clear()
+
+    def AddButtonPressed(self):
+        self.getNewWordDef()
+        self.addWordToJSONfile()        
+        self.clearEditTextBoxes()        

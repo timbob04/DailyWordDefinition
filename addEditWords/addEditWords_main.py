@@ -1,21 +1,16 @@
 import sys, os
+import json
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit, QCheckBox, QScrollArea, QWidget, QFrame
 from PyQt5.QtGui import QPainter, QPen, QFontMetrics
 
 from commonClassesFunctions.functionsClasses import centerWindowOnScreen, getScreenWidthHeight, Fonts, StaticText, readJSONfile, PushButton
 
-from .addEditWords_functionsClasses import Sizes_addEditWords, addWordToJSONfile
+from .addEditWords_functionsClasses import Sizes_addEditWords, addNewWordTextBoxes
 
 from PyQt5.QtCore import Qt
 
-class makeWordList:
-    ###### Temp notes
-    # The list will be in reverse order (newest words at top)
-    # Once I get the total height of all words/defs, either use a vertical scale bar, or not
-    # For this above, make sure to save some space on the right for this appear
-    # Also, I want to do this for the edit words section only, without including the 'Edit words' title, or the small 'Priority words' and 'Word: definition' titles
-    # For this, I will use QScrollArea for this bottom section if the contents are too tall, or just regular coding (not QScrollArea) if not
+class makeWordList:    
     def __init__(self,dataIn,fonts,sizes,APIwidth,APIheight,startY,window):
         # Inputs
         self.dataIn = dataIn
@@ -104,7 +99,7 @@ class makeWordList:
 
     def getTotalTextAreaHeight(self):
         self.totalTextheight = 0
-        for i in range(self.numWordDefs):
+        for i in range(self.numWordDefs - 1, -1, -1): # reverse order because more recent word is at the top (in the API)
             curRowHeight = max(self.wordDefDetails[i]['textHeight'],self.height_wPad_delButton)
             if i < self.numWordDefs - 1:
                 self.totalTextheight += (curRowHeight + self.Vspacing_wordDefs)
@@ -141,6 +136,9 @@ class makeWordList:
         self.scrollable_content = QWidget()
         self.scrollable_content.setFixedSize(self.APIwidth, self.totalTextheight+self.sizes.padding_large)  # Set size of the scrollable content
 
+    def updateScrollAreaHeight(self):
+        self.scrollable_content.setFixedSize(self.APIwidth, self.totalTextheight+self.sizes.padding_large) 
+
     def getFirstRowCenter(self):
         self.startY = self.topOfScrollArea + self.VspaceAfterSmallTitles
 
@@ -167,17 +165,17 @@ class makeWordList:
         pushButton_del = PushButton(self.scrollable_content,self.font_deleteButton,text,position) 
         pushButton_del.setButtonPadding(self.buttonPadding,self.buttonPadding)
         DelButton = pushButton_del.makeButton()             
-        self.wordDefDetails[ind]['DeleteButtons'] = DelButton             
         #DelButton.clicked.connect(lambda: addWordToJSONfile(curFilePath,data,addWordInput,addDefInput))
-
+        self.wordDefDetails[ind]['DeleteButtons'] = DelButton             
+        
     def makeEditButton(self,curRowTop,ind):              
         text = 'Edit'        
         position = (self.startX_editButton,curRowTop,0,0)
         pushButton_edit = PushButton(self.scrollable_content,self.font_deleteButton,text,position) 
         pushButton_edit.setButtonPadding(self.buttonPadding,self.buttonPadding)
         EditButton = pushButton_edit.makeButton()           
-        self.wordDefDetails[ind]['EditButtons'] = EditButton            
         #EditButton.clicked.connect(lambda: addWordToJSONfile(curFilePath,data,addWordInput,addDefInput))    
+        self.wordDefDetails[ind]['EditButtons'] = EditButton                   
       
     def makeWordDef(self,curRowTop,ind):  
         curRowTop += (self.height_wPad_delButton/2) - (self.singleLineTextHeight/2)
@@ -185,11 +183,12 @@ class makeWordList:
         text = self.wordDefDetails[ind]['wordAndDef']            
         textPos = (self.startX_wordAndDef, curRowTop, self.width_wordDef, 0)
         curSTob = StaticText(self.scrollable_content,self.font_wordAndDef,text,textPos,textAlignment)
-        curSTob.makeTextObject()     
+        wordAndDefTextOb = curSTob.makeTextObject()     
+        self.wordDefDetails[ind]['wordAndDefTextOb'] = wordAndDefTextOb  
 
     def makeInitialWordList(self):
         curRowTop = self.VspaceAfterSmallTitles # Starting row top position        
-        for i in range(self.numWordDefs):
+        for i in range(self.numWordDefs - 1, -1, -1):
             # Make API things
             self.makeToggle(curRowTop,i)
             self.makeDeleteButton(curRowTop,i)
@@ -205,20 +204,46 @@ class makeWordList:
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Disable horizontal scrolling
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded) 
 
-    def updateListWithNewWord(self,newWord,newDef):
+    def updateListWithNewWord(self,newWord,newDef): # list in this class
         textOnOneLine = newWord + ": " + newDef        
         wordDefHeight = self.wordDefHeight(textOnOneLine)
         new_entry = { 'wordAndDef': textOnOneLine,
-                     'textHeight': wordDefHeight,
+                     'textHeight': wordDefHeight,                     
                      'priorityWordTogggles': None,
                      'DeleteButtons': None,
-                     'EditButtons': None
+                     'EditButtons': None,
+                     'wordAndDefTextOb': None
                      }
         self.wordDefDetails.append(new_entry)
-        self.numWordDefs += 1        
+        self.numWordDefs += 1   
+    
+    def pushEverythingDown(self,newWordHeight):
+        nudge = newWordHeight + self.Vspacing_wordDefs
+        for i in range(self.numWordDefs-1):
+            self.adjustGeoWithNewHeight(self.wordDefDetails[i]['priorityWordTogggles'],nudge)
+            self.adjustGeoWithNewHeight(self.wordDefDetails[i]['DeleteButtons'],nudge)
+            self.adjustGeoWithNewHeight(self.wordDefDetails[i]['EditButtons'],nudge)
+            self.adjustGeoWithNewHeight(self.wordDefDetails[i]['wordAndDefTextOb'],nudge)
+            
+    def adjustGeoWithNewHeight(self,handle,nudge):
+        curGeometry = handle.geometry()            
+        handle.setGeometry(curGeometry.x(),curGeometry.y()+nudge,curGeometry.width(),curGeometry.height())        
 
-    def updateAPIwithNewEntry(self):
-        print("Here update the API list")
+    def updateAPIwithNewEntry(self,newWord,newDef):
+        self.updateListWithNewWord(newWord,newDef) # add new word to list and get its details, including height
+        self.getTotalTextAreaHeight()
+        self.updateScrollAreaHeight()   
+        # Push all other words down
+        newWordHeight = self.wordDefDetails[-1]['textHeight']
+        self.pushEverythingDown(newWordHeight)             
+        # Add new word row to top
+        self.makeToggle(self.VspaceAfterSmallTitles,-1)
+        self.makeDeleteButton(self.VspaceAfterSmallTitles,-1)
+        self.makeEditButton(self.VspaceAfterSmallTitles,-1)
+        self.makeWordDef(self.VspaceAfterSmallTitles,-1)
+
+
+
 
 def main():
 
@@ -264,7 +289,7 @@ def main():
     textAlignment = Qt.AlignCenter
     textPos = (sizes.padding_large, sizes.padding_large, 0, 0)
     ST_addWordsTitle = StaticText(window,fonts.font_large_bold,text,textPos,textAlignment)         
-    addWordsTitle = ST_addWordsTitle.makeTextObject()
+    ST_addWordsTitle.makeTextObject()
 
     lowestPoint = ST_addWordsTitle.positionAdjust[1] + ST_addWordsTitle.positionAdjust[3]
 
@@ -273,7 +298,7 @@ def main():
     textAlignment = Qt.AlignVCenter | Qt.AlignLeft
     textPos = (sizes.padding_large, lowestPoint+sizes.padding_large, 0, 0)
     ST_addWordLabel = StaticText(window,fonts.font_medium,text,textPos,textAlignment)         
-    addWordLabel = ST_addWordLabel.makeTextObject()
+    ST_addWordLabel.makeTextObject()
 
     # Small label for 'Add definition' edit text box
     text = 'Add definition'
@@ -281,35 +306,26 @@ def main():
     leftPos = sizes.padding_large + width_addWord + sizes.padding_large
     textPos = (leftPos, lowestPoint+sizes.padding_large, 0, 0)
     ST_addDefLabel = StaticText(window,fonts.font_medium,text,textPos,textAlignment)         
-    addDefLabel = ST_addDefLabel.makeTextObject()
+    ST_addDefLabel.makeTextObject()
 
     lowestPoint = ST_addDefLabel.positionAdjust[1] + ST_addDefLabel.positionAdjust[3]
 
-    # Edit text box to add word
-    addWordInput = QLineEdit(window)    
-    addWordInput.setGeometry(sizes.padding_large, lowestPoint+sizes.padding_small, int(width_addWord), 40 )
-    addWordInput.setFont(fonts.font_mediumLarge)
-    addWordInput.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-    addWordInput.setStyleSheet("QLineEdit { border: 1px solid black; }")
+    # Make edit text boxes to add a new word and definition
+    editTextBoxes_addWord = addNewWordTextBoxes(window,sizes,fonts,data,curFilePath)
+    editTextBoxes_addWord.makeAddWordEditTextBox(sizes.padding_large,lowestPoint+sizes.padding_small, width_addWord)
+    editTextBoxes_addWord.makeAddDefEditTextBox(leftPos,lowestPoint+sizes.padding_small,width_addDefinition)
 
-    # Edit text box to add definition
-    addDefInput = QLineEdit(window)    
-    addDefInput.setGeometry(int(leftPos), lowestPoint+sizes.padding_small, int(width_addDefinition), 40 )
-    addDefInput.setFont(fonts.font_mediumLarge)
-    addDefInput.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-    addDefInput.setStyleSheet("QLineEdit { border: 1px solid black; }")
-
-    lowestPoint = addDefInput.y() + addDefInput.height()
+    lowestPoint = editTextBoxes_addWord.addDefInput.y() + editTextBoxes_addWord.addDefInput.height()
 
     # 'Add' button
     text = 'Add'      
     position = (sizes.padding_large,lowestPoint+sizes.padding_large,0,0)
     pushButton_Add = PushButton(window,fonts.font_mediumLarge,text,position) 
     pushButton_Add.setButtonPadding(14,7)
-    AddButton = pushButton_Add.makeButton()          
-    AddButton.clicked.connect(lambda: addWordToJSONfile(curFilePath,data,addWordInput,addDefInput))
-    AddButton.clicked.connect(addWordInput.clear)
-    AddButton.clicked.connect(addDefInput.clear)
+    AddButton = pushButton_Add.makeButton()     
+    AddButton.clicked.connect(editTextBoxes_addWord.AddButtonPressed)
+    AddButton.clicked.connect(lambda: wordList.updateAPIwithNewEntry(editTextBoxes_addWord.newWord,\
+                                        editTextBoxes_addWord.newDefinition))
 
     lowestPoint = pushButton_Add.positionAdjust[1] + pushButton_Add.positionAdjust[3]
 
@@ -332,7 +348,7 @@ def main():
     textAlignment = Qt.AlignCenter
     textPos = (sizes.padding_large, lowestPoint + sizes.padding_large, 0, 0)
     ST_editWordsTitle = StaticText(window,fonts.font_large_bold,text,textPos,textAlignment)         
-    editWordsTitle = ST_editWordsTitle.makeTextObject()
+    ST_editWordsTitle.makeTextObject()
 
     lowestPoint = ST_editWordsTitle.positionAdjust[1] + ST_editWordsTitle.positionAdjust[3]
 
