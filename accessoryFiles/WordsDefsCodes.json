@@ -54,5 +54,26 @@
         "WOD_shown": false,
         "is_POD": false,
         "POD_shown": false
+    },
+    {
+        "word": "Pork",
+        "definition": "store",
+        "WOD_shown": false,
+        "is_POD": false,
+        "POD_shown": false
+    },
+    {
+        "word": "Ada",
+        "definition": "dasd",
+        "WOD_shown": false,
+        "is_POD": false,
+        "POD_shown": false
+    },
+    {
+        "word": "sa",
+        "definition": "dsa",
+        "WOD_shown": false,
+        "is_POD": false,
+        "POD_shown": false
     }
 ]

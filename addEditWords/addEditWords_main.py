@@ -10,45 +10,6 @@ from .addEditWords_functionsClasses import Sizes_addEditWords, addNewWordTextBox
 
 from PyQt5.QtCore import Qt
 
-class DeleteWordDialog(QDialog):
-    def __init__(self, fonts, window):
-        # Inheritance
-        super().__init__(window)
-        # Inputs
-        self.fonts = fonts
-        self.window = window        
-        # Some dialog sizes
-        self.width = 200
-        self.height = 100
-                
-        self.setWindowTitle('Confirm Deletion')
-        self.setFixedSize(self.width, self.height)  # Set a fixed size for the dialog
-
-        # Delete word text
-        text = 'Delete word?'
-        textAlignment = Qt.AlignCenter
-        textPos = (self.width/2, 20, 0, 0)
-        ST_deleteWord = StaticText(window,fonts.font_large_bold,text,textPos,textAlignment)         
-        ST_deleteWord.centerAlign_H()
-        ST_deleteWord.makeTextObject()
-
-        # # Add 'Ok' button with manual positioning
-        # ok_button = QPushButton('Ok', self)
-        # ok_button.setGeometry(30, 50, 60, 30)
-        # ok_button.clicked.connect(self.accept)
-
-        # # Add 'Cancel' button with manual positioning
-        # cancel_button = QPushButton('Cancel', self)
-        # cancel_button.setGeometry(110, 50, 60, 30)
-        # cancel_button.clicked.connect(self.reject)    
-
-    def makeDeleteDialog(self):
-        self.exec_()
-
-def open_dialog(sizes, fonts, window):
-    dialog = DeleteWordDialog(sizes, fonts, window)
-    dialog.exec_()  # Open the dialog in a modal way        
-
 def main():
 
     # Make window

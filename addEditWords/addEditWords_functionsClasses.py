@@ -285,9 +285,8 @@ class makeWordList:
                      }
         self.wordDefDetails.append(new_entry)    
     
-    def pushEverythingDown(self,newWordHeight):
-        nudge = newWordHeight + self.Vspacing_wordDefs
-        for i in range(self.numWordDefs-1):
+    def nudgeEverything(self,nudge,startPoint):
+        for i in range(startPoint,self.numWordDefs-1):
             self.adjustGeoWithNewHeight(self.wordDefDetails[i]['priorityWordTogggles'],nudge)
             self.adjustGeoWithNewHeight(self.wordDefDetails[i]['DeleteButtons'],nudge)
             self.adjustGeoWithNewHeight(self.wordDefDetails[i]['EditButtons'],nudge)
@@ -303,8 +302,8 @@ class makeWordList:
         self.getTotalTextAreaHeight()
         self.updateScrollAreaHeight()   
         # Push all other words down
-        newWordHeight = self.wordDefDetails[self.numWordDefs-1]['textHeight']
-        self.pushEverythingDown(newWordHeight)             
+        newWordHeight = self.wordDefDetails[self.numWordDefs-1]['textHeight'] + self.Vspacing_wordDefs
+        self.nudgeEverything(newWordHeight,0)             
         # Add new word row to top
         self.makeWordDef(self.VspaceAfterSmallTitles,self.numWordDefs-1)
         self.makeToggle(self.VspaceAfterSmallTitles,self.numWordDefs-1)
@@ -312,15 +311,30 @@ class makeWordList:
         self.makeEditButton(self.VspaceAfterSmallTitles,self.numWordDefs-1)
 
     def deleteButtonPressed(self, index):        
+        # Confirm delete with dialog
         deleteDialog = DeleteWordDialog(self.fonts,self.window)
-        deleteDialog.exec_()
+        result = deleteDialog.exec_()
+        # Delete word from API and json
+        if result == 1:
+            # Store row height before deletion (for nudging)
+            deletedRowHeight = self.wordDefDetails[index]['textHeight']
+            # Delete the word row from the API
+            self.deleteIndexInList(index)
+            self.numWordDefs -= 1
+            # Nudge everything to accomodate deletion
+            if self.numWordDefs != index:
+                self.nudgeEverything(-deletedRowHeight-self.Vspacing_wordDefs,index)
+            # If not the last word, every word below (so now index to end) needs to be nudged up to row spacer and the textHeight
 
-        # First, bring up a dialog box to confirm to the delete.
-        # Then, only if the deletion is confirmed...
-        # Delete the current row's contents from the API
-        # Shift all rows below this word up
-        # Reduce the height of the scrollable area to accomodate this deletion
-        # Delete the word entry from the json file
+
+
+    def deleteIndexInList(self,indexToDel):
+        # Remove each widget (e.g., toggle) from the current dictionary index
+        for _, item in self.wordDefDetails[indexToDel].items():            
+            if isinstance(item, QWidget):
+                item.deleteLater()  
+        # Finally remove the empty dictionary index, including all non-widget things (e.g., str)
+        del self.wordDefDetails[indexToDel]    
 
     def editButtonPressed(self, index):
         print("Using the index...")
@@ -339,31 +353,63 @@ class DeleteWordDialog(QDialog):
         # Inputs
         self.fonts = fonts
         self.window = window        
-        # Some dialog sizes
-        self.width = 500
-        self.height = 300
-                
-        self.setWindowTitle('Confirm Deletion')
-        self.setFixedSize(self.width, self.height)  # Set a fixed size for the dialog
+        # Some details
+        self.paddingEdge = 30                    
+        self.butPad = 7
+        self.dialogText = 'Are you sure you want to delete this word?'
+        # Run initiation functions
+        self.dialogStarterProperties()
+        self.getTextAndAPIWidth()
+        self.makeDialogText()
+        self.getButtonPositions()
+        self.makeDeleteButton()
+        self.makeCancelButton()
+        self.resizeAPI()
 
-        # Delete word text
-        text = 'Delete word?'
-        textAlignment = Qt.AlignCenter
-        textPos = (self.width/2, self.height/2, 0, 0)
-        ST_deleteWord = StaticText(self,fonts.font_medium,text,textPos,textAlignment)         
-        ST_deleteWord.centerAlign_H()
-        ST_deleteWord.centerAlign_V()
-        ST_deleteWord.makeTextObject()
+    def dialogStarterProperties(self):
+        self.setWindowTitle('Confirm delete')        
 
-        # # Add 'Ok' button with manual positioning
-        # ok_button = QPushButton('Ok', self)
-        # ok_button.setGeometry(30, 50, 60, 30)
-        # ok_button.clicked.connect(self.accept)
+    def getTextAndAPIWidth(self):               
+        fontMetrics = QFontMetrics(self.fonts.font_medium)
+        bounding_rect = fontMetrics.boundingRect(0,0,0,0, Qt.AlignCenter, self.dialogText)
+        self.width_text = bounding_rect.width()
+        self.width = self.width_text + self.paddingEdge*2  
 
-        # # Add 'Cancel' button with manual positioning
-        # cancel_button = QPushButton('Cancel', self)
-        # cancel_button.setGeometry(110, 50, 60, 30)
-        # cancel_button.clicked.connect(self.reject)    
+    def makeDialogText(self):                  
+        textPos = (self.width/2, self.paddingEdge, self.width_text, 0)
+        self.ST_deleteWord = StaticText(self,self.fonts.font_medium,self.dialogText,textPos,Qt.AlignCenter)
+        self.ST_deleteWord.centerAlign_H()
+        self.ST_deleteWord.makeTextObject()                        
+
+    def getButtonPositions(self):
+        self.buttonWidth = (self.width_text - self.paddingEdge - (self.butPad*4)) / 2
+        self.leftButtonCen = self.paddingEdge + self.butPad + self.buttonWidth/2
+        self.rightButtonCen = self.paddingEdge + self.butPad + self.buttonWidth \
+                + self.paddingEdge + self.butPad + self.buttonWidth/2        
+        self.buttonStartY = self.ST_deleteWord.positionAdjust[1] + \
+                self.ST_deleteWord.positionAdjust[3] + self.paddingEdge*2  
+    
+    def makeDeleteButton(self):                            
+        text = 'Delete'        
+        position = (self.leftButtonCen,self.buttonStartY,self.buttonWidth,0)
+        pushButton_del = PushButton(self,self.fonts.font_medium,text,position) 
+        pushButton_del.setButtonPadding(self.butPad,self.butPad)
+        pushButton_del.centerAlign_H()
+        DelButton = pushButton_del.makeButton()                 
+        DelButton.clicked.connect(self.accept)  
+        self.height = pushButton_del.positionAdjust[1] + pushButton_del.positionAdjust[3] + self.paddingEdge        
+
+    def makeCancelButton(self):        
+        text = 'Cancel'        
+        position = (self.rightButtonCen,self.buttonStartY,self.buttonWidth,0)
+        pushButton_cancel = PushButton(self,self.fonts.font_medium,text,position) 
+        pushButton_cancel.setButtonPadding(self.butPad,self.butPad)
+        pushButton_cancel.centerAlign_H()            
+        CancelButton = pushButton_cancel.makeButton()              
+        CancelButton.clicked.connect(self.reject)     
+            
+    def resizeAPI(self):
+        self.setFixedSize(self.width, self.height)
 
 
 
