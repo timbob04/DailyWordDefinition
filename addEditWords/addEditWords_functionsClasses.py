@@ -102,6 +102,7 @@ class makeWordList:
         self.wordDefDetails = [{} for _ in range(self.numWordDefs)]
         # Run starter functions
         self.getHorizontalSpacing()
+        self.makeDict()
         self.putEachWordDefsInOneLine()
         self.getWordDefHeights()
         self.getTotalTextAreaHeight()
@@ -148,6 +149,10 @@ class makeWordList:
         fontMetrics = QFontMetrics(self.font_wordAndDef)       
         bounding_rect = fontMetrics.boundingRect(0,0,int(self.width_wordDef),0, Qt.AlignCenter, "A")       
         self.singleLineTextHeight = bounding_rect.height()    
+
+    def makeDict(self):
+        for i in range(self.numWordDefs):
+            self.wordDefDetails[i]['ID'] = i
 
     def putEachWordDefsInOneLine(self):        
         for i in range(self.numWordDefs):
@@ -233,17 +238,19 @@ class makeWordList:
         pushButton_del.setButtonPadding(self.buttonPadding,self.buttonPadding)
         DelButton = pushButton_del.makeButton()  
         DelButton.show()           
-        DelButton.clicked.connect(lambda _, index=ind: self.deleteButtonPressed(index))
+        indDelButton = self.wordDefDetails[ind]['ID']
+        DelButton.clicked.connect(lambda _, index=indDelButton: self.deleteButtonPressed(index))
         self.wordDefDetails[ind]['DeleteButtons'] = DelButton             
         
     def makeEditButton(self,curRowTop,ind):              
         text = 'Edit'        
         position = (self.startX_editButton,curRowTop,0,0)
         pushButton_edit = PushButton(self.scrollable_content,self.font_deleteButton,text,position) 
-        pushButton_edit.setButtonPadding(self.buttonPadding,self.buttonPadding)
+        pushButton_edit.setButtonPadding(self.buttonPadding,self.buttonPadding)        
         EditButton = pushButton_edit.makeButton()  
-        EditButton.show()         
-        EditButton.clicked.connect(lambda _, index=ind: self.editButtonPressedy(index))
+        EditButton.show()                 
+        indEditButton = self.wordDefDetails[ind]['ID']
+        EditButton.clicked.connect(lambda _, index=indEditButton: self.editButtonPressedy(index))
         self.wordDefDetails[ind]['EditButtons'] = EditButton                   
       
     def makeWordDef(self,curRowTop,ind):  
@@ -276,17 +283,18 @@ class makeWordList:
     def updateListWithNewWord(self,newWord,newDef): # list in this class
         textOnOneLine = newWord + ": " + newDef        
         wordDefHeight = self.wordDefHeight(textOnOneLine)
-        new_entry = { 'wordAndDef': textOnOneLine,
+        new_entry = {'ID': self.numWordDefs,
+                     'wordAndDef': textOnOneLine,
                      'textHeight': wordDefHeight,                     
                      'priorityWordTogggles': None,
                      'DeleteButtons': None,
                      'EditButtons': None,
-                     'wordAndDefTextOb': None
+                     'wordAndDefTextOb': None                     
                      }
         self.wordDefDetails.append(new_entry)    
     
-    def nudgeEverything(self,nudge,startPoint):
-        for i in range(startPoint,self.numWordDefs-1):
+    def nudgeEverything(self,nudge,indicesToNudge):
+        for i in indicesToNudge:
             self.adjustGeoWithNewHeight(self.wordDefDetails[i]['priorityWordTogggles'],nudge)
             self.adjustGeoWithNewHeight(self.wordDefDetails[i]['DeleteButtons'],nudge)
             self.adjustGeoWithNewHeight(self.wordDefDetails[i]['EditButtons'],nudge)
@@ -303,28 +311,45 @@ class makeWordList:
         self.updateScrollAreaHeight()   
         # Push all other words down
         newWordHeight = self.wordDefDetails[self.numWordDefs-1]['textHeight'] + self.Vspacing_wordDefs
-        self.nudgeEverything(newWordHeight,0)             
+        indicesToNudge = range(self.numWordDefs-1)
+        self.nudgeEverything(newWordHeight,indicesToNudge)             
         # Add new word row to top
         self.makeWordDef(self.VspaceAfterSmallTitles,self.numWordDefs-1)
         self.makeToggle(self.VspaceAfterSmallTitles,self.numWordDefs-1)
         self.makeDeleteButton(self.VspaceAfterSmallTitles,self.numWordDefs-1)
         self.makeEditButton(self.VspaceAfterSmallTitles,self.numWordDefs-1)
 
-    def deleteButtonPressed(self, index):        
+    def deleteButtonPressed(self, ID):        
+        index = self.findIDIndex(ID)    
         # Confirm delete with dialog
         deleteDialog = DeleteWordDialog(self.fonts,self.window)
         result = deleteDialog.exec_()
         # Delete word from API and json
         if result == 1:
             # Store row height before deletion (for nudging)
-            deletedRowHeight = self.wordDefDetails[index]['textHeight']
+            wordTextHeight = self.wordDefDetails[index]['textHeight']
+            curButton = self.wordDefDetails[index]['DeleteButtons']
+            buttonHeight = curButton.height()
+            rowHeight = max(wordTextHeight,buttonHeight)
             # Delete the word row from the API
-            self.deleteIndexInList(index)
-            self.numWordDefs -= 1
-            # Nudge everything to accomodate deletion
-            if self.numWordDefs != index:
-                self.nudgeEverything(-deletedRowHeight-self.Vspacing_wordDefs,index)
+            self.deleteIndexInList(index)            
+            # Nudge everything to accomodate deletion  
+            if self.numWordDefs != index:          
+                wordsToNudge = range(index)
+                self.nudgeEverything(-rowHeight-self.Vspacing_wordDefs,wordsToNudge)
             # If not the last word, every word below (so now index to end) needs to be nudged up to row spacer and the textHeight
+            self.numWordDefs -= 1
+
+    def findIDIndex(self,ID):
+        pos = None
+        k = 0
+        for item in self.wordDefDetails:
+            if item['ID'] == ID:
+                pos = k
+                break  
+            k+=1
+        return pos
+             
 
 
 
