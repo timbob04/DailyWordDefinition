@@ -119,7 +119,7 @@ def main():
 
     # Make the word list in the edit words section
     startingY = lowestPoint + sizes.padding_large*2
-    wordList = makeWordList(data,fonts,sizes,width,height,startingY,window)
+    wordList = makeWordList(data,fonts,sizes,width,height,startingY,window,curFilePath)
        
     # Center the window - put in the function (pass it 'window' and 'app')
     centerWindowOnScreen(window, app)

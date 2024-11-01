@@ -1,31 +1,10 @@
 [
     {
-        "word": "Ubiquitous",
-        "definition": "Present, appearing, or found everywhere.",
-        "WOD_shown": false,
-        "is_POD": true,
-        "POD_shown": true
-    },
-    {
-        "word": "Aberration",
-        "definition": "A departure from what is normal, usual, or expected, typically one that is unwelcome.",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": false
-    },
-    {
         "word": "Quixotic",
         "definition": "Exceedingly idealistic; unrealistic and impractical.",
         "WOD_shown": false,
         "is_POD": true,
         "POD_shown": false
-    },
-    {
-        "word": "Entropy",
-        "definition": "A measure of the disorder or randomness in a system.",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": true
     },
     {
         "word": "Aberration",
@@ -35,29 +14,43 @@
         "POD_shown": false
     },
     {
-        "word": "Quixotic",
-        "definition": "Exceedingly idealistic; unrealistic and impractical.",
-        "WOD_shown": false,
-        "is_POD": true,
-        "POD_shown": false
-    },
-    {
-        "word": "Entropy",
-        "definition": "A measure of the disorder or randomness in a system.",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": true
-    },
-    {
-        "word": "pork",
-        "definition": "store",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": false
-    },
-    {
         "word": "op",
         "definition": "da",
+        "WOD_shown": false,
+        "is_POD": false,
+        "POD_shown": false
+    },
+    {
+        "word": "Pork",
+        "definition": "base",
+        "WOD_shown": false,
+        "is_POD": false,
+        "POD_shown": false
+    },
+    {
+        "word": "Flim",
+        "definition": "flm",
+        "WOD_shown": false,
+        "is_POD": false,
+        "POD_shown": false
+    },
+    {
+        "word": "Cow",
+        "definition": "shed",
+        "WOD_shown": false,
+        "is_POD": false,
+        "POD_shown": false
+    },
+    {
+        "word": "One more",
+        "definition": "word",
+        "WOD_shown": false,
+        "is_POD": false,
+        "POD_shown": false
+    },
+    {
+        "word": "Lets try a long word that ",
+        "definition": "",
         "WOD_shown": false,
         "is_POD": false,
         "POD_shown": false

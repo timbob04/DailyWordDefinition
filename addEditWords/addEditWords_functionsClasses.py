@@ -77,7 +77,7 @@ class addNewWordTextBoxes:
 
         
 class makeWordList:    
-    def __init__(self,dataIn,fonts,sizes,APIwidth,APIheight,startY,window):
+    def __init__(self,dataIn,fonts,sizes,APIwidth,APIheight,startY,window,jsonFileName):
         # Inputs
         self.dataIn = dataIn
         self.fonts = fonts
@@ -86,6 +86,7 @@ class makeWordList:
         self.APIheight = APIheight
         self.startY = startY
         self.window = window
+        self.jsonFileName = jsonFileName
         # Predefined sizes
         self.Vspacing_wordDefs = 50 # the vertical spacing between each word/def
         self.Hspacing = 15 # horizontal spacing for the word/def lines    
@@ -179,7 +180,7 @@ class makeWordList:
 
     def makeTitles(self):
         # 'Priority words' title
-        text = 'Priority words'
+        text = 'Priority word'
         textAlignment = Qt.AlignCenter
         centerH = self.sizes.padding_large + (self.width_priorityWord/2)
         textPos = (centerH, self.startY, self.width_priorityWord, 0)
@@ -250,7 +251,7 @@ class makeWordList:
         EditButton = pushButton_edit.makeButton()  
         EditButton.show()                 
         indEditButton = self.wordDefDetails[ind]['ID']
-        EditButton.clicked.connect(lambda _, index=indEditButton: self.editButtonPressedy(index))
+        EditButton.clicked.connect(lambda _, index=indEditButton: self.editButtonPressed(index))
         self.wordDefDetails[ind]['EditButtons'] = EditButton                   
       
     def makeWordDef(self,curRowTop,ind):  
@@ -327,18 +328,34 @@ class makeWordList:
         # Delete word from API and json
         if result == 1:
             # Store row height before deletion (for nudging)
-            wordTextHeight = self.wordDefDetails[index]['textHeight']
-            curButton = self.wordDefDetails[index]['DeleteButtons']
-            buttonHeight = curButton.height()
-            rowHeight = max(wordTextHeight,buttonHeight)
+            rowHeight = self.getRowHeight(index)            
             # Delete the word row from the API
             self.deleteIndexInList(index)            
             # Nudge everything to accomodate deletion  
             if self.numWordDefs != index:          
                 wordsToNudge = range(index)
                 self.nudgeEverything(-rowHeight-self.Vspacing_wordDefs,wordsToNudge)
-            # If not the last word, every word below (so now index to end) needs to be nudged up to row spacer and the textHeight
+            # Delete word from 'dataIn' and write back to json
+            del self.dataIn[index]
+            self.writeToJson()
+            # Update number of words
             self.numWordDefs -= 1
+            # Update scroll area
+            self.getTotalTextAreaHeight()
+            self.updateScrollAreaHeight()
+            
+
+    def writeToJson(self):
+        with open(self.jsonFileName, 'w') as file:
+            json.dump(self.dataIn, file, indent=4)    
+
+    def getRowHeight(self,index):
+        wordTextHeight = self.wordDefDetails[index]['textHeight']
+        curButton = self.wordDefDetails[index]['DeleteButtons']
+        buttonHeight = curButton.height()
+        rowHeight = max(wordTextHeight,buttonHeight)
+        return rowHeight
+
 
     def findIDIndex(self,ID):
         pos = None
@@ -361,8 +378,12 @@ class makeWordList:
         # Finally remove the empty dictionary index, including all non-widget things (e.g., str)
         del self.wordDefDetails[indexToDel]    
 
-    def editButtonPressed(self, index):
-        print("Using the index...")
+    def editButtonPressed(self, ID):
+        index = self.findIDIndex(ID)    
+        word = self.dataIn[index]['word']
+        definition = self.dataIn[index]['definition']
+        editDialog = EditWordDialog(self.fonts,self.window,word,definition)
+        result = editDialog.exec_()
         # First, bring up a dialog box to edit the word/def (biggish thing in itself)
         # Figure out the height of the new word/def
         # Then, if this is different from what is was....
@@ -436,5 +457,41 @@ class DeleteWordDialog(QDialog):
     def resizeAPI(self):
         self.setFixedSize(self.width, self.height)
 
+class EditWordDialog(QDialog):
+    def __init__(self, fonts, window, word, definition):
+        # Inheritance
+        super().__init__(window)
+        # Inputs
+        self.fonts = fonts
+        self.window = window
+        self.word = word
+        self.definition = definition
+        # Functions to run 
+        self.dialogStarterProperties()
+        self.makeWordEditBox()
+        self.makeDefinitionEditBox()
+        self.resizeAPI()
 
+    def dialogStarterProperties(self):
+        self.setWindowTitle('Edit word')  
 
+    def makeWordEditBox(self):     
+        self.wordInput = QLineEdit(self)    
+        self.wordInput.setGeometry(30, 50, 400, 40 )
+        self.wordInput.setFont(self.fonts.font_mediumLarge)
+        self.wordInput.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.wordInput.setStyleSheet("QLineEdit { border: 1px solid black; }")        
+        self.wordInput.setText(self.word)
+        self.wordInput.setCursorPosition(0) 
+
+    def makeDefinitionEditBox(self):     
+        self.defInput = QLineEdit(self)    
+        self.defInput.setGeometry(30, 150, 400, 40 )
+        self.defInput.setFont(self.fonts.font_mediumLarge)
+        self.defInput.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.defInput.setStyleSheet("QLineEdit { border: 1px solid black; }")        
+        self.defInput.setText(self.definition)
+        self.defInput.setCursorPosition(0) 
+
+    def resizeAPI(self):
+        self.setFixedSize(600, 400)
