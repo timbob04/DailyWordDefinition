@@ -342,8 +342,7 @@ class makeWordList:
             self.numWordDefs -= 1
             # Update scroll area
             self.getTotalTextAreaHeight()
-            self.updateScrollAreaHeight()
-            
+            self.updateScrollAreaHeight()           
 
     def writeToJson(self):
         with open(self.jsonFileName, 'w') as file:
@@ -356,7 +355,6 @@ class makeWordList:
         rowHeight = max(wordTextHeight,buttonHeight)
         return rowHeight
 
-
     def findIDIndex(self,ID):
         pos = None
         k = 0
@@ -365,10 +363,7 @@ class makeWordList:
                 pos = k
                 break  
             k+=1
-        return pos
-             
-
-
+        return pos            
 
     def deleteIndexInList(self,indexToDel):
         # Remove each widget (e.g., toggle) from the current dictionary index
@@ -384,14 +379,15 @@ class makeWordList:
         definition = self.dataIn[index]['definition']
         editDialog = EditWordDialog(self.fonts,self.window,word,definition)
         result = editDialog.exec_()
-        # First, bring up a dialog box to edit the word/def (biggish thing in itself)
-        # Figure out the height of the new word/def
-        # Then, if this is different from what is was....
-        # Adjust the scollable area
-        # Push everything below down (or up depending on the whether the difference is positive or negative)
-        # And then edit the word/def
-        # If the text height is the same after the user has edited it, just edit the word/def without moving anything around (above)
-        
+        if result == 1:
+            new_word, new_definition = editDialog.getNewText()        
+            # Figure out the height of the new word/def
+            # Then, if this is different from what is was....
+            # Adjust the scollable area
+            # Push everything below down (or up depending on the whether the difference is positive or negative)
+            # And then edit the word/def
+            # If the text height is the same after the user has edited it, just edit the word/def without moving anything around (above)
+            
 class DeleteWordDialog(QDialog):
     def __init__(self, fonts, window):
         # Inheritance
@@ -466,32 +462,86 @@ class EditWordDialog(QDialog):
         self.window = window
         self.word = word
         self.definition = definition
+        self.padding = 15
+        self.smallGap = 6
+        self.boxWidth = 400
+        self.boxHeight = 40
+        self.lowestPoint = 0
+        self.buttonWidth = 100
         # Functions to run 
         self.dialogStarterProperties()
+        self.makeEditBoxTitle_word()
         self.makeWordEditBox()
+        self.makeEditBoxTitle_def()
         self.makeDefinitionEditBox()
+        self.makeSaveButton()
+        self.makeCancelButton()
         self.resizeAPI()
 
     def dialogStarterProperties(self):
         self.setWindowTitle('Edit word')  
 
+    def makeEditBoxTitle_word(self):            
+        text = 'Word'
+        textAlignment = Qt.AlignLeft | Qt.AlignVCenter        
+        textPos = (self.padding, self.padding, self.boxWidth, 0)
+        self.ST_wordTitle = StaticText(self,self.fonts.font_medium,text,textPos,textAlignment)                 
+        self.ST_wordTitle.makeTextObject()
+        self.lowestPoint = self.ST_wordTitle.positionAdjust[1] + self.ST_wordTitle.positionAdjust[3]
+
     def makeWordEditBox(self):     
         self.wordInput = QLineEdit(self)    
-        self.wordInput.setGeometry(30, 50, 400, 40 )
-        self.wordInput.setFont(self.fonts.font_mediumLarge)
+        top = self.lowestPoint + self.smallGap
+        self.wordInput.setGeometry(self.padding, top, self.boxWidth, self.boxHeight )
+        self.wordInput.setFont(self.fonts.font_medium)
         self.wordInput.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.wordInput.setStyleSheet("QLineEdit { border: 1px solid black; }")        
         self.wordInput.setText(self.word)
         self.wordInput.setCursorPosition(0) 
+        self.lowestPoint = top + self.wordInput.height()
+
+    def makeEditBoxTitle_def(self):            
+        text = 'Definition'
+        textAlignment = Qt.AlignLeft | Qt.AlignVCenter  
+        top = self.lowestPoint + self.padding      
+        textPos = (self.padding, top, self.boxWidth, 0)
+        self.ST_defTitle = StaticText(self,self.fonts.font_medium,text,textPos,textAlignment)                 
+        self.ST_defTitle.makeTextObject()
+        self.lowestPoint = self.ST_defTitle.positionAdjust[1] + self.ST_defTitle.positionAdjust[3]
 
     def makeDefinitionEditBox(self):     
         self.defInput = QLineEdit(self)    
-        self.defInput.setGeometry(30, 150, 400, 40 )
-        self.defInput.setFont(self.fonts.font_mediumLarge)
+        top = self.lowestPoint + self.smallGap
+        self.defInput.setGeometry(self.padding, top, self.boxWidth, self.boxHeight )
+        self.defInput.setFont(self.fonts.font_medium)
         self.defInput.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.defInput.setStyleSheet("QLineEdit { border: 1px solid black; }")        
         self.defInput.setText(self.definition)
         self.defInput.setCursorPosition(0) 
+        self.lowestPoint = top + self.defInput.height()
+
+    def makeSaveButton(self):        
+        text = 'Save'        
+        self.top = self.lowestPoint + self.padding*2
+        position = (self.padding,self.top,self.buttonWidth,0)
+        pushButton_save = PushButton(self,self.fonts.font_medium,text,position)                 
+        saveButton = pushButton_save.makeButton()              
+        saveButton.clicked.connect(self.accept)   
+        self.lowestPoint = self.top + saveButton.height()
+
+    def makeCancelButton(self):        
+        text = 'Cancel'                
+        right = self.padding + self.boxWidth
+        position = (right,self.top,self.buttonWidth,0)
+        pushButton_cancel = PushButton(self,self.fonts.font_medium,text,position)                 
+        pushButton_cancel.rightAlign()
+        cancelButton = pushButton_cancel.makeButton()              
+        cancelButton.clicked.connect(self.reject)   
 
     def resizeAPI(self):
-        self.setFixedSize(600, 400)
+        width = self.boxWidth + (self.padding*2)
+        height = self.lowestPoint+self.padding
+        self.setFixedSize(width, height)
+
+    def getNewText(self):
+        return self.wordInput.text(), self.defInput.text()    
