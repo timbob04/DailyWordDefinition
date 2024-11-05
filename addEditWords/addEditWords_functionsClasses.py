@@ -305,6 +305,10 @@ class makeWordList:
         curGeometry = handle.geometry()            
         handle.setGeometry(curGeometry.x(),curGeometry.y()+nudge,curGeometry.width(),curGeometry.height())        
 
+    def adjustGeoHeight(self,handle,nudge):
+        curGeometry = handle.geometry()            
+        handle.setGeometry(curGeometry.x(),curGeometry.y(),curGeometry.width(),curGeometry.height()+nudge)        
+
     def updateAPIwithNewEntry(self,newWord,newDef):
         self.numWordDefs += 1   
         self.updateListWithNewWord(newWord,newDef) # add new word to list and get its details, including height
@@ -380,7 +384,36 @@ class makeWordList:
         editDialog = EditWordDialog(self.fonts,self.window,word,definition)
         result = editDialog.exec_()
         if result == 1:
-            new_word, new_definition = editDialog.getNewText()        
+            new_word, new_definition = editDialog.getNewText()  
+            newWordAndDef = new_word + ": " + new_definition        
+            prevTextHeight = self.wordDefDetails[index]['textHeight']    
+            newTextHeight = self.wordDefHeight(newWordAndDef)
+            nudge = int(newTextHeight - prevTextHeight)
+            self.wordDefDetails[index]['textHeight'] = newTextHeight
+            self.wordDefDetails[index]['wordAndDef'] = newWordAndDef
+            # Adjut the API text
+            self.wordDefDetails[index]['wordAndDefTextOb'].setText(newWordAndDef)            
+            self.adjustGeoHeight(self.wordDefDetails[index]['wordAndDefTextOb'],nudge)
+            self.dataIn[index]['word'] = new_word
+            self.dataIn[index]['definition'] = new_definition
+            if nudge != 0:
+                wordsToNudge = range(index)
+                self.nudgeEverything(nudge,wordsToNudge)
+                self.getTotalTextAreaHeight()
+                self.updateScrollAreaHeight() 
+                                  
+        # {'ID': self.numWordDefs,
+        #  'wordAndDef': textOnOneLine,
+        #  'textHeight': wordDefHeight,                     
+        #  'priorityWordTogggles': None,
+        #  'DeleteButtons': None,
+        #  'EditButtons': None,
+        #  'wordAndDefTextOb': None                     
+        #  }
+
+
+
+            
             # Figure out the height of the new word/def
             # Then, if this is different from what is was....
             # Adjust the scollable area
