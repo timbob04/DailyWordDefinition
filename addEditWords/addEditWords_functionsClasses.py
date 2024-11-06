@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QLineEdit, QCheckBox, QScrollArea, QWidget, QFrame, 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontMetrics
 import json
-from commonClassesFunctions.functionsClasses import StaticText, PushButton
+from commonClassesFunctions.functionsClasses import StaticText, PushButton, centerWindowOnScreen
 
 class Sizes_addEditWords:
     def __init__(self):
@@ -77,7 +77,7 @@ class addNewWordTextBoxes:
 
         
 class makeWordList:    
-    def __init__(self,dataIn,fonts,sizes,APIwidth,APIheight,startY,window,jsonFileName):
+    def __init__(self,dataIn,fonts,sizes,APIwidth,APIheight,startY,window,jsonFileName,app):
         # Inputs
         self.dataIn = dataIn
         self.fonts = fonts
@@ -87,6 +87,7 @@ class makeWordList:
         self.startY = startY
         self.window = window
         self.jsonFileName = jsonFileName
+        self.app = app
         # Predefined sizes
         self.Vspacing_wordDefs = 50 # the vertical spacing between each word/def
         self.Hspacing = 15 # horizontal spacing for the word/def lines    
@@ -157,11 +158,27 @@ class makeWordList:
 
     def putEachWordDefsInOneLine(self):        
         for i in range(self.numWordDefs):
-            self.wordDefDetails[i]['wordAndDef'] = self.dataIn[i]["word"] + ": " + self.dataIn[i]["definition"]
+            wordDef = self.dataIn[i]["word"] + ": " + self.dataIn[i]["definition"]
+            wordDef_withHyphens = self.softHypenLongWords(wordDef)
+            self.wordDefDetails[i]['wordAndDef'] = wordDef_withHyphens
+
+    def softHypenLongWords(self, text, max_word_length=15):
+        # Add hyphens to long words which are only used if the word needs to be wrapped
+        words = text.split()  # Split text by spaces
+        wrapped_words = []
+        for word in words:
+            if len(word) > max_word_length:
+                # Insert soft hyphens at every max_word_length characters for long words
+                wrapped_word = '\u00AD'.join([word[i:i+max_word_length] for i in range(0, len(word), max_word_length)])
+                wrapped_words.append(wrapped_word)
+            else:
+                wrapped_words.append(word)
+        # Join words back with spaces
+        return ' '.join(wrapped_words)
 
     def wordDefHeight(self,text):
         fontMetrics = QFontMetrics(self.font_wordAndDef)                
-        bounding_rect = fontMetrics.boundingRect(0,0,int(self.width_wordDef),0, Qt.AlignCenter | Qt.TextWordWrap, text)       
+        bounding_rect = fontMetrics.boundingRect(0,0,int(self.width_wordDef),0, Qt.AlignLeft | Qt.TextWordWrap, text)       
         return bounding_rect.height()
         
     def getWordDefHeights(self):
@@ -282,10 +299,11 @@ class makeWordList:
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded) 
 
     def updateListWithNewWord(self,newWord,newDef): # list in this class
-        textOnOneLine = newWord + ": " + newDef        
-        wordDefHeight = self.wordDefHeight(textOnOneLine)
+        textOnOneLine = newWord + ": " + newDef
+        textOnOneLine_softHyphen = self.softHypenLongWords(textOnOneLine)
+        wordDefHeight = self.wordDefHeight(textOnOneLine_softHyphen)
         new_entry = {'ID': self.numWordDefs,
-                     'wordAndDef': textOnOneLine,
+                     'wordAndDef': textOnOneLine_softHyphen,
                      'textHeight': wordDefHeight,                     
                      'priorityWordTogggles': None,
                      'DeleteButtons': None,
@@ -296,18 +314,22 @@ class makeWordList:
     
     def nudgeEverything(self,nudge,indicesToNudge):
         for i in indicesToNudge:
-            self.adjustGeoWithNewHeight(self.wordDefDetails[i]['priorityWordTogggles'],nudge)
-            self.adjustGeoWithNewHeight(self.wordDefDetails[i]['DeleteButtons'],nudge)
-            self.adjustGeoWithNewHeight(self.wordDefDetails[i]['EditButtons'],nudge)
-            self.adjustGeoWithNewHeight(self.wordDefDetails[i]['wordAndDefTextOb'],nudge)
+            self.adjustGeoTop(self.wordDefDetails[i]['priorityWordTogggles'],nudge)
+            self.adjustGeoTop(self.wordDefDetails[i]['DeleteButtons'],nudge)
+            self.adjustGeoTop(self.wordDefDetails[i]['EditButtons'],nudge)
+            self.adjustGeoTop(self.wordDefDetails[i]['wordAndDefTextOb'],nudge)
             
-    def adjustGeoWithNewHeight(self,handle,nudge):
-        curGeometry = handle.geometry()            
+    def adjustGeoTop(self,handle,nudge):
+        curGeometry = handle.geometry()
         handle.setGeometry(curGeometry.x(),curGeometry.y()+nudge,curGeometry.width(),curGeometry.height())        
 
+    def setGeoTop(self,handle,newTop):
+        curGeometry = handle.geometry()
+        handle.setGeometry(curGeometry.x(),newTop,curGeometry.width(),curGeometry.height())        
+
     def adjustGeoHeight(self,handle,nudge):
-        curGeometry = handle.geometry()            
-        handle.setGeometry(curGeometry.x(),curGeometry.y(),curGeometry.width(),curGeometry.height()+nudge)        
+        curGeometry = handle.geometry()
+        handle.setGeometry(curGeometry.x(),curGeometry.y(),self.width_wordDef,curGeometry.height()+nudge)        
 
     def updateAPIwithNewEntry(self,newWord,newDef):
         self.numWordDefs += 1   
@@ -315,9 +337,10 @@ class makeWordList:
         self.getTotalTextAreaHeight()
         self.updateScrollAreaHeight()   
         # Push all other words down
-        newWordHeight = self.wordDefDetails[self.numWordDefs-1]['textHeight'] + self.Vspacing_wordDefs
+        newWordHeight = self.wordDefDetails[self.numWordDefs-1]['textHeight']
+        nudge = max(newWordHeight,self.height_wPad_delButton) + self.Vspacing_wordDefs
         indicesToNudge = range(self.numWordDefs-1)
-        self.nudgeEverything(newWordHeight,indicesToNudge)             
+        self.nudgeEverything(nudge,indicesToNudge)             
         # Add new word row to top
         self.makeWordDef(self.VspaceAfterSmallTitles,self.numWordDefs-1)
         self.makeToggle(self.VspaceAfterSmallTitles,self.numWordDefs-1)
@@ -327,18 +350,18 @@ class makeWordList:
     def deleteButtonPressed(self, ID):        
         index = self.findIDIndex(ID)    
         # Confirm delete with dialog
-        deleteDialog = DeleteWordDialog(self.fonts,self.window)
+        deleteDialog = DeleteWordDialog(self.fonts,self.window,self.app)
         result = deleteDialog.exec_()
         # Delete word from API and json
         if result == 1:
             # Store row height before deletion (for nudging)
-            rowHeight = self.getRowHeight(index)            
+            nudge = self.getRowHeight(index)                  
             # Delete the word row from the API
             self.deleteIndexInList(index)            
-            # Nudge everything to accomodate deletion  
+            # Nudge everything to accomodate deletion              
             if self.numWordDefs != index:          
                 wordsToNudge = range(index)
-                self.nudgeEverything(-rowHeight-self.Vspacing_wordDefs,wordsToNudge)
+                self.nudgeEverything(-nudge-self.Vspacing_wordDefs,wordsToNudge)
             # Delete word from 'dataIn' and write back to json
             del self.dataIn[index]
             self.writeToJson()
@@ -381,53 +404,45 @@ class makeWordList:
         index = self.findIDIndex(ID)    
         word = self.dataIn[index]['word']
         definition = self.dataIn[index]['definition']
-        editDialog = EditWordDialog(self.fonts,self.window,word,definition)
+        editDialog = EditWordDialog(self.fonts,self.window,word,definition,self.app)
         result = editDialog.exec_()
         if result == 1:
-            new_word, new_definition = editDialog.getNewText()  
-            newWordAndDef = new_word + ": " + new_definition        
-            prevTextHeight = self.wordDefDetails[index]['textHeight']    
-            newTextHeight = self.wordDefHeight(newWordAndDef)
-            nudge = int(newTextHeight - prevTextHeight)
-            self.wordDefDetails[index]['textHeight'] = newTextHeight
-            self.wordDefDetails[index]['wordAndDef'] = newWordAndDef
-            # Adjut the API text
-            self.wordDefDetails[index]['wordAndDefTextOb'].setText(newWordAndDef)            
-            self.adjustGeoHeight(self.wordDefDetails[index]['wordAndDefTextOb'],nudge)
+            # Get the new word and definition, and make a single line word/def
+            new_word, new_definition = editDialog.getNewText() 
             self.dataIn[index]['word'] = new_word
             self.dataIn[index]['definition'] = new_definition
-            if nudge != 0:
+            newWordDef = self.dataIn[index]["word"] + ": " + self.dataIn[index]["definition"]
+            self.wordDefDetails[index]['wordAndDef'] = self.softHypenLongWords(newWordDef)            
+            # Save the previous text height and top, and get the new height    
+            prevTextHeight = self.wordDefDetails[index]['textHeight']    
+            prevTextTop = self.wordDefDetails[index]['wordAndDefTextOb'].geometry().y()
+            newTextHeight = self.wordDefHeight(self.wordDefDetails[index]['wordAndDef'])            
+            # Difference in text heights            
+            diffHeights = newTextHeight - prevTextHeight
+            # Adjust variables in the Python dictionary
+            self.wordDefDetails[index]['textHeight'] = newTextHeight                
+            # Delete word/def and then make anew
+            self.wordDefDetails[index]['wordAndDefTextOb'].deleteLater()
+            topPoint = prevTextTop - (self.height_wPad_delButton/2) + (self.singleLineTextHeight/2)
+            self.makeWordDef(topPoint,index)                                            
+            # Nudge the rows below (up or down depending on whether the word/def got shorter or longer)
+            if diffHeights != 0:
+                nudge = max(newTextHeight,self.height_wPad_delButton) - prevTextHeight            
                 wordsToNudge = range(index)
                 self.nudgeEverything(nudge,wordsToNudge)
-                self.getTotalTextAreaHeight()
-                self.updateScrollAreaHeight() 
-                                  
-        # {'ID': self.numWordDefs,
-        #  'wordAndDef': textOnOneLine,
-        #  'textHeight': wordDefHeight,                     
-        #  'priorityWordTogggles': None,
-        #  'DeleteButtons': None,
-        #  'EditButtons': None,
-        #  'wordAndDefTextOb': None                     
-        #  }
-
-
-
-            
-            # Figure out the height of the new word/def
-            # Then, if this is different from what is was....
-            # Adjust the scollable area
-            # Push everything below down (or up depending on the whether the difference is positive or negative)
-            # And then edit the word/def
-            # If the text height is the same after the user has edited it, just edit the word/def without moving anything around (above)
+            # Adjust scroll area
+            self.getTotalTextAreaHeight()
+            self.updateScrollAreaHeight() 
+            # Save new word/def to json file
+            self.writeToJson()
             
 class DeleteWordDialog(QDialog):
-    def __init__(self, fonts, window):
+    def __init__(self, fonts, window, app):
         # Inheritance
         super().__init__(window)
         # Inputs
         self.fonts = fonts
-        self.window = window        
+        self.window = window    
         # Some details
         self.paddingEdge = 30                    
         self.butPad = 7
@@ -440,6 +455,7 @@ class DeleteWordDialog(QDialog):
         self.makeDeleteButton()
         self.makeCancelButton()
         self.resizeAPI()
+        centerWindowOnScreen(self.window,app)
 
     def dialogStarterProperties(self):
         self.setWindowTitle('Confirm delete')        
@@ -487,7 +503,7 @@ class DeleteWordDialog(QDialog):
         self.setFixedSize(self.width, self.height)
 
 class EditWordDialog(QDialog):
-    def __init__(self, fonts, window, word, definition):
+    def __init__(self, fonts, window, word, definition, app):
         # Inheritance
         super().__init__(window)
         # Inputs
@@ -501,6 +517,7 @@ class EditWordDialog(QDialog):
         self.boxHeight = 40
         self.lowestPoint = 0
         self.buttonWidth = 100
+        self.app = app
         # Functions to run 
         self.dialogStarterProperties()
         self.makeEditBoxTitle_word()
@@ -510,13 +527,14 @@ class EditWordDialog(QDialog):
         self.makeSaveButton()
         self.makeCancelButton()
         self.resizeAPI()
+        centerWindowOnScreen(self.window, self.app)
 
     def dialogStarterProperties(self):
         self.setWindowTitle('Edit word')  
 
     def makeEditBoxTitle_word(self):            
         text = 'Word'
-        textAlignment = Qt.AlignLeft | Qt.AlignVCenter        
+        textAlignment = Qt.AlignLeft | Qt.AlignVCenter
         textPos = (self.padding, self.padding, self.boxWidth, 0)
         self.ST_wordTitle = StaticText(self,self.fonts.font_medium,text,textPos,textAlignment)                 
         self.ST_wordTitle.makeTextObject()
