@@ -117,7 +117,7 @@ def main():
 
     lowestPoint = ST_editWordsTitle.positionAdjust[1] + ST_editWordsTitle.positionAdjust[3]
 
-    # Make the word list in the edit words section
+    # Make the word list in the edit words section, and handle all its actions
     startingY = lowestPoint + sizes.padding_large*2
     wordList = makeWordList(data,fonts,sizes,width,height,startingY,window,curFilePath,app)
        

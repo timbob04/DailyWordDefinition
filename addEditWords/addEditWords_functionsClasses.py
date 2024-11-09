@@ -106,12 +106,11 @@ class makeWordList:
         self.getHorizontalSpacing()
         self.makeDict()
         self.putEachWordDefsInOneLine()
-        self.getWordDefHeights()
+        self.getAllWordDefHeights()
         self.getTotalTextAreaHeight()
         self.makeTitles()
         self.getTopOfScrollArea()
-        self.makeScrollableArea()
-        self.getFirstRowCenter()        
+        self.makeScrollableArea()            
         self.makeInitialWordList()            
         self.addScrollableContent()
     
@@ -120,8 +119,7 @@ class makeWordList:
         curText = "Priority word"
         fontMetrics = QFontMetrics(self.font_priortyWordTitle)
         bounding_rect = fontMetrics.boundingRect(0,0,int(self.textMaxWidth_PW),0, Qt.AlignCenter | Qt.TextWordWrap, curText)       
-        self.width_priorityWord = bounding_rect.width()
-        self.height_priorityWord = bounding_rect.height()
+        self.width_priorityWord = bounding_rect.width()        
         # Get toggle x position
         self.toggleStartX = self.sizes.padding_large + (self.width_priorityWord/2) - (self.sizes.width_toggle/2) 
         # Delete button width
@@ -181,7 +179,7 @@ class makeWordList:
         bounding_rect = fontMetrics.boundingRect(0,0,int(self.width_wordDef),0, Qt.AlignLeft | Qt.TextWordWrap, text)       
         return bounding_rect.height()
         
-    def getWordDefHeights(self):
+    def getAllWordDefHeights(self):
         for i in range(self.numWordDefs):
             curText = self.wordDefDetails[i]['wordAndDef']
             self.wordDefDetails[i]['textHeight'] = self.wordDefHeight(curText)
@@ -215,6 +213,7 @@ class makeWordList:
         
     def getTopOfScrollArea(self):
         self.topOfScrollArea = self.ST_priorityWordTitle.positionAdjust[1] + self.ST_priorityWordTitle.positionAdjust[3]
+        self.startY = self.topOfScrollArea + self.VspaceAfterSmallTitles
 
     def makeScrollableArea(self):
         # Create scrollable area for the current words/defs
@@ -225,12 +224,15 @@ class makeWordList:
         self.scrollable_content = QWidget()
         self.scrollable_content.setFixedSize(self.APIwidth, self.totalTextheight+self.sizes.padding_large)  # Set size of the scrollable content
 
+    def addScrollableContent(self):
+        # Set scroll area properties (should be set after the scrollable content is populated)
+        self.scroll_area.setWidget(self.scrollable_content)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Disable horizontal scrolling
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded) 
+
     def updateScrollAreaHeight(self):
-        self.scrollable_content.setFixedSize(self.APIwidth, self.totalTextheight+self.sizes.padding_large) 
-
-    def getFirstRowCenter(self):
-        self.startY = self.topOfScrollArea + self.VspaceAfterSmallTitles
-
+        self.scrollable_content.setFixedSize(self.APIwidth, self.totalTextheight+self.sizes.padding_large)     
+        
     def makeToggle(self,curRowTop,ind):
         # Positioning
         curRowCenter = curRowTop + (self.height_wPad_delButton/2)
@@ -246,6 +248,9 @@ class makeWordList:
         else:
             curToggleHandle.setChecked(False)
         curToggleHandle.show()
+        # Create function for when a toggle is clicked
+        indToggle = self.wordDefDetails[ind]['ID']
+        curToggleHandle.clicked.connect(lambda _, index=indToggle: self.toggleClicked(index))
         # Store toggle handle
         self.wordDefDetails[ind]['priorityWordTogggles'] = curToggleHandle 
 
@@ -271,7 +276,7 @@ class makeWordList:
         EditButton.clicked.connect(lambda _, index=indEditButton: self.editButtonPressed(index))
         self.wordDefDetails[ind]['EditButtons'] = EditButton                   
       
-    def makeWordDef(self,curRowTop,ind):  
+    def makeWordDefText(self,curRowTop,ind):  
         curRowTop += (self.height_wPad_delButton/2) - (self.singleLineTextHeight/2)
         textAlignment = Qt.AlignVCenter | Qt.AlignLeft        
         text = self.wordDefDetails[ind]['wordAndDef']            
@@ -287,16 +292,10 @@ class makeWordList:
             self.makeToggle(curRowTop,i)
             self.makeDeleteButton(curRowTop,i)
             self.makeEditButton(curRowTop,i)
-            self.makeWordDef(curRowTop,i)
+            self.makeWordDefText(curRowTop,i)
             # Set new row top position
             rowHeight = max(self.wordDefDetails[i]['textHeight'],self.height_wPad_delButton)
             curRowTop = curRowTop + rowHeight + self.Vspacing_wordDefs              
-
-    def addScrollableContent(self):
-        # Set scroll area properties (should be set after the scrollable content is populated)
-        self.scroll_area.setWidget(self.scrollable_content)
-        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Disable horizontal scrolling
-        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded) 
 
     def updateListWithNewWord(self,newWord,newDef): # list in this class
         textOnOneLine = newWord + ": " + newDef
@@ -311,25 +310,6 @@ class makeWordList:
                      'wordAndDefTextOb': None                     
                      }
         self.wordDefDetails.append(new_entry)    
-    
-    def nudgeEverything(self,nudge,indicesToNudge):
-        for i in indicesToNudge:
-            self.adjustGeoTop(self.wordDefDetails[i]['priorityWordTogggles'],nudge)
-            self.adjustGeoTop(self.wordDefDetails[i]['DeleteButtons'],nudge)
-            self.adjustGeoTop(self.wordDefDetails[i]['EditButtons'],nudge)
-            self.adjustGeoTop(self.wordDefDetails[i]['wordAndDefTextOb'],nudge)
-            
-    def adjustGeoTop(self,handle,nudge):
-        curGeometry = handle.geometry()
-        handle.setGeometry(curGeometry.x(),curGeometry.y()+nudge,curGeometry.width(),curGeometry.height())        
-
-    def setGeoTop(self,handle,newTop):
-        curGeometry = handle.geometry()
-        handle.setGeometry(curGeometry.x(),newTop,curGeometry.width(),curGeometry.height())        
-
-    def adjustGeoHeight(self,handle,nudge):
-        curGeometry = handle.geometry()
-        handle.setGeometry(curGeometry.x(),curGeometry.y(),self.width_wordDef,curGeometry.height()+nudge)        
 
     def updateAPIwithNewEntry(self,newWord,newDef):
         self.numWordDefs += 1   
@@ -342,10 +322,30 @@ class makeWordList:
         indicesToNudge = range(self.numWordDefs-1)
         self.nudgeEverything(nudge,indicesToNudge)             
         # Add new word row to top
-        self.makeWordDef(self.VspaceAfterSmallTitles,self.numWordDefs-1)
+        self.makeWordDefText(self.VspaceAfterSmallTitles,self.numWordDefs-1)
         self.makeToggle(self.VspaceAfterSmallTitles,self.numWordDefs-1)
         self.makeDeleteButton(self.VspaceAfterSmallTitles,self.numWordDefs-1)
-        self.makeEditButton(self.VspaceAfterSmallTitles,self.numWordDefs-1)
+        self.makeEditButton(self.VspaceAfterSmallTitles,self.numWordDefs-1)         
+    
+    def nudgeEverything(self,nudge,indicesToNudge):
+        for i in indicesToNudge:
+            self.adjustGeoTop(self.wordDefDetails[i]['priorityWordTogggles'],nudge)
+            self.adjustGeoTop(self.wordDefDetails[i]['DeleteButtons'],nudge)
+            self.adjustGeoTop(self.wordDefDetails[i]['EditButtons'],nudge)
+            self.adjustGeoTop(self.wordDefDetails[i]['wordAndDefTextOb'],nudge)
+            
+    def adjustGeoTop(self,handle,nudge):
+        curGeometry = handle.geometry()
+        handle.setGeometry(curGeometry.x(),curGeometry.y()+nudge,curGeometry.width(),curGeometry.height())                          
+
+    def toggleClicked(self,ID):
+        index = self.findIDIndex(ID)
+        state = self.wordDefDetails[index]['priorityWordTogggles'].isChecked()
+        if state:
+            self.dataIn[index]["is_POD"] = True
+        else:
+            self.dataIn[index]["is_POD"] = False
+        self.writeToJson()    
 
     def deleteButtonPressed(self, ID):        
         index = self.findIDIndex(ID)    
@@ -424,7 +424,7 @@ class makeWordList:
             # Delete word/def and then make anew
             self.wordDefDetails[index]['wordAndDefTextOb'].deleteLater()
             topPoint = prevTextTop - (self.height_wPad_delButton/2) + (self.singleLineTextHeight/2)
-            self.makeWordDef(topPoint,index)                                            
+            self.makeWordDefText(topPoint,index)                                            
             # Nudge the rows below (up or down depending on whether the word/def got shorter or longer)
             if diffHeights != 0:
                 nudge = max(newTextHeight,self.height_wPad_delButton) - prevTextHeight            

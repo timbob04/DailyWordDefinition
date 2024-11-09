@@ -2,69 +2,13 @@
     {
         "word": "Quixotic",
         "definition": "Exceedingly idealistic; unrealistic and impractical.",
-        "WOD_shown": false,
+        "WOD_shown": true,
         "is_POD": true,
-        "POD_shown": false
+        "POD_shown": true
     },
     {
         "word": "Aberration",
-        "definition": "A departure from what is normal, usual, or expected, typically one that is unwelcome. A departure from what is normal, usual, or expected, typically one that is unwelcome. A departure from what is normal, usual, or expected, typically one that is unwelcome. A departure from what is normal, usual, or expected, typically one that is unwelcome.",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": false
-    },
-    {
-        "word": "op",
-        "definition": "da",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": false
-    },
-    {
-        "word": "Flim",
-        "definition": "flm",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": false
-    },
-    {
-        "word": "Cow",
-        "definition": "shed",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": false
-    },
-    {
-        "word": "asal",
-        "definition": "dsadsa",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": false
-    },
-    {
-        "word": "vsavsaf",
-        "definition": "dASDADADFERWsafarwrwdzAdASDADADFERWsafarwrwdzAdASDADADFERWsafarwrwdzAdASDADADFERWsafarwrwdzAdASDADADFERWsafarwrwdzAdASDADADFERWsafarwrwdzAdASDADADFERWsafarwrwdzAdASDADADFERWsafarwrwdzA",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": false
-    },
-    {
-        "word": "dsadsgev",
-        "definition": "dsdfassggdscz",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": false
-    },
-    {
-        "word": "fsafgfsqfwq",
-        "definition": "dsadafsagfewgfsczfa",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": false
-    },
-    {
-        "word": "dsad",
-        "definition": "dsadsa",
+        "definition": "A departure from what is normal, usual, or expected, typically one that is unwelcome.",
         "WOD_shown": false,
         "is_POD": false,
         "POD_shown": false
