@@ -1,6 +1,6 @@
 # My functions/classes
-from .startProgram_functionsClasses import Sizes_startProgram, GetAndShowStartupFolder, startupTogglePressed, startButtonPressed, CheckTimeEntered
-from .startStopProgram_commonFunctions import EditText
+from StartStopProgram.startProgram_functionsClasses import Sizes_startProgram, GetAndShowStartupFolder, startupTogglePressed, startButtonPressed, CheckTimeEntered
+from StartStopProgram.startStopProgram_commonFunctions import EditText
 
 # Other functions/classes
 import sys

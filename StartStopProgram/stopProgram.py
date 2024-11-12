@@ -3,8 +3,8 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox
 from PyQt5.QtCore import Qt
 
-from .startStopProgram_commonFunctions import EditText
-from .stopProgram_functionsClasses import Sizes_stopProgram, OkButtonPressed, CheckTimeEntered
+from StartStopProgram.startStopProgram_commonFunctions import EditText
+from StartStopProgram.stopProgram_functionsClasses import Sizes_stopProgram, OkButtonPressed, CheckTimeEntered
 
 from commonClassesFunctions.functionsClasses import Fonts, centerWindowOnScreen, StaticText, PushButton
 

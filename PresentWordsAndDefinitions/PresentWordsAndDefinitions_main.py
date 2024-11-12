@@ -1,6 +1,6 @@
 import os
 
-from .PresentWordsAndDefinitions_functionsClasses import WODandDef, PODandDef, Sizes_presentWODAPI, ToggleChoices
+from .PresentWordsAndDefinitions_functionsClasses import WODandDef, PODandDef, Sizes_presentWODAPI, saveToggleChoice
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox
@@ -31,8 +31,7 @@ def main():
     # Get WOD and its definition (and update JSON file accordingly)
     curWODandDef = WODandDef(data, curFilePath)
     WOD, WOD_definition = curWODandDef.getAndreturnWOD()
-
-    print(f"Screen size: {WOD} x {WOD_definition} pixels")
+    WODsPODstatus = curWODandDef.getWODsPODstatus()
     
     # Get POD and its definition (and update JSON file accordingly)
     curPODandDef = PODandDef(data, curFilePath)
@@ -64,37 +63,32 @@ def main():
     rightMostPoint = sizes.padding_large + sizes.WODwidth
     lowestPoint = sizes.padding_large + makeTextWithMaxHeight_WOD.textPos[3]  
     centerH_WOD = makeTextWithMaxHeight_WOD.textPos[0] + ( makeTextWithMaxHeight_WOD.textPos[2] / 2 ) 
-
-    # Class to save the toggle button choices (for updating the 'is_POD' status in the json file)
-    toggleChoices = ToggleChoices(data,curFilePath,curWODandDef,curPODandDef)    
-
+    
     # Toggle button - add WOD to priority word list
     toggle_addWOD = QCheckBox('', window)
     leftPoint = rightMostPoint + sizes.padding_large + (sizes.smallTextWidth/2) - (sizes.width_toggle/2)
     topPoint = sizes.padding_large + sizes.padding_medium
     textPos = (leftPoint,topPoint,sizes.width_toggle,sizes.width_toggle)
     toggle_addWOD.setGeometry(*(int(x) for x in textPos))
-    toggle_addWOD.setStyleSheet(f"QCheckBox::indicator {{ width: {sizes.width_toggle}px; height: {sizes.width_toggle}px; }}")
-    toggle_addWOD.setChecked(False)
-    if PODisWOD:
-        toggle_addWOD.setEnabled(False)
+    toggle_addWOD.setStyleSheet(f"QCheckBox::indicator {{ width: {sizes.width_toggle}px; height: {sizes.width_toggle}px; }}")    
+    if WODsPODstatus:
+        toggle_addWOD.setChecked(True)
+    else:
+        toggle_addWOD.setChecked(False)
     toggle_addWOD.hide()
-    toggle_addWOD.clicked.connect(lambda: toggleChoices.addWODtogglePressed(toggle_addWOD))
-
-    centerH = textPos[0] + ( textPos[2] / 2 )
-    leftPoint_toggleWOD = leftPoint
+    wordPos = curWODandDef.positionOfWOD
+    toggle_addWOD.clicked.connect(lambda: saveToggleChoice(toggle_addWOD,curFilePath,data,wordPos))
+    centerH = textPos[0] + ( textPos[2] / 2 )    
 
     # Toggle button text - Add WOD
-    text = 'Add word to priority word list'
+    text = 'Set word as priority word (show more often)'
     textAlignment = Qt.AlignCenter | Qt.AlignTop | Qt.TextWordWrap       
     topPoint = topPoint + sizes.width_toggle + sizes.padding_small
     textPos = (centerH, topPoint, sizes.smallTextWidth, 0)
     ST_addWODtext = StaticText(window,fonts.font_tiny,text,textPos,textAlignment)     
     ST_addWODtext.centerAlign_H()
     toggleText_addWOD = ST_addWODtext.makeTextObject()
-    toggleText_addWOD.hide()
-    if PODisWOD:
-        toggleText_addWOD.setStyleSheet("color: gray;")
+    toggleText_addWOD.hide()    
 
     rightMostPoint = centerH + (sizes.smallTextWidth/2)
     lowestPoint = max(lowestPoint,topPoint+ST_addWODtext.positionAdjust[3])
@@ -125,31 +119,7 @@ def main():
     makeTextWithMaxHeight_POD.text = text
 
     lowestPoint = lowestPoint + makeTextWithMaxHeight_POD.textPos[3]    
-    rightMostPoint = makeTextWithMaxHeight_POD.textPos[0] + makeTextWithMaxHeight_POD.textPos[2]
-
-    # Toggle button - Remove word from priority word list
-    toggle_remPOD = QCheckBox('', window)
-    leftPoint = leftPoint_toggleWOD
-    topPoint = topPoint_PODtitle
-    textPos = (leftPoint,topPoint,sizes.width_toggle,sizes.width_toggle)
-    toggle_remPOD.setGeometry(*(int(x) for x in textPos))
-    toggle_remPOD.setStyleSheet(f"QCheckBox::indicator {{ width: {sizes.width_toggle}px; height: {sizes.width_toggle}px; }}")
-    toggle_remPOD.setChecked(False)
-    toggle_remPOD.hide()
-    toggle_remPOD.clicked.connect(lambda: toggleChoices.remPODtogglePressed(toggle_remPOD))    
-
-    centerH = textPos[0] + (textPos[2] / 2)
-
-    # Toggle button text - Rem POD
-    text = 'Remove priority word from priority word list'
-    textAlignment = Qt.AlignCenter | Qt.AlignTop | Qt.TextWordWrap   
-    topPoint = topPoint + sizes.width_toggle + sizes.padding_small
-    textPos = (centerH, topPoint, sizes.smallTextWidth, 0)
-    ST_remPODtext = StaticText(window,fonts.font_tiny,text,textPos,textAlignment) 
-    ST_remPODtext.centerAlign_H()        
-
-    rightMostPoint = centerH + (sizes.smallTextWidth/2)
-    lowestPoint = max(lowestPoint,ST_remPODtext.positionAdjust[1]+ST_remPODtext.positionAdjust[3])
+    rightMostPoint_bottom = makeTextWithMaxHeight_POD.textPos[0] + makeTextWithMaxHeight_POD.textPos[2]
 
     # Make 'Reveal word definition' button and define its actions (clicked.connect)
     text = 'Reveal word definition'      
@@ -163,23 +133,10 @@ def main():
     revealButton.clicked.connect(lambda: toggle_addWOD.show()) # reveal toggle to add WOD to priority words    
     revealButton.clicked.connect(lambda: toggleText_addWOD.show()) # reeal text for the add WOD toggle
     revealButton.clicked.connect(ST_PODtitle.makeTextObject)    
-    revealButton.clicked.connect(makeTextWithMaxHeight_POD.editText)  
-    revealButton.clicked.connect(lambda: toggle_remPOD.show())  
-    revealButton.clicked.connect(ST_remPODtext.makeTextObject)
-    
-    # Make 'Reveal word definition' button and define its actions (clicked.connect)
-    text = 'Save choices'      
-    position = (centerH,lowestPoint+(sizes.padding_large*2),0,0)
-    pushButton_saveChoices = PushButton(window,fonts.font_medium,text,position)     
-    pushButton_saveChoices.centerAlign_H()
-    saveChoicesButton = pushButton_saveChoices.makeButton() 
-    saveChoicesButton.hide()
-    saveChoicesButton.clicked.connect(toggleChoices.saveToggleChoices)   
-    revealButton.clicked.connect(saveChoicesButton.show)
-
+    revealButton.clicked.connect(makeTextWithMaxHeight_POD.editText)      
+   
     lowestPoint = lowestPoint + pushButton_reveal.positionAdjust[3] + (sizes.padding_large*2)
-
-    rightMostPoint_bottom = max(rightMostPoint,pushButton_saveChoices.positionAdjust[0]+pushButton_saveChoices.positionAdjust[2])
+    
     rightMostPoint_all = max(rightMostPoint_top,rightMostPoint_bottom) 
 
     # Resize window

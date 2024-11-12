@@ -1,7 +1,6 @@
 from PyQt5.QtGui import QFont, QFontMetrics
 from PyQt5.QtWidgets import QLabel, QPushButton, QLineEdit
 from PyQt5.QtCore import Qt
-import re
 
 class Fonts:
     def __init__(self):

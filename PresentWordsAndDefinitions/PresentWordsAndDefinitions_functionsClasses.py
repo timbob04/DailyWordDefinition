@@ -35,6 +35,7 @@ class WODandDef():
         self.definition = ""
         self.dataExists = False
         self.WODpresent = False
+        self.WODsPODstatus = False
         # Methods on initiation
         self.doesDataExist()
         if self.dataExists:
@@ -77,11 +78,15 @@ class WODandDef():
             json.dump(self.dataIn, file, indent=4)  
 
     def getAndreturnWOD(self): 
-        if self.WODpresent:
-            #print(self.positionOfWOD)
+        if self.WODpresent:            
             self.WOD = self.dataIn[self.positionOfWOD]['word']
             self.definition = self.dataIn[self.positionOfWOD]['definition']
         return self.WOD, self.definition
+    
+    def getWODsPODstatus(self):
+        if self.WODpresent:
+            self.WODsPODstatus = self.dataIn[self.positionOfWOD]['is_POD']
+        return self.WODsPODstatus
 
 class PODandDef():
     def __init__(self,dataIn,fileName):       
@@ -151,41 +156,17 @@ class PODandDef():
             self.PODandDef = POD + ": " + definition
         return self.PODandDef
 
-class ToggleChoices:
-    def __init__(self, jsonData, jsonFilePath, WODob, PODob):
-        self.jsonData = jsonData
-        self.jsonFilePath = jsonFilePath
-        self.WODob = WODob
-        self.PODob = PODob
-        self.addWOD = False
-        self.remPriorityWOD = False        
+def saveToggleChoice(h_toggle,jsonFilePath,jsonData,pos):            
+    # Update data
+    if h_toggle.isChecked(): 
+        jsonData[pos]['is_POD'] = True
+    else:
+        jsonData[pos]['is_POD'] = False   
+    # Save data
+    with open(jsonFilePath, 'w') as file:
+        json.dump(jsonData, file, indent=4)    
+            
 
-    def addWODtogglePressed(self,h_toggle):
-        if h_toggle.isChecked():
-            self.addWOD = True
-        else:
-            self.addWOD = False    
-
-    def remPODtogglePressed(self,h_toggle):
-        if h_toggle.isChecked():
-            self.remPriorityWOD = True
-        else:
-            self.remPriorityWOD = False   
-
-    def saveToggleChoices(self):
-        # Determine if WOD is now a POD and save choice - for the WOD, change its 'is_POD'
-        if self.addWOD:
-            self.jsonData[self.WODob.positionOfWOD]['is_POD'] = True
-        else:
-            self.jsonData[self.WODob.positionOfWOD]['is_POD'] = False
-        # Determine if POD is now not a POD, and save choices - for the POD, change its 'is_POD'
-        if self.remPriorityWOD:
-            self.jsonData[self.PODob.positionOfPOD]['is_POD'] = False
-        else:
-            self.jsonData[self.PODob.positionOfPOD]['is_POD'] = True    
-        # Save changes to json file
-        with open(self.jsonFilePath, 'w') as file:
-            json.dump(self.jsonData, file, indent=4)    
 
 
 
