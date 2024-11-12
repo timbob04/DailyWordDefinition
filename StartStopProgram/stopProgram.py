@@ -8,6 +8,8 @@ from StartStopProgram.stopProgram_functionsClasses import Sizes_stopProgram, OkB
 
 from commonClassesFunctions.functionsClasses import Fonts, centerWindowOnScreen, StaticText, PushButton
 
+from addEditWords.addEditWords_main import addEditWords
+
 def stopProgram():
 
     # Make window
@@ -113,21 +115,30 @@ def stopProgram():
     rightMostPoint = ST_Or.positionAdjust[0] + ST_Or.positionAdjust[2]
     lowestPoint = ST_Or.positionAdjust[1] + ST_Or.positionAdjust[3]
 
+    # Edit word list button
+    text = 'Edit word list'
+    top = lowestPoint + sizes.padding_large*5
+    position = (sizes.padding_large, top, 0, 0)
+    PB_editWordList = PushButton(window,fonts.font_medium,text,position)        
+    button_editWordList = PB_editWordList.makeButton()
+    button_editWordList.clicked.connect(addEditWords)
+
+    lowestPoint = PB_editWordList.positionAdjust[1] + PB_editWordList.positionAdjust[3]
+
     # Ok button
     text = 'Ok'
     position = (rightMostPoint_topRow, lowestPoint, 0, 0)
     PB_Ok = PushButton(window,fonts.font_large,text,position)
     PB_Ok.rightAlign()
+    PB_Ok.bottomAlign()
     button_Ok = PB_Ok.makeButton()
-    button_Ok.clicked.connect(lambda: OkButtonPressed(window,checkTimeEntered,toggle_stopProgram,ET_hours.text(),ET_mins.text()))
-
-    lowestPoint = PB_Ok.positionAdjust[1] + PB_Ok.positionAdjust[3]
+    button_Ok.clicked.connect(lambda: OkButtonPressed(window,checkTimeEntered,toggle_stopProgram,ET_hours.text(),ET_mins.text()))    
 
     # Resize window
     window.resize(rightMostPoint_topRow+sizes.padding_large, lowestPoint+sizes.padding_large)
 
     # Center the window - put in the function (pass it 'window' and 'app')
-    centerWindowOnScreen(window, app)
+    centerWindowOnScreen(window)
 
     # Show window
     window.show()

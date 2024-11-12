@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QFont, QTextDocument, QFontMetrics
-from PyQt5.QtWidgets import QLabel, QScrollArea, QPushButton
+from PyQt5.QtWidgets import QLabel, QScrollArea, QPushButton, QApplication
 from PyQt5.QtCore import Qt
 import json
 
@@ -53,9 +53,10 @@ def calculateTextboxDim(text, width, font=None, textAlignment=None):
     
     return height
 
-def centerWindowOnScreen(window, app):
+def centerWindowOnScreen(window):
     frameGm = window.frameGeometry()
-    screen = app.primaryScreen()
+    # screen = app.primaryScreen()
+    screen = QApplication.primaryScreen()
     centerPoint = screen.availableGeometry().center()
     frameGm.moveCenter(centerPoint)
     window.move(frameGm.topLeft())   
@@ -227,6 +228,9 @@ class PushButton:
     def rightAlign(self):
         self.positionAdjust[0] = self.positionAdjust[0] - self.positionAdjust[2] 
 
+    def bottomAlign(self):
+        self.positionAdjust[1] = self.positionAdjust[1] - self.positionAdjust[3]
+
     def setButtonPadding(self, padding_H, padding_V): # for adjusting the button padding
         self.buttonPadding_H = padding_H
         self.buttonPadding_V = padding_V
@@ -240,9 +244,9 @@ class PushButton:
         button.setStyleSheet("QPushButton { text-align: center }")
         return button       
     
-def getScreenWidthHeight(app):
+def getScreenWidthHeight():
     # Get screen geometry
-    screen = app.primaryScreen()
+    screen = QApplication.primaryScreen()
     screen_geometry = screen.availableGeometry()
 
     # Get the screen width and height

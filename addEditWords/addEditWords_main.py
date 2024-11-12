@@ -1,19 +1,18 @@
 import sys, os
 import json
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog
+from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtGui import QPainter, QPen
 
 from commonClassesFunctions.functionsClasses import centerWindowOnScreen, getScreenWidthHeight, Fonts, StaticText, readJSONfile, PushButton
 
-from .addEditWords_functionsClasses import Sizes_addEditWords, addNewWordTextBoxes, makeWordList
+from addEditWords.addEditWords_functionsClasses import Sizes_addEditWords, addNewWordTextBoxes, makeWordList
 
 from PyQt5.QtCore import Qt
 
-def main():
+def addEditWords():
 
-    # Make window
-    app = QApplication(sys.argv)    
+    # Make window    
     window = QMainWindow()    
     window.setWindowTitle('Add/edit words')
 
@@ -35,7 +34,7 @@ def main():
     sizes.defineSizes() 
 
     # Get the monitor width and height
-    monWidth, monHeight = getScreenWidthHeight(app)
+    monWidth, monHeight = getScreenWidthHeight()
 
     # Determine the API width and height to use
     width = min(sizes.APIwidth,monWidth)
@@ -119,15 +118,10 @@ def main():
 
     # Make the word list in the edit words section, and handle all its actions
     startingY = lowestPoint + sizes.padding_large*2
-    wordList = makeWordList(data,fonts,sizes,width,height,startingY,window,curFilePath,app)
+    wordList = makeWordList(data,fonts,sizes,width,height,startingY,window,curFilePath)
        
     # Center the window - put in the function (pass it 'window' and 'app')
-    centerWindowOnScreen(window, app)
+    centerWindowOnScreen(window)
 
     # Show window
     window.show()
-
-    # Run application's event loop
-    sys.exit(app.exec_())
-    
-main()    

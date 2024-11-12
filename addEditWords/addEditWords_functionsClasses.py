@@ -77,7 +77,7 @@ class addNewWordTextBoxes:
 
         
 class makeWordList:    
-    def __init__(self,dataIn,fonts,sizes,APIwidth,APIheight,startY,window,jsonFileName,app):
+    def __init__(self,dataIn,fonts,sizes,APIwidth,APIheight,startY,window,jsonFileName):
         # Inputs
         self.dataIn = dataIn
         self.fonts = fonts
@@ -86,8 +86,7 @@ class makeWordList:
         self.APIheight = APIheight
         self.startY = startY
         self.window = window
-        self.jsonFileName = jsonFileName
-        self.app = app
+        self.jsonFileName = jsonFileName        
         # Predefined sizes
         self.Vspacing_wordDefs = 50 # the vertical spacing between each word/def
         self.Hspacing = 15 # horizontal spacing for the word/def lines    
@@ -372,7 +371,7 @@ class makeWordList:
     def deleteButtonPressed(self, ID):        
         index = self.findIDIndex(ID)    
         # Confirm delete with dialog
-        deleteDialog = DeleteWordDialog(self.fonts,self.window,self.app)
+        deleteDialog = DeleteWordDialog(self.fonts,self.window)
         result = deleteDialog.exec_()
         # Delete word from API and json
         if result == 1: # if delete confirmed
@@ -422,7 +421,7 @@ class makeWordList:
         word = self.dataIn[index]['word']
         definition = self.dataIn[index]['definition']
         # Run dialog box for the user to edit the word and/or definition
-        editDialog = EditWordDialog(self.fonts,self.window,word,definition,self.app)
+        editDialog = EditWordDialog(self.fonts,self.window,word,definition)
         result = editDialog.exec_()
         if result == 1: # If the user wants to save the edit
             # Get the new word and definition from the dialog text entry boxes
@@ -456,7 +455,7 @@ class makeWordList:
             self.writeToJson()
             
 class DeleteWordDialog(QDialog):
-    def __init__(self, fonts, window, app):
+    def __init__(self, fonts, window):
         # Inheritance
         super().__init__(window)
         # Inputs
@@ -474,7 +473,7 @@ class DeleteWordDialog(QDialog):
         self.makeDeleteButton()
         self.makeCancelButton()
         self.resizeAPI()
-        centerWindowOnScreen(self.window,app)
+        centerWindowOnScreen(self.window)
 
     def dialogStarterProperties(self):
         self.setWindowTitle('Confirm delete')        
@@ -522,7 +521,7 @@ class DeleteWordDialog(QDialog):
         self.setFixedSize(self.width_API, self.height)
 
 class EditWordDialog(QDialog):
-    def __init__(self, fonts, window, word, definition, app):
+    def __init__(self, fonts, window, word, definition):
         # Inheritance
         super().__init__(window)
         # Inputs
@@ -535,8 +534,7 @@ class EditWordDialog(QDialog):
         self.boxWidth = 400
         self.boxHeight = 40
         self.lowestPoint = 0
-        self.buttonWidth = 100
-        self.app = app        
+        self.buttonWidth = 100         
         # Functions to run 
         self.dialogStarterProperties()
         self.makeEditBoxTitle_word()
@@ -546,7 +544,7 @@ class EditWordDialog(QDialog):
         self.makeSaveButton()
         self.makeCancelButton()
         self.resizeAPI()
-        centerWindowOnScreen(self.window, self.app)
+        centerWindowOnScreen(self.window)
 
     def dialogStarterProperties(self):
         self.setWindowTitle('Edit word')  

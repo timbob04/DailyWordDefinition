@@ -28,15 +28,15 @@
         "POD_shown": false
     },
     {
-        "word": "dsad",
-        "definition": "saf",
-        "WOD_shown": false,
-        "is_POD": true,
-        "POD_shown": true
-    },
-    {
         "word": "dsadsa",
         "definition": "dds",
+        "WOD_shown": false,
+        "is_POD": false,
+        "POD_shown": false
+    },
+    {
+        "word": "Pork",
+        "definition": "store",
         "WOD_shown": false,
         "is_POD": false,
         "POD_shown": false

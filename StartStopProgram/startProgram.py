@@ -9,6 +9,8 @@ from PyQt5.QtCore import Qt
 
 from commonClassesFunctions.functionsClasses import Fonts, centerWindowOnScreen, StaticText, PushButton
 
+from addEditWords.addEditWords_main import addEditWords
+
 def startProgram():
 
     # Make window
@@ -96,8 +98,7 @@ def startProgram():
     ST_startup = StaticText(window,fonts.font_small,text,position,textAlignment)
     ST_startup.centerAlign_V()
     ST_startup.makeTextObject()
-
-    rightMostPoint_startupText = position[0] + position[2]
+ 
     lowestPoint = ST_startup.positionAdjust[1] + ST_startup.positionAdjust[3]
 
     # Get and show startup folder
@@ -118,11 +119,21 @@ def startProgram():
     # Make slot for button for when it is pressed
     button_change.clicked.connect(getAndShowStartupFolder.updatePath)
 
+    # Edit word list button
+    text = 'Edit word list'
+    top = lowestPoint + sizes.padding_large*2
+    position = (sizes.padding_large, top, 0, 0)
+    PB_editWordList = PushButton(window,fonts.font_medium,text,position)        
+    button_editWordList = PB_editWordList.makeButton()
+    button_editWordList.clicked.connect(addEditWords)
+
+    lowestPoint = PB_editWordList.positionAdjust[1] + PB_editWordList.positionAdjust[3]
+
     # Start button
     text = 'Start'
-    position = (rightMostPoint_topRow, centerV_toggleButton, 0, 0)
+    position = (rightMostPoint_topRow, lowestPoint, 0, 0)
     PB_start = PushButton(window,fonts.font_large_bold,text,position)
-    PB_start.centerAlign_V()
+    PB_start.bottomAlign()
     PB_start.rightAlign()
     button_start = PB_start.makeButton()
     button_start.clicked.connect(lambda: startButtonPressed(window,checkTimeEntered,ET_hours.text(),ET_mins.text(),toggle_startup,getAndShowStartupFolder))
@@ -134,7 +145,7 @@ def startProgram():
     window.resize(rightMostPoint_final+sizes.padding_large, lowestPoint+sizes.padding_large)
 
     # Center the window - put in the function (pass it 'window' and 'app')
-    centerWindowOnScreen(window, app)
+    centerWindowOnScreen(window)
 
     # Show window
     window.show()
