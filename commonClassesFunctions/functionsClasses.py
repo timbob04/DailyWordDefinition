@@ -2,6 +2,7 @@ from PyQt5.QtGui import QFont, QTextDocument, QFontMetrics
 from PyQt5.QtWidgets import QLabel, QScrollArea, QPushButton, QApplication
 from PyQt5.QtCore import Qt
 import json
+import os
 
 class Fonts:
     def __init__(self):
@@ -262,3 +263,12 @@ def readJSONfile(filepath):
             return data
     except (json.JSONDecodeError, FileNotFoundError, IOError):
         return None
+    
+def cleanUpPID(PIDname):
+    if os.path.exists(PIDname):
+            os.remove(PIDname)
+
+def createPID(PIDname):
+    pid = os.getpid()
+    with open(PIDname, "w") as f:
+        f.write(str(pid))              

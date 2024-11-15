@@ -1,17 +1,34 @@
 import os
+import time
 
-from .PresentWordsAndDefinitions_functionsClasses import WODandDef, PODandDef, Sizes_presentWODAPI, saveToggleChoice
+from PresentWordsAndDefinitions.PresentWordsAndDefinitions_functionsClasses import WODandDef, PODandDef, Sizes_presentWODAPI, saveToggleChoice
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox
 import sys
 
-from commonClassesFunctions.functionsClasses import Fonts, readJSONfile, MakeTextWithMaxHeight, centerWindowOnScreen, StaticText, PushButton
+from commonClassesFunctions.functionsClasses import Fonts, readJSONfile, MakeTextWithMaxHeight, centerWindowOnScreen, StaticText, PushButton, cleanUpPID, createPID
 
-def main():
+def presentWordsAPI():
 
-    # Make window
-    app = QApplication(sys.argv)    
+    PIDname = "PresentWordsAndDefinitions.pid"
+
+    # Checks to see if an application is already open and closes it if there is
+    appOpen = QApplication.instance()
+    if appOpen:
+        # Close application
+        appOpen.quit()
+        # Delete any previous PIDs
+        cleanUpPID(PIDname)
+        time.sleep(1)
+
+    # Start an application
+    app = QApplication(sys.argv)  
+
+    # Create PID for current QApplication
+    createPID(PIDname)
+
+    # Create window in the application
     window = QMainWindow()    
     window.setWindowTitle('Word of the day')
 
@@ -149,6 +166,10 @@ def main():
     window.show()
 
     # Run application's event loop
-    sys.exit(app.exec_())
-    
-main()    
+    exit_code = app.exec_()
+
+    # Delete programs PID on program exit
+    cleanUpPID(PIDname)
+
+    # Exit application
+    sys.exit(exit_code)
