@@ -136,6 +136,7 @@ class MakeTextWithMaxHeight:
 
     def editText(self):
         self.textBox.setText(self.text)
+        print("Willy wank")
 
 # Create static text boxes
 class StaticText:

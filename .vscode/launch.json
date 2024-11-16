@@ -18,6 +18,14 @@
             "justMyCode": false
         },
         {
+            "name": "Debug another API",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "PresentWordsAndDefinitions.running",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
             "name": "Debug an API",
             "type": "debugpy",
             "request": "launch",

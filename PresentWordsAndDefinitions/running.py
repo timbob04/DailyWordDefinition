@@ -3,34 +3,15 @@ import time
 
 from PresentWordsAndDefinitions.PresentWordsAndDefinitions_functionsClasses import WODandDef, PODandDef, Sizes_presentWODAPI, saveToggleChoice
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox
 import sys
 
+from datetime import datetime
+
 from commonClassesFunctions.functionsClasses import Fonts, readJSONfile, MakeTextWithMaxHeight, centerWindowOnScreen, StaticText, PushButton, cleanUpPID, createPID
 
-def presentWordsAPI():
-
-    PIDname = "PresentWordsAndDefinitions.pid"
-
-    # Checks to see if an application is already open and closes it if this is true
-    appOpen = QApplication.instance()
-    if appOpen:
-        # Close application
-        appOpen.quit()
-        # Delete any previous PIDs
-        cleanUpPID(PIDname)
-        time.sleep(1)
-
-    # Start an application
-    app = QApplication(sys.argv)  
-
-    # Create PID for current QApplication
-    createPID(PIDname)
-
-    # Create window in the application
-    window = QMainWindow()    
-    window.setWindowTitle('Word of the day')
+def getAndMakeAPIcontent(window):
 
     # Predefined sizes of things
     sizes = Sizes_presentWODAPI()
@@ -54,9 +35,7 @@ def presentWordsAPI():
     curPODandDef = PODandDef(data, curFilePath)
     PODwithDef = curPODandDef.getAndreturnPOD()    
 
-    # Are the WOD and POD the same?
-    PODisWOD = PODwithDef[:len(WOD)] == WOD    
-
+    # Fonts
     fonts = Fonts()
     fonts.makeFonts()
 
@@ -120,7 +99,6 @@ def presentWordsAPI():
     ST_PODtitle.centerAlign_H()    
 
     lowestPoint = ST_PODtitle.positionAdjust[1] + ST_PODtitle.positionAdjust[3]
-    topPoint_PODtitle = topPoint
 
     # Print the priority word
     textAlignment = Qt.AlignHCenter | Qt.AlignTop 
@@ -159,11 +137,68 @@ def presentWordsAPI():
     # Resize window
     window.resize(int(rightMostPoint_all+sizes.padding_large), int(lowestPoint+sizes.padding_large))
 
-    # Center the window - put in the function (pass it 'window' and 'app')
-    centerWindowOnScreen(window)
 
-    # Show window
-    window.show()
+def getTimeToShowAPI():
+    # Get path of accessory files
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
+    # Path to json file for words and definitions
+    time_dir = os.path.join(accessoryFiles_dir, 'timeToRunApplication.txt')
+    with open(time_dir, 'r') as file:
+        time_str = file.read().strip()  # Read the time string and remove any extra whitespace
+        return datetime.strptime(time_str, "%H:%M").time() 
+    
+def checkIfTimeMatches(timeToShowDailyWord):
+    # Get the current time of day
+    current_time = datetime.now().time()
+    # Compare the current time to the target time
+    return current_time.hour == timeToShowDailyWord.hour and current_time.minute == timeToShowDailyWord.minute    
+    
+def timeReached(window):
+
+    # Get time to show API    
+    timeToShowDailyWord = getTimeToShowAPI()
+
+    if checkIfTimeMatches(timeToShowDailyWord):
+
+        # Close previous day's word window, if present
+        if window:
+           window.close()
+           window.setCentralWidget(None) # Clear all previous window content
+           time.sleep(0.1)
+
+        # Make API's new daily content
+        getAndMakeAPIcontent(window)    
+
+        time.sleep(3) # So I don't run the function again within the same minute
+
+        # Show window
+        window.show()
+
+        # Center the window - put in the function (pass it 'window' and 'app')
+        centerWindowOnScreen(window)
+
+        
+
+    
+def runApplicationTimingLoop():
+    
+    PIDname = "PresentWordsAndDefinitions.pid"    
+    
+    # Start an application
+    app = QApplication(sys.argv)  
+
+    # Create PID for current QApplication
+    createPID(PIDname)    
+
+    # Make a current window
+    window = QMainWindow()
+    window.setWindowTitle('Word of the day') 
+
+    # Crete timer to check time periodically and generate API if desired time arrives
+    timer = QTimer()
+    timer.timeout.connect(lambda: timeReached(window))
+    timer.start(58000)    
 
     # Run application's event loop
     exit_code = app.exec_()
@@ -173,3 +208,9 @@ def presentWordsAPI():
 
     # Exit application
     sys.exit(exit_code)
+
+runApplicationTimingLoop()
+
+    
+
+
