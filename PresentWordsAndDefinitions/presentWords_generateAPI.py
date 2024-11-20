@@ -1,36 +1,10 @@
 import os
-import time
-
-from PresentWordsAndDefinitions.PresentWordsAndDefinitions_functionsClasses import WODandDef, PODandDef, Sizes_presentWODAPI, saveToggleChoice
-
+from PresentWordsAndDefinitions.presentWords_functionsClasses import WODandDef, PODandDef, Sizes_presentWODAPI, saveToggleChoice
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox
-import sys
+from PyQt5.QtWidgets import QCheckBox
+from commonClassesFunctions.functionsClasses import Fonts, readJSONfile, MakeTextWithMaxHeight, StaticText, PushButton
 
-from commonClassesFunctions.functionsClasses import Fonts, readJSONfile, MakeTextWithMaxHeight, centerWindowOnScreen, StaticText, PushButton, cleanUpPID, createPID
-
-def presentWordsAPI():
-
-    PIDname = "PresentWordsAndDefinitions.pid"
-
-    # Checks to see if an application is already open and closes it if this is true
-    appOpen = QApplication.instance()
-    if appOpen:
-        # Close application
-        appOpen.quit()
-        # Delete any previous PIDs
-        cleanUpPID(PIDname)
-        time.sleep(1)
-
-    # Start an application
-    app = QApplication(sys.argv)  
-
-    # Create PID for current QApplication
-    createPID(PIDname)
-
-    # Create window in the application
-    window = QMainWindow()    
-    window.setWindowTitle('Word of the day')
+def getAndMakeAPIcontent(window):
 
     # Predefined sizes of things
     sizes = Sizes_presentWODAPI()
@@ -54,9 +28,7 @@ def presentWordsAPI():
     curPODandDef = PODandDef(data, curFilePath)
     PODwithDef = curPODandDef.getAndreturnPOD()    
 
-    # Are the WOD and POD the same?
-    PODisWOD = PODwithDef[:len(WOD)] == WOD    
-
+    # Fonts
     fonts = Fonts()
     fonts.makeFonts()
 
@@ -67,19 +39,19 @@ def presentWordsAPI():
         text = WOD + ": "
     else:
         text = WOD
-    makeTextWithMaxHeight_WOD = MakeTextWithMaxHeight(window,WODwithDef,sizes.padding_large, \
+    window.makeTextWithMaxHeight_WOD = MakeTextWithMaxHeight(window,WODwithDef,sizes.padding_large, \
                                                   sizes.padding_large,sizes.WODwidth, \
                                                   sizes.maxWODheight,fonts.font_mediumLarge,\
-                                                    textAlignment)     
+                                                    textAlignment) # make part of 'window', but this will need to be used after this function is run, and everything apart from window is destroyed  
     # Make the text using the WOD without definition to start
-    makeTextWithMaxHeight_WOD.text = text
-    makeTextWithMaxHeight_WOD.makeText()
-    # Adjust the text inside makeTextWithMaxHeight_WOD for chaning later when the reveal button is pressed
-    makeTextWithMaxHeight_WOD.text = WODwithDef
+    window.makeTextWithMaxHeight_WOD.text = text
+    window.makeTextWithMaxHeight_WOD.makeText()
+    # Adjust the text inside window.makeTextWithMaxHeight_WOD for chaning later when the reveal button is pressed
+    window.makeTextWithMaxHeight_WOD.text = WODwithDef
     
     rightMostPoint = sizes.padding_large + sizes.WODwidth
-    lowestPoint = sizes.padding_large + makeTextWithMaxHeight_WOD.textPos[3]  
-    centerH_WOD = makeTextWithMaxHeight_WOD.textPos[0] + ( makeTextWithMaxHeight_WOD.textPos[2] / 2 ) 
+    lowestPoint = sizes.padding_large + window.makeTextWithMaxHeight_WOD.textPos[3]  
+    centerH_WOD = window.makeTextWithMaxHeight_WOD.textPos[0] + ( window.makeTextWithMaxHeight_WOD.textPos[2] / 2 ) 
     
     # Toggle button - add WOD to priority word list
     toggle_addWOD = QCheckBox('', window)
@@ -117,26 +89,27 @@ def presentWordsAPI():
     topPoint = lowestPoint + (sizes.padding_large*2)
     textPos = (centerH_WOD, topPoint, sizes.PODwidth, 0)
     ST_PODtitle = StaticText(window,fonts.font_small_italic_bold,text,textPos,textAlignment)     
-    ST_PODtitle.centerAlign_H()    
+    ST_PODtitle.centerAlign_H()  
+    PODtitle = ST_PODtitle.makeTextObject()  
+    PODtitle.hide()
 
     lowestPoint = ST_PODtitle.positionAdjust[1] + ST_PODtitle.positionAdjust[3]
-    topPoint_PODtitle = topPoint
 
     # Print the priority word
     textAlignment = Qt.AlignHCenter | Qt.AlignTop 
     text = PODwithDef
-    makeTextWithMaxHeight_POD = MakeTextWithMaxHeight(window,text,centerH_WOD, \
+    window.makeTextWithMaxHeight_POD = MakeTextWithMaxHeight(window,text,centerH_WOD, \
                                                   lowestPoint + sizes.padding_small,sizes.PODwidth, \
                                                   sizes.maxPODheight,fonts.font_small_italic,\
-                                                    textAlignment)     
+                                                    textAlignment) # make part of 'window', but this will need to be used after this function is run, and everything apart from window is destroyed
     # Make the text initially blank, and then have this updated to the POD when the reveal button is pressed
-    makeTextWithMaxHeight_POD.centerH()
-    makeTextWithMaxHeight_POD.text = ""
-    makeTextWithMaxHeight_POD.makeText()
-    makeTextWithMaxHeight_POD.text = text
+    window.makeTextWithMaxHeight_POD.centerH()
+    window.makeTextWithMaxHeight_POD.text = ""
+    window.makeTextWithMaxHeight_POD.makeText()
+    window.makeTextWithMaxHeight_POD.text = text
 
-    lowestPoint = lowestPoint + makeTextWithMaxHeight_POD.textPos[3]    
-    rightMostPoint_bottom = makeTextWithMaxHeight_POD.textPos[0] + makeTextWithMaxHeight_POD.textPos[2]
+    lowestPoint = lowestPoint + window.makeTextWithMaxHeight_POD.textPos[3]    
+    rightMostPoint_bottom = window.makeTextWithMaxHeight_POD.textPos[0] + window.makeTextWithMaxHeight_POD.textPos[2]
 
     # Make 'Reveal word definition' button and define its actions (clicked.connect)
     text = 'Reveal word definition'      
@@ -145,31 +118,16 @@ def presentWordsAPI():
     revealButton = pushButton_reveal.makeButton()
     if not curWODandDef.WODpresent:
         revealButton.setEnabled(False)
-    # Actions for when the reveal button is pressed (more for other text/buttons/etc defined below)
-    revealButton.clicked.connect(makeTextWithMaxHeight_WOD.editText) # reveal the WOD and its defintion
+    # Actions for when the reveal button is pressed
+    revealButton.clicked.connect(window.makeTextWithMaxHeight_WOD.editText) # reveal the WOD and its defintion
     revealButton.clicked.connect(lambda: toggle_addWOD.show()) # reveal toggle to add WOD to priority words    
-    revealButton.clicked.connect(lambda: toggleText_addWOD.show()) # reeal text for the add WOD toggle
-    revealButton.clicked.connect(ST_PODtitle.makeTextObject)    
-    revealButton.clicked.connect(makeTextWithMaxHeight_POD.editText)      
-   
+    revealButton.clicked.connect(lambda: toggleText_addWOD.show()) # reveal text for the add WOD toggle
+    revealButton.clicked.connect(lambda: PODtitle.show()) 
+    revealButton.clicked.connect(window.makeTextWithMaxHeight_POD.editText) # Priority word
+    
     lowestPoint = lowestPoint + pushButton_reveal.positionAdjust[3] + (sizes.padding_large*2)
     
     rightMostPoint_all = max(rightMostPoint_top,rightMostPoint_bottom) 
 
     # Resize window
     window.resize(int(rightMostPoint_all+sizes.padding_large), int(lowestPoint+sizes.padding_large))
-
-    # Center the window - put in the function (pass it 'window' and 'app')
-    centerWindowOnScreen(window)
-
-    # Show window
-    window.show()
-
-    # Run application's event loop
-    exit_code = app.exec_()
-
-    # Delete programs PID on program exit
-    cleanUpPID(PIDname)
-
-    # Exit application
-    sys.exit(exit_code)

@@ -165,8 +165,6 @@ def saveToggleChoice(h_toggle,jsonFilePath,jsonData,pos):
     # Save data
     with open(jsonFilePath, 'w') as file:
         json.dump(jsonData, file, indent=4)    
-            
-
 
 
 

@@ -135,8 +135,7 @@ class MakeTextWithMaxHeight:
         self.scroll_area.setGeometry(*(int(x) for x in self.textPos))   
 
     def editText(self):
-        self.textBox.setText(self.text)
-        print("Willy wank")
+        self.textBox.setText(self.text)        
 
 # Create static text boxes
 class StaticText:

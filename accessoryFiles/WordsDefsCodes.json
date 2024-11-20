@@ -9,22 +9,22 @@
     {
         "word": "orq",
         "definition": "d saddsadsafsgfdsgs",
-        "WOD_shown": false,
+        "WOD_shown": true,
         "is_POD": false,
         "POD_shown": false
     },
     {
         "word": "sfs",
         "definition": "dsadsa",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": false
+        "WOD_shown": true,
+        "is_POD": true,
+        "POD_shown": true
     },
     {
         "word": "dsadsa",
         "definition": "dds",
-        "WOD_shown": false,
-        "is_POD": false,
+        "WOD_shown": true,
+        "is_POD": true,
         "POD_shown": false
     },
     {
