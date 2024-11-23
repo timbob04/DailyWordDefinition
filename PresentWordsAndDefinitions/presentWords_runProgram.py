@@ -1,9 +1,8 @@
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
 import sys
 from commonClassesFunctions.functionsClasses import cleanUpPID, createPID
 import os
-import time
 from datetime import datetime
 from PresentWordsAndDefinitions.presentWords_generateAPI import getAndMakeAPIcontent
 from commonClassesFunctions.functionsClasses import centerWindowOnScreen
@@ -14,6 +13,7 @@ def runApplicationTimingLoop():
     
     # Start an application
     app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(False)  # Prevent the app from quitting when the window is closed
 
     # Create PID for current QApplication
     createPID(PIDname)    
@@ -26,7 +26,7 @@ def runApplicationTimingLoop():
     timer = QTimer()
     timingControl = TimingControl(window) # Class to determine if time to present API is reached
     timer.timeout.connect(timingControl.timeReached)
-    timer.start(58000)    
+    timer.start(1000)    
 
     # Run application's event loop
     exit_code = app.exec_()
@@ -40,24 +40,32 @@ def runApplicationTimingLoop():
 class TimingControl():
     def __init__(self,window):
         self.window = window
+        self.lastRunTime = None
 
     def timeReached(self):
 
-        # Get time to show API    
+        # Get time to show API (decided by user)
         self.timeToShowDailyWord = self.getTimeToShowAPI()
 
-        if self.checkIfTimeMatches():
+        # Minute of that day that this code last ran, for not running code below within the same minute
+        current_time = datetime.now().time() 
+
+        if self.checkIfTimeMatches() and (current_time.hour, current_time.minute) != self.lastRunTime:
+
+            # Update the last run minute
+            self.lastRunTime = (current_time.hour, current_time.minute)
 
             # Close previous day's word window, if present
             if self.window:
-                self.window.close()
-                self.window.setCentralWidget(None) # Clear all previous window content
-                time.sleep(0.1)
+                self.window.close()                
+                if self.window.centralWidget() is not None:  # Check if central widget exists
+                    self.window.centralWidget().deleteLater()  # Safely delete the central widget
+                    self.window.setCentralWidget(None) # Clear all previous window content                
+                for child in self.window.findChildren(QWidget):  # Find all child widgets
+                    child.deleteLater()
 
             # Make API's new daily content
-            getAndMakeAPIcontent(self.window)    
-
-            time.sleep(3) # So I don't run the function again within the same minute
+            getAndMakeAPIcontent(self.window)                
 
             # Show window
             self.window.show()
