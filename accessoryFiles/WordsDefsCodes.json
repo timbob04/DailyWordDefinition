@@ -9,50 +9,29 @@
     {
         "word": "Quixotic",
         "definition": "Exceedingly idealistic; unrealistic and impractical. Exceedingly idealistic; unrealistic and impractical. Exceedingly idealistic; unrealistic and impractical. Exceedingly idealistic; unrealistic and impractical. Exceedingly idealistic; unrealistic and impractical. Exceedingly idealistic; unrealistic and impractical.",
-        "WOD_shown": true,
+        "WOD_shown": false,
         "is_POD": true,
         "POD_shown": true
     },
     {
         "word": "Quixotic",
         "definition": "Exceedingly idealistic; unrealistic and impractical. Exceedingly idealistic; unrealistic and impractical. Exceedingly idealistic; unrealistic and impractical. Exceedingly idealistic; unrealistic",
-        "WOD_shown": true,
+        "WOD_shown": false,
         "is_POD": true,
         "POD_shown": true
     },
     {
         "word": "Quixotic",
         "definition": "Exceedingly idealistic; unrealistic and impractical.",
-        "WOD_shown": true,
+        "WOD_shown": false,
         "is_POD": true,
         "POD_shown": true
     },
     {
         "word": "orq",
         "definition": "d saddsadsafsgfdsgs",
-        "WOD_shown": true,
-        "is_POD": false,
-        "POD_shown": false
-    },
-    {
-        "word": "sfs",
-        "definition": "dsadsa",
         "WOD_shown": false,
         "is_POD": true,
         "POD_shown": true
-    },
-    {
-        "word": "dsadsa",
-        "definition": "dds",
-        "WOD_shown": false,
-        "is_POD": true,
-        "POD_shown": true
-    },
-    {
-        "word": "Pork",
-        "definition": "store",
-        "WOD_shown": false,
-        "is_POD": false,
-        "POD_shown": false
     }
 ]

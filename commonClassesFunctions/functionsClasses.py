@@ -129,13 +129,18 @@ class MakeTextWithMaxHeight:
     def makeVerticalScrollBar(self):
         self.scroll_area = QScrollArea(self.window)
         self.scroll_area.setWidgetResizable(True)  
-        self.scroll_area.setWidget(self.textBox)  
+        self.scroll_area.setWidget(self.textBox)        
+        self.scroll_area.setGeometry(*(int(x) for x in self.textPos)) 
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  
-        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)  
-        self.scroll_area.setGeometry(*(int(x) for x in self.textPos))   
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) # This is turned on when needed
 
+    def showScroll(self):            
+            self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        
     def editText(self):
-        self.textBox.setText(self.text)        
+        self.textBox.setText(self.text)   
+        if self.textHeight > self.maxHeight:  
+            self.showScroll()
 
 # Create static text boxes
 class StaticText:

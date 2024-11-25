@@ -1,11 +1,11 @@
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
 import sys
-from commonClassesFunctions.functionsClasses import cleanUpPID, createPID
+from commonClassesFunctions.functionsClasses import cleanUpPID, createPID, centerWindowOnScreen
 import os
 from datetime import datetime
 from PresentWordsAndDefinitions.presentWords_generateAPI import getAndMakeAPIcontent
-from commonClassesFunctions.functionsClasses import centerWindowOnScreen
+from PresentWordsAndDefinitions.presentWords_functionsClasses import getDateForTitle
 
 def runApplicationTimingLoop():
     
@@ -20,7 +20,8 @@ def runApplicationTimingLoop():
 
     # Make a current window
     window = QMainWindow()
-    window.setWindowTitle('Word of the day') 
+    dateForTitle = getDateForTitle()
+    window.setWindowTitle("Word of the day.  " + dateForTitle) 
 
     # Crete timer to check time periodically and generate API if time to present API is reached
     timer = QTimer()

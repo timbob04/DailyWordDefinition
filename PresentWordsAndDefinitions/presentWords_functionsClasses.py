@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 class Sizes_presentWODAPI:
     def __init__(self):
@@ -166,8 +167,21 @@ def saveToggleChoice(h_toggle,jsonFilePath,jsonData,pos):
     with open(jsonFilePath, 'w') as file:
         json.dump(jsonData, file, indent=4)    
 
-
-
+def getDateForTitle():
+     # Get the current date
+    today = datetime.now()
+    # Determine the current day (number)
+    day = today.day
+    # Figure out the suffix for the current day
+    if 10 <= day <= 20:  # "Teen" numbers always get "th"
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th")
+        # The function 'get' uses the first argument and returns the output of the matching input in the preceding dictionary (dicionary.get)
+        # If there is no match, it returns what is in the second argument for the get function
+    # Format the date with the correct suffix
+    formatted_date = today.strftime(f"%d{suffix} %B %Y")
+    return formatted_date
                      
         
         
