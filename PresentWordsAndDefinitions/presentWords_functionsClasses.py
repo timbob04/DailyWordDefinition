@@ -8,6 +8,7 @@ class Sizes_presentWODAPI:
         self.padding_large = None
         self.WODwidth = None
         self.maxWODheight = None
+        self.maxDefheight = None
         self.smallTextWidth = None
         self.width_toggle = None
         self.PODwidth = None
@@ -18,7 +19,8 @@ class Sizes_presentWODAPI:
         self.padding_medium = 10
         self.padding_large = 20
         self.WODwidth = 400
-        self.maxWODheight = 200
+        self.maxWODheight = 120
+        self.maxDefheight = 200
         self.smallTextWidth = 120
         self.width_toggle = 22
         self.PODwidth = self.WODwidth * 0.8
@@ -32,7 +34,7 @@ class WODandDef():
         # Class variables
         self.allWordsPrevShown = None
         self.positionOfWOD = None
-        self.WOD = "Currently no words/definitions.  Add some using the add/edit word API"
+        self.WOD = "No words added"
         self.definition = ""
         self.dataExists = False
         self.WODpresent = False

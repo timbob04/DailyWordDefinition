@@ -36,31 +36,34 @@ def getAndMakeAPIcontent(window):
     fonts = Fonts()
     fonts.makeFonts()
 
-    # Make WOD and its definition - only reveals WOD until the reveal button is pressed
+    # Word title (small)
+    # Toggle button text - Add WOD
+    text = 'Word:'
+    textAlignment = Qt.AlignLeft | Qt.AlignTop    
+    textPos = (sizes.padding_large, sizes.padding_large, 0, 0)
+    ST_wordTitleText = StaticText(window,fonts.font_small,text,textPos,textAlignment)     
+    ST_wordTitleText.makeTextObject()
+    
+    lowestPoint = ST_wordTitleText.positionAdjust[1] + ST_wordTitleText.positionAdjust[3]
+    bottomWordTitle = lowestPoint
+
+    # Make WOD text
     textAlignment = Qt.AlignLeft | Qt.AlignTop 
-    WODwithDef = WOD + ": " + WOD_definition
-    if curWODandDef.WODpresent: # if there is a word present
-        text = WOD + ": "
-    else:
-        text = WOD
-    window.makeTextWithMaxHeight_WOD = MakeTextWithMaxHeight(window,WODwithDef,sizes.padding_large, \
-                                                  sizes.padding_large,sizes.WODwidth, \
-                                                  sizes.maxWODheight,fonts.font_mediumLarge,\
-                                                    textAlignment) # make part of 'window', but this will need to be used after this function is run, and everything apart from window is destroyed  
-    # Make the text using the WOD without definition to start
-    window.makeTextWithMaxHeight_WOD.text = text
-    window.makeTextWithMaxHeight_WOD.makeText()
-    # Adjust the text inside window.makeTextWithMaxHeight_WOD for chaning later when the reveal button is pressed
-    window.makeTextWithMaxHeight_WOD.text = WODwithDef
+    topPoint = lowestPoint + sizes.padding_small
+    window.makeTextWithMaxHeight_WOD = MakeTextWithMaxHeight(window,WOD,sizes.padding_large, \
+                                                  topPoint,sizes.WODwidth, \
+                                                  sizes.maxWODheight,fonts.font_mediumLargeBold,\
+                                                    textAlignment) # make part of 'window', but this will need to be used after this function is run, and everything apart from window is destroyed              
+    window.makeTextWithMaxHeight_WOD.showText()
     
-    rightMostPoint = sizes.padding_large + sizes.WODwidth
-    lowestPoint = sizes.padding_large + window.makeTextWithMaxHeight_WOD.textPos[3]  
+    lowestPoint = window.makeTextWithMaxHeight_WOD.textPos[1] + window.makeTextWithMaxHeight_WOD.textPos[3]
+    rightMostPoint = sizes.padding_large + sizes.WODwidth    
     centerH_WOD = window.makeTextWithMaxHeight_WOD.textPos[0] + ( window.makeTextWithMaxHeight_WOD.textPos[2] / 2 ) 
-    
+
     # Toggle button - add WOD to priority word list
     toggle_addWOD = QCheckBox('', window)
     leftPoint = rightMostPoint + sizes.padding_large + (sizes.smallTextWidth/2) - (sizes.width_toggle/2)
-    topPoint = sizes.padding_large + sizes.padding_medium
+    topPoint = bottomWordTitle + sizes.padding_medium
     textPos = (leftPoint,topPoint,sizes.width_toggle,sizes.width_toggle)
     toggle_addWOD.setGeometry(*(int(x) for x in textPos))
     toggle_addWOD.setStyleSheet(f"QCheckBox::indicator {{ width: {sizes.width_toggle}px; height: {sizes.width_toggle}px; }}")    
@@ -83,9 +86,29 @@ def getAndMakeAPIcontent(window):
     toggleText_addWOD = ST_addWODtext.makeTextObject()
     toggleText_addWOD.hide()    
 
-    rightMostPoint = centerH + (sizes.smallTextWidth/2)
-    lowestPoint = max(lowestPoint,topPoint+ST_addWODtext.positionAdjust[3])
-    rightMostPoint_top = rightMostPoint
+    toggleTextBottom = topPoint + ST_addWODtext.positionAdjust[3]
+    rightMostPoint_top = ST_addWODtext.positionAdjust[0] + ST_addWODtext.positionAdjust[2]
+
+    # Definition title (small)
+    text = 'Definition:'
+    textAlignment = Qt.AlignLeft | Qt.AlignTop    
+    topPoint = lowestPoint + sizes.padding_medium
+    textPos = (sizes.padding_large, topPoint, 0, 0)
+    ST_definitionTitleText = StaticText(window,fonts.font_small,text,textPos,textAlignment)     
+    ST_definitionTitleText.makeTextObject()
+
+    lowestPoint = ST_definitionTitleText.positionAdjust[1] + ST_definitionTitleText.positionAdjust[3]
+
+    # Make WOD definition - only reveal on button press
+    textAlignment = Qt.AlignLeft | Qt.AlignTop 
+    topPoint = lowestPoint + sizes.padding_small
+    window.makeTextWithMaxHeight_WODdef = MakeTextWithMaxHeight(window,WOD_definition,sizes.padding_large, \
+                                                  topPoint,sizes.WODwidth, \
+                                                  sizes.maxDefheight,fonts.font_mediumLarge,\
+                                                    textAlignment) # make part of 'window', but this will need to be used after this function is run, and everything apart from window is destroyed              
+    
+    lowestPoint_wordDef = window.makeTextWithMaxHeight_WODdef.textPos[1] + window.makeTextWithMaxHeight_WODdef.textPos[3]
+    lowestPoint = max(toggleTextBottom,lowestPoint_wordDef)
 
     # Print the priority word title
     text = 'Priority word of day'
@@ -100,19 +123,14 @@ def getAndMakeAPIcontent(window):
     lowestPoint = ST_PODtitle.positionAdjust[1] + ST_PODtitle.positionAdjust[3]
 
     # Print the priority word
-    textAlignment = Qt.AlignHCenter | Qt.AlignTop 
-    text = PODwithDef
-    window.makeTextWithMaxHeight_POD = MakeTextWithMaxHeight(window,text,centerH_WOD, \
+    textAlignment = Qt.AlignHCenter | Qt.AlignTop     
+    window.makeTextWithMaxHeight_POD = MakeTextWithMaxHeight(window,PODwithDef,centerH_WOD, \
                                                   lowestPoint + sizes.padding_small,sizes.PODwidth, \
                                                   sizes.maxPODheight,fonts.font_small_italic,\
                                                     textAlignment) # make part of 'window', but this will need to be used after this function is run, and everything apart from window is destroyed
-    # Make the text initially blank, and then have this updated to the POD when the reveal button is pressed
     window.makeTextWithMaxHeight_POD.centerH()
-    window.makeTextWithMaxHeight_POD.text = ""
-    window.makeTextWithMaxHeight_POD.makeText()
-    window.makeTextWithMaxHeight_POD.text = text
-
-    lowestPoint = lowestPoint + window.makeTextWithMaxHeight_POD.textPos[3]    
+    
+    lowestPoint = window.makeTextWithMaxHeight_POD.textPos[1] + window.makeTextWithMaxHeight_POD.textPos[3]
     rightMostPoint_bottom = window.makeTextWithMaxHeight_POD.textPos[0] + window.makeTextWithMaxHeight_POD.textPos[2]
 
     # Make 'Reveal word definition' button and define its actions (clicked.connect)
@@ -123,11 +141,11 @@ def getAndMakeAPIcontent(window):
     if not curWODandDef.WODpresent:
         revealButton.setEnabled(False)
     # Actions for when the reveal button is pressed
-    revealButton.clicked.connect(window.makeTextWithMaxHeight_WOD.editText) # reveal the WOD and its defintion
+    revealButton.clicked.connect(lambda: window.makeTextWithMaxHeight_WODdef.showText()) # reveal the WOD and its defintion
     revealButton.clicked.connect(lambda: toggle_addWOD.show()) # reveal toggle to add WOD to priority words    
     revealButton.clicked.connect(lambda: toggleText_addWOD.show()) # reveal text for the add WOD toggle
     revealButton.clicked.connect(lambda: PODtitle.show()) 
-    revealButton.clicked.connect(window.makeTextWithMaxHeight_POD.editText) # Priority word
+    revealButton.clicked.connect(lambda: window.makeTextWithMaxHeight_POD.showText()) # Priority word
     
     lowestPoint = lowestPoint + pushButton_reveal.positionAdjust[3] + (sizes.padding_large*2)
     

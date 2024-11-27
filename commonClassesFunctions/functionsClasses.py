@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QFont, QTextDocument, QFontMetrics
-from PyQt5.QtWidgets import QLabel, QScrollArea, QPushButton, QApplication
+from PyQt5.QtWidgets import QLabel, QScrollArea, QPushButton, QApplication, QFrame
 from PyQt5.QtCore import Qt
 import json
 import os
@@ -13,6 +13,7 @@ class Fonts:
         self.font_small_italic_bold = None
         self.font_medium = None
         self.font_mediumLarge = None
+        self.font_mediumLargeBold = None
         self.font_large = None
         self.font_large_bold = None
         # Default values
@@ -25,6 +26,7 @@ class Fonts:
         self.font_small_italic_bold = QFont(self.fontFamily, 9, QFont.Bold, True)
         self.font_medium = QFont(self.fontFamily, 11, QFont.Normal, False)
         self.font_mediumLarge = QFont(self.fontFamily, 14, QFont.Normal, False)
+        self.font_mediumLargeBold = QFont(self.fontFamily, 14, QFont.Bold, False)
         self.font_large = QFont(self.fontFamily, 17, QFont.Normal, False)    
         self.font_large_bold = QFont(self.fontFamily, 17, QFont.Bold, False)
 
@@ -65,62 +67,43 @@ def centerWindowOnScreen(window):
 class MakeTextWithMaxHeight:
     def __init__(self, window, text, leftPos, topPos, width, maxHeight, font, textAlignment):
         # Parameters
-        self.window = window
-        self.text = text
-        self.leftPos = leftPos
-        self.topPos = topPos
-        self.width = width
-        self.maxHeight = maxHeight
+        self.window = window 
+        self.text = text    
+        self.width = width  
+        self.maxHeight = maxHeight 
+        self.textPos = (leftPos,topPos,width,maxHeight)    
         self.font = font
         self.textAlignment = textAlignment
         self.setWordWrap = True
-        self.textPos = None
-        # Methods        
-        self.textHeight = self.getTextHeight()   
-        self.getTextPos()                   
+        self.getTextHeight()
+        self.getTextPos()              
 
-    def getTextHeight(self):
-        
+    def getTextHeight(self):       
         # Create a QTextDocument to measure text
-        doc = QTextDocument()
-        
+        doc = QTextDocument()        
         # Set the text width
-        doc.setTextWidth(self.width)
-        
+        doc.setTextWidth(self.width)        
         # Apply text font
         if self.font:
-            doc.setDefaultFont(self.font)
-        
+            doc.setDefaultFont(self.font)        
         # Set the text
-        doc.setPlainText(self.text)
-        
+        doc.setPlainText(self.text)        
         # Set text alignment
         if self.textAlignment:
             text_option = doc.defaultTextOption()
             text_option.setAlignment(self.textAlignment)
-            doc.setDefaultTextOption(text_option)
-        
-        # Calculate the required height for the document
-        height = doc.size().height()
-        
-        return height
+            doc.setDefaultTextOption(text_option)        
+        # Calculate the required height for the document        
+        self.height = doc.size().height()         
     
     def getTextPos(self):
-        if self.textHeight > self.maxHeight:
-            self.textPos = (self.leftPos,self.topPos,self.width,self.maxHeight)
-        else:
-            self.textPos = (self.leftPos,self.topPos,self.width,self.textHeight)
+        if self.height <= self.maxHeight:
+            self.textPos = (self.textPos[0],self.textPos[1],self.textPos[2],self.height)
 
     def centerH(self):
-            self.textPos = (self.textPos[0] - (self.width / 2), self.textPos[1],self.textPos[2],self.textPos[3])
+        self.textPos = (self.textPos[0] - (self.width / 2), self.textPos[1],self.textPos[2],self.textPos[3])              
 
-    def makeText(self):
-        self.showText()
-        if self.textHeight > self.maxHeight:                    
-            self.makeVerticalScrollBar()               
-    
-    def showText(self):
-        self.textBox = QLabel(self.text,self.window)
+    def adjustTextProperties(self):        
         self.textBox.setWordWrap(self.setWordWrap) 
         self.textBox.setAlignment(self.textAlignment) 
         self.textBox.setGeometry(*(int(x) for x in self.textPos))  
@@ -128,19 +111,26 @@ class MakeTextWithMaxHeight:
 
     def makeVerticalScrollBar(self):
         self.scroll_area = QScrollArea(self.window)
-        self.scroll_area.setWidgetResizable(True)  
-        self.scroll_area.setWidget(self.textBox)        
+        self.scroll_area.setWidgetResizable(True)     
         self.scroll_area.setGeometry(*(int(x) for x in self.textPos)) 
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  
-        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) # This is turned on when needed
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn) # This is turned on when needed        
+        self.scroll_area.show()  # Ensure it is shown
+       
+    def showText(self):
+        if self.height > self.maxHeight:
+            self.makeVerticalScrollBar()
+            self.textBox = QLabel(self.text,self.scroll_area) # add text to scroll area
+            self.scroll_area.setWidget(self.textBox)
+            self.adjustTextProperties()
+        else:
+            self.textBox = QLabel(self.text,self.window) # add text to main window
+            self.adjustTextProperties()
+            self.textBox.show()  # Ensure it is shown
+         
 
-    def showScroll(self):            
-            self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        
-    def editText(self):
-        self.textBox.setText(self.text)   
-        if self.textHeight > self.maxHeight:  
-            self.showScroll()
+            
+
 
 # Create static text boxes
 class StaticText:
