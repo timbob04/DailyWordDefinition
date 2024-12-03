@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QLabel, QScrollArea, QPushButton, QApplication, QFra
 from PyQt5.QtCore import Qt
 import json
 import os
+import psutil
 
 class Fonts:
     def __init__(self):
@@ -266,4 +267,39 @@ def cleanUpPID(PIDname):
 def createPID(PIDname):
     pid = os.getpid()
     with open(PIDname, "w") as f:
-        f.write(str(pid))              
+        f.write(str(pid))        
+
+def isPIDrunning(PIDname):
+    if not os.path.exists(PIDname):
+        return False  # PID file doesn't exist
+
+    with open(PIDname, "r") as f:
+        try:
+            pid = int(f.read().strip())
+        except ValueError:
+            return False  # Invalid PID in file
+
+    try:
+        os.kill(pid, 0)  # Signal 0 checks if the process exists
+        return True
+    except (ProcessLookupError, OSError):
+        return False  # Process not running or other error   
+
+def getPIDfilePath():
+    # Get path of accessory files
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
+    # Path to save PID
+    return os.path.join(accessoryFiles_dir, "PresentWordsAndDefinitions.pid")   
+
+def checkIfPIDisRunning(PIDname):
+    if not os.path.exists(PIDname):              
+        return False
+
+    try:
+        with open(PIDname, "r") as f:
+            pid = int(f.read().strip())  # Read and parse the PID
+            print(f"\nPID is {pid}")
+        return psutil.pid_exists(pid)
+    except Exception:
+        return False

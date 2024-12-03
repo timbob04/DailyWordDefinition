@@ -107,14 +107,9 @@ def startButtonPressed(window,checkTimeEntered,HH,MM,startupToggle,startupFolOb)
             startupFolderText = "" # will make the startup folder .txt empty
         # Save startup folder text
         with open(curFilePath, 'w') as file:
-            file.write(startupFolderText)            
-
-        # Change application running boolean to true
-        curFilePath = os.path.join(common_dir, 'applicationRunning_YN.txt')
-        with open(curFilePath, 'w') as file:
-            file.write("1")
-        # Start the main program's exe file running
-        print("Here run the main program's exe file")
+            file.write(startupFolderText)        
+        # Set the window.startButtonPressed to true
+        window.runProgram = True        
         # Close window
         window.close() 
 

@@ -18,6 +18,9 @@ def startProgram():
     window = QMainWindow()    
     window.setWindowTitle('Program not currently running')
 
+    # Goes true when the program is ready to run
+    window.runProgram = False
+
     # Fonts
     fonts = Fonts()
     fonts.makeFonts()
@@ -151,4 +154,7 @@ def startProgram():
     window.show()
 
     # Run application's event loop
-    sys.exit(app.exec_())
+    app.exec_()
+
+    return window.runProgram
+    

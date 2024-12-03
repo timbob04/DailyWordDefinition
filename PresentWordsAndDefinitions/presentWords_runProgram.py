@@ -1,21 +1,20 @@
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
 import sys
-from commonClassesFunctions.functionsClasses import cleanUpPID, createPID, centerWindowOnScreen
+from commonClassesFunctions.functionsClasses import cleanUpPID, createPID, centerWindowOnScreen, getPIDfilePath
 import os
 from datetime import datetime
 from PresentWordsAndDefinitions.presentWords_generateAPI import getAndMakeAPIcontent
 from PresentWordsAndDefinitions.presentWords_functionsClasses import getDateForTitle
 
 def runApplicationTimingLoop():
-    
-    PIDname = "PresentWordsAndDefinitions.pid"    
-    
+
     # Start an application
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)  # Prevent the app from quitting when the window is closed
 
     # Create PID for current QApplication
+    PIDname  = getPIDfilePath()
     createPID(PIDname)    
 
     # Make a current window
@@ -89,5 +88,3 @@ class TimingControl():
         with open(time_dir, 'r') as file:
             time_str = file.read().strip()  # Read the time string and remove any extra whitespace
             return datetime.strptime(time_str, "%H:%M").time()
-
-runApplicationTimingLoop()

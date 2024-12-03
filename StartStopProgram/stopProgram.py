@@ -144,4 +144,4 @@ def stopProgram():
     window.show()
 
     # Run application's event loop
-    sys.exit(app.exec_())
+    app.exec_()

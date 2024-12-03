@@ -1,13 +1,16 @@
-Function/class for:
+In the startStop folder, start making the main script that will be the exe file that runs when the icon is pressed.
 
-Text (each is a class, where the properties are set using constructor inputs, and it is made using a function called 'make')
-> Edit text box.  Inputs: starting text, font (size, type, italic, bold), pixel position of textbox, text alignment in box. 
-> Static text box.  Inputs: same as above.
+This will first check if a program is already running (using the PID)
+
+If yes, the API to stop the program will come up.
+
+If the user wants to stop the program, use the PID to stop the program.
+
+If the program is not already running, then run the startProgram API.
+
+If the user says yes, then running the program (the main running program script, which will be the other main script) - 'user input' (icon), and 'running'.
 
 
 
-Button
-> Toggle: 
-
-
+The next thing to do AFTER all of this, is to get the startup folder stuff working - adding or removing the script to the startup folder when the user starts (and hits the toggle to add to startup folder) or stops the program.
 
