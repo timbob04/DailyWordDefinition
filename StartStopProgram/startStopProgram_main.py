@@ -5,18 +5,19 @@
 import sys
 from StartStopProgram.startProgram import startProgram
 from StartStopProgram.stopProgram import stopProgram
-from commonClassesFunctions.functionsClasses import getPIDfilePath, checkIfPIDisRunning
+from commonClassesFunctions.functionsClasses import PID
 from PresentWordsAndDefinitions.presentWords_runProgram import runApplicationTimingLoop
 
 def startStopEditProgram():
 
-    PIDname  = getPIDfilePath()
-
-    PIDrunning = checkIfPIDisRunning(PIDname)
+    # Check if the program is currently running using its PID
+    pid = PID()
+    PIDrunning = pid.checkIfPIDisRunning()
 
     if PIDrunning:                
         stopProgram_YN = stopProgram()
         if stopProgram_YN:
+            pid.killProgram()
             sys.exit()        
     else:                
         runProgram_YN = startProgram()           

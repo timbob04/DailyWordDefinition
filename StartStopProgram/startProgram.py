@@ -18,7 +18,7 @@ def startProgram():
     window = QMainWindow()    
     window.setWindowTitle('Program not currently running')
 
-    # Goes true when the program is ready to run
+    # Goes true when the user has decided to start the program
     window.runProgram = False
 
     # Fonts

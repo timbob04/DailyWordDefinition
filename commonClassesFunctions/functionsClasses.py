@@ -4,6 +4,10 @@ from PyQt5.QtCore import Qt
 import json
 import os
 import psutil
+import signal
+import platform
+import subprocess
+import time
 
 class Fonts:
     def __init__(self):
@@ -129,10 +133,6 @@ class MakeTextWithMaxHeight:
             self.adjustTextProperties()
             self.textBox.show()  # Ensure it is shown
          
-
-            
-
-
 # Create static text boxes
 class StaticText:
     def __init__(self, window, font, text, position, textAlignment):
@@ -260,46 +260,68 @@ def readJSONfile(filepath):
     except (json.JSONDecodeError, FileNotFoundError, IOError):
         return None
     
-def cleanUpPID(PIDname):
-    if os.path.exists(PIDname):
-            os.remove(PIDname)
+class PID:
+    def __init__(self): 
+        # Starter variables      
+        self.PIDfilePath = None          
+        self.PIDfileExists = False      
+        self.PID = None
+        self.PIDrunning = False  
+        # Starter methds
+        self.getPIDfilePath()
+        self.doesPIDfileExist()
+        self.getPID()
 
-def createPID(PIDname):
-    pid = os.getpid()
-    with open(PIDname, "w") as f:
-        f.write(str(pid))        
+    def getPIDfilePath(self):
+        # Get path of accessory files
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
+        # Path to save PID
+        self.PIDfilePath = os.path.join(accessoryFiles_dir, "PresentWordsAndDefinitions.pid") 
 
-def isPIDrunning(PIDname):
-    if not os.path.exists(PIDname):
-        return False  # PID file doesn't exist
+    def doesPIDfileExist(self): 
+        self.PIDfileExists = os.path.exists(self.PIDfilePath)
 
-    with open(PIDname, "r") as f:
-        try:
-            pid = int(f.read().strip())
-        except ValueError:
-            return False  # Invalid PID in file
+    def getPID(self):
+        if self.PIDfileExists:            
+            with open(self.PIDfilePath, "r") as f:
+                self.PID = int(f.read().strip())  # Read and parse the PID  
 
-    try:
-        os.kill(pid, 0)  # Signal 0 checks if the process exists
-        return True
-    except (ProcessLookupError, OSError):
-        return False  # Process not running or other error   
+    def createPID(self):
+        pid = os.getpid()
+        with open(self.PIDfilePath, "w") as f:
+            f.write(str(pid))                         
+                
+    def checkIfPIDisRunning(self):
+        if not self.PIDfileExists:              
+            self.PIDrunning = False
+        else:        
+            try:        
+                self.PIDrunning = psutil.pid_exists(self.PID)        
+            except Exception:
+                self.PIDrunning = False
 
-def getPIDfilePath():
-    # Get path of accessory files
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
-    # Path to save PID
-    return os.path.join(accessoryFiles_dir, "PresentWordsAndDefinitions.pid")   
+        return self.PIDrunning
+    
+    def killProgramGracefully(self):
+        os.kill(self.PID, signal.SIGTERM)        
+        time.sleep(2) # to allow the graceful exit to happen before forcefully exiting
 
-def checkIfPIDisRunning(PIDname):
-    if not os.path.exists(PIDname):              
-        return False
+    def killProgramForcefully(self):
+        if platform.system() == "Windows":
+            # Use taskkill on Windows
+            subprocess.run(["taskkill", "/PID", str(self.PID), "/F"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            # Use SIGKILL on Unix-based systems
+            os.kill(self.PID, signal.SIGKILL)        
 
-    try:
-        with open(PIDname, "r") as f:
-            pid = int(f.read().strip())  # Read and parse the PID
-            print(f"\nPID is {pid}")
-        return psutil.pid_exists(pid)
-    except Exception:
-        return False
+    def killProgram(self):
+        if self.PIDrunning:
+            self.killProgramGracefully()
+        self.checkIfPIDisRunning()
+        if self.PIDrunning: # only if the graceful killing didn't work
+            self.killProgramForcefully()
+
+    def cleanUpPID(self):
+        if os.path.exists(self.PIDfilePath):
+                os.remove(self.PIDfilePath)     

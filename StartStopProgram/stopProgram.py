@@ -17,6 +17,9 @@ def stopProgram():
     window = QMainWindow()    
     window.setWindowTitle('Program currently running')
 
+    # Goes true when the user has decided to stop the program
+    window.stopProgram = False
+
     # Fonts
     fonts = Fonts()
     fonts.makeFonts()
@@ -145,3 +148,5 @@ def stopProgram():
 
     # Run application's event loop
     app.exec_()
+
+    return window.stopProgram

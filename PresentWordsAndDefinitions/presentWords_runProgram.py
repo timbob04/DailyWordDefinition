@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
 import sys
-from commonClassesFunctions.functionsClasses import cleanUpPID, createPID, centerWindowOnScreen, getPIDfilePath
+from commonClassesFunctions.functionsClasses import PID, centerWindowOnScreen
 import os
 from datetime import datetime
 from PresentWordsAndDefinitions.presentWords_generateAPI import getAndMakeAPIcontent
@@ -14,8 +14,8 @@ def runApplicationTimingLoop():
     app.setQuitOnLastWindowClosed(False)  # Prevent the app from quitting when the window is closed
 
     # Create PID for current QApplication
-    PIDname  = getPIDfilePath()
-    createPID(PIDname)    
+    pid = PID()
+    pid.createPID()    
 
     # Make a current window
     window = QMainWindow()
@@ -32,7 +32,7 @@ def runApplicationTimingLoop():
     exit_code = app.exec_()
 
     # Delete programs PID on program exit
-    cleanUpPID(PIDname)
+    pid.cleanUpPID()
 
     # Exit application
     sys.exit(exit_code)
