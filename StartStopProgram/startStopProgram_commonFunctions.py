@@ -1,6 +1,9 @@
 from PyQt5.QtGui import QFont, QFontMetrics
 from PyQt5.QtWidgets import QLabel, QPushButton, QLineEdit
 from PyQt5.QtCore import Qt
+import platform
+import os
+
 
 class Fonts:
     def __init__(self):
@@ -147,4 +150,16 @@ class EditText:
         editBox.setAlignment(self.textAlignment) 
         editBox.setGeometry(*(int(x) for x in self.positionAdjust))
         return editBox    
+    
+def getStartupFolder():
+    system = platform.system()
+    if system == 'Windows':
+        return os.path.join(os.getenv('APPDATA'), 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
+    elif system == 'Darwin':  # macOS
+        return os.path.expanduser('~/Library/LaunchAgents')
+    elif system == 'Linux':
+        return os.path.expanduser('~/.config/autostart')
+    else:
+        return None
+
     

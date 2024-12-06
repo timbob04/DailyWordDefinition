@@ -2,8 +2,9 @@ import os
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QScrollArea, QFileDialog
-import platform
 import re
+from win32com.client import Dispatch
+import platform
 
 # Predefined sizes for text boxes, etc
 class Sizes_startProgram:
@@ -31,11 +32,12 @@ class Sizes_startProgram:
         self.height_text_startupFolder = 50
         self.width_button_change = 45
 
-class GetAndShowStartupFolder:
-    def __init__(self, position, window):
+class ShowStartupFolder:
+    def __init__(self, position, window, startupFolder):
         # Default properties        
         self.window = window
         self.positionOfText = position
+        self.startupFolder = startupFolder
         self.font = QFont("", 7, QFont.Normal, False)
         self.textAlignment = Qt.AlignLeft
         self.wordWrap = False
@@ -46,17 +48,6 @@ class GetAndShowStartupFolder:
         self.startupFolder = self.getStartupFolderAutomatically()
         self.showStartupFolTextBox()
         self.makeScrollBarForStartupText()
-
-    def getStartupFolderAutomatically(self):
-        system = platform.system()
-        if system == 'Windows':
-            return os.path.join(os.getenv('APPDATA'), 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
-        elif system == 'Darwin':  # macOS
-            return os.path.expanduser('~/Library/LaunchAgents')
-        elif system == 'Linux':
-            return os.path.expanduser('~/.config/autostart')
-        else:
-            return None
 
     def showStartupFolTextBox(self):
         self.textBox = QLabel(self.startupFolder,self.window)
@@ -163,3 +154,15 @@ class CheckTimeEntered():
             self.handleText.hide()
         else:
             self.handleText.show() 
+
+def create_startup_shortcut(file_path, startupFolder):
+    system = platform.system()
+    if system == 'Windows':
+        shortcut_path = os.path.join(startupFolder, "presentWords_runProgram_shortcut.lnk") # the full file path of the short cut to the input file, to go in the startup folder
+        shell = Dispatch('WScript.Shell') # Access the Windows Script Host to manage shortcuts
+        shortcut = shell.CreateShortcut(shortcut_path) # Create shortcut file
+        shortcut.TargetPath = file_path # Set the target path
+        shortcut.WorkingDirectory = os.path.dirname(file_path) # Set the working directory for this shortcut to the original file's path
+        shortcut.Save() # save the shortcut file
+    elif system in ['Darwin', 'Linux']:
+        print("mac of linux stuff")

@@ -1,6 +1,6 @@
 # My functions/classes
-from StartStopProgram.startProgram_functionsClasses import Sizes_startProgram, GetAndShowStartupFolder, startupTogglePressed, startButtonPressed, CheckTimeEntered
-from StartStopProgram.startStopProgram_commonFunctions import EditText
+from StartStopProgram.startProgram_functionsClasses import Sizes_startProgram, ShowStartupFolder, startupTogglePressed, startButtonPressed, CheckTimeEntered
+from StartStopProgram.startStopProgram_commonFunctions import EditText, getStartupFolder
 
 # Other functions/classes
 import sys
@@ -105,8 +105,9 @@ def startProgram():
     lowestPoint = ST_startup.positionAdjust[1] + ST_startup.positionAdjust[3]
 
     # Get and show startup folder
+    startupFolder = getStartupFolder()
     position = (sizes.padding_large,lowestPoint+sizes.padding_large,sizes.width_text_startupFolder,sizes.height_text_startupFolder)
-    getAndShowStartupFolder = GetAndShowStartupFolder(position, window)
+    getAndShowStartupFolder = ShowStartupFolder(position, window, startupFolder)
     
     centerV = position[1] + position[3]/2
     rightMostPoint = position[0] + position[2] 
