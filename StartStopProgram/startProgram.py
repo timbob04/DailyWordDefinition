@@ -1,6 +1,5 @@
 # My functions/classes
-from StartStopProgram.startProgram_functionsClasses import Sizes_startProgram, ShowStartupFolder, startupTogglePressed, startButtonPressed, CheckTimeEntered
-from StartStopProgram.startStopProgram_commonFunctions import EditText, getStartupFolder
+from StartStopProgram.startStopProgram_commonFunctions import EditText, getStartupFolder, Sizes_startProgram, EditStartupFolder, startupTogglePressed, startButtonPressed, CheckTimeEntered
 
 # Other functions/classes
 import sys
@@ -89,7 +88,7 @@ def startProgram():
     toggle_startup.setGeometry(sizes.padding_large,sizes.startingY_checkBox,sizes.width_toggle,sizes.width_toggle)
     toggle_startup.setStyleSheet(f"QCheckBox::indicator {{ width: {sizes.width_toggle}px; height: {sizes.width_toggle}px; }}")
     toggle_startup.setChecked(False)
-    toggle_startup.clicked.connect(lambda: startupTogglePressed(toggle_startup,button_change,getAndShowStartupFolder))
+    toggle_startup.clicked.connect(lambda: startupTogglePressed(toggle_startup,button_change,editStartupFolder))
 
     rightMostPoint = sizes.padding_large + sizes.width_toggle
     centerV_toggleButton = sizes.startingY_checkBox + sizes.width_toggle/2
@@ -107,11 +106,11 @@ def startProgram():
     # Get and show startup folder
     startupFolder = getStartupFolder()
     position = (sizes.padding_large,lowestPoint+sizes.padding_large,sizes.width_text_startupFolder,sizes.height_text_startupFolder)
-    getAndShowStartupFolder = ShowStartupFolder(position, window, startupFolder)
+    editStartupFolder = EditStartupFolder(position, window, startupFolder)
     
     centerV = position[1] + position[3]/2
     rightMostPoint = position[0] + position[2] 
-    lowestPoint = getAndShowStartupFolder.positionOfText[1] + getAndShowStartupFolder.positionOfText[3]
+    lowestPoint = editStartupFolder.positionOfText[1] + editStartupFolder.positionOfText[3]
     
     # Make 'change' startup folder button
     text = 'Change'      
@@ -121,7 +120,7 @@ def startProgram():
     button_change = PB_change.makeButton()
     button_change.hide() # hide button until toggle is pressed
     # Make slot for button for when it is pressed
-    button_change.clicked.connect(getAndShowStartupFolder.updatePath)
+    button_change.clicked.connect(editStartupFolder.updatePath)
 
     # Edit word list button
     text = 'Edit word list'
@@ -140,7 +139,7 @@ def startProgram():
     PB_start.bottomAlign()
     PB_start.rightAlign()
     button_start = PB_start.makeButton()
-    button_start.clicked.connect(lambda: startButtonPressed(window,checkTimeEntered,ET_hours.text(),ET_mins.text(),toggle_startup,getAndShowStartupFolder))
+    button_start.clicked.connect(lambda: startButtonPressed(window,checkTimeEntered,ET_hours.text(),ET_mins.text(),toggle_startup,editStartupFolder))
 
     rightMostPoint_botRow = PB_start.positionAdjust[0] + PB_start.positionAdjust[2]
 
