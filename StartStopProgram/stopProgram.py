@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QCheckBox
 from PyQt5.QtCore import Qt
 
-from StartStopProgram.startStopProgram_commonFunctions import EditText, Sizes_stopProgram, OkButtonPressed, CheckTimeEntered
+from StartStopProgram.startStopProgram_commonFunctions import EditText, Sizes_stopProgram, OkButtonPressed, CheckTimeEntered_stop
 
 from commonClassesFunctions.functionsClasses import Fonts, centerWindowOnScreen, StaticText, PushButton
 
@@ -39,7 +39,7 @@ def stopProgram():
     bottomOfST = ST_editTime.positionAdjust[1] + ST_editTime.positionAdjust[3]
 
     # Object to check if HH and MM is entered correctly
-    checkTimeEntered = CheckTimeEntered()
+    checkTimeEntered = CheckTimeEntered_stop()
 
     # Edit text box - enter hours (top right)    
     position = (rightMostPoint+sizes.padding_large,centerV,sizes.width_ET_hourMin,0)

@@ -1,5 +1,5 @@
 # My functions/classes
-from StartStopProgram.startStopProgram_commonFunctions import EditText, getStartupFolder, Sizes_startProgram, EditStartupFolder, startupTogglePressed, startButtonPressed, CheckTimeEntered
+from StartStopProgram.startStopProgram_commonFunctions import EditText, getStartupFolder, Sizes_startProgram, EditStartupFolder, startupTogglePressed, startButtonPressed, CheckTimeEntered_start
 
 # Other functions/classes
 import sys
@@ -39,7 +39,7 @@ def startProgram():
     centerV = ST_chooseTime.Vcenter
 
     # Object to check if HH and MM entered correctly
-    checkTimeEntered = CheckTimeEntered()
+    checkTimeEntered = CheckTimeEntered_start()
 
     # Edit text box - enter hours (top right)    
     position = (rightMostPoint+sizes.padding_large,centerV,sizes.width_button_change,0)

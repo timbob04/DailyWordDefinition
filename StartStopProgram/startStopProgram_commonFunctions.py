@@ -274,7 +274,7 @@ def startupTogglePressed(h_toggle, h_changeButton, h_startupTextObject):
         h_startupTextObject.scroll_area.hide()
 
 # Class to determine if the HH and MM text in the edit text box is correct
-class CheckTimeEntered():
+class CheckTimeEntered_start():
     def __init__(self):        
         # Default values
         self.handleText = None
@@ -305,7 +305,7 @@ class CheckTimeEntered():
         else:
             self.correctYN_both = False
 
-    def showOrHideText(self):
+    def showOrHideText(self):        
         if not self.buttonPressed:
             return
         if self.correctYN_both:
@@ -356,7 +356,7 @@ class Sizes_stopProgram:
         self.width_ET_hourMin = 45
 
 # Class to determine if the HH and MM text in the edit text box is correct
-class CheckTimeEntered():
+class CheckTimeEntered_stop():
     def __init__(self):        
         # Default values
         self.handleText = None
@@ -420,8 +420,8 @@ def OkButtonPressed(window,checkTimeEntered,stopProgramToggle,HH,MM):
 
     if stopProgramToggle.isChecked():
         window.stopProgram = True
-        window.close()           
-        RemoveStartupFolderShortcut
+        window.close()                  
+        RemoveStartupFolderShortcut()
     elif checkTimeEntered.correctYN_both:
         # Write time to run program to .txt file
         curFilePath = os.path.join(common_dir, 'timeToRunApplication.txt')
@@ -439,7 +439,7 @@ class RemoveStartupFolderShortcut:
         self.startUpFolderTxtFileName() # get the file where the pre-selected startup folder is saved
         self.shortcutPath_selected() # path to shortcut file in pre-selected startup folder for computer
         self.deleteShortcuts() # delete the shortcut/s
-        self.makeStartupTxtFileBlank() # make the file where the pre-selected startup folder is blank
+        self.makeStartupTxtFileBlank() # make the file where the pre-selected startup folder is blank        
 
     def findShortcutExtension(self):
         system = platform.system()
@@ -451,7 +451,7 @@ class RemoveStartupFolderShortcut:
     def shortcutPath_auto(self):
         # Link to shortcut using automatically found startup folder
         startupFolder_auto = getStartupFolder()
-        self.shortcut_auto = os.path.join(startupFolder_auto, 'presentWords_runProgram_shortcut', self.extension)
+        self.shortcut_auto = os.path.join(startupFolder_auto, f'presentWords_runProgram_shortcut{self.extension}')
 
     def startUpFolderTxtFileName(self):
         # Get path of accessory files
@@ -464,7 +464,7 @@ class RemoveStartupFolderShortcut:
         if os.path.exists(self.startUpFolderTxtPath):
             with open(self.startUpFolderTxtPath, 'r') as file:
                 path = file.readline().strip()  
-            self.shortcut_selected = os.path.join(path, 'presentWords_runProgram_shortcut',self.extension)
+            self.shortcut_selected = os.path.join(path, f'presentWords_runProgram_shortcut{self.extension}')
 
     def startUpFolderTxtFileName(self):
         # Get path of accessory files
