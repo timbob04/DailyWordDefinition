@@ -1,14 +1,9 @@
-import sys, os
-import json
-
+import  os
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtGui import QPainter, QPen
-
-from commonClassesFunctions.functionsClasses import centerWindowOnScreen, getScreenWidthHeight, Fonts, StaticText, readJSONfile, PushButton
-
-from addEditWords.addEditWords_functionsClasses import Sizes_addEditWords, addNewWordTextBoxes, makeWordList
-
 from PyQt5.QtCore import Qt
+from commonClassesFunctions.functionsClasses import centerWindowOnScreen, getScreenWidthHeight, Fonts, StaticText, readJSONfile, PushButton
+from addEditWords.addEditWords_functionsClasses import Sizes_addEditWords, addNewWordTextBoxes, makeWordList, getWordListPath
 
 def addEditWords():
 
@@ -20,18 +15,14 @@ def addEditWords():
     fonts = Fonts()
     fonts.makeFonts()
 
-    # Get path of accessory files
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
-    # Path to json file for words and definitions
-    curFilePath = os.path.join(accessoryFiles_dir, 'WordsDefsCodes.json')
-
-    # Read WordsDefsCodes.json
-    data = readJSONfile(curFilePath)
-
     # Predefined sizes of things
     sizes = Sizes_addEditWords()
     sizes.defineSizes() 
+
+    # Get path of word list   
+    curFilePath = getWordListPath()
+    # Read WordsDefsCodes.json
+    data = readJSONfile(curFilePath)
 
     # Get the monitor width and height
     monWidth, monHeight = getScreenWidthHeight()
@@ -40,7 +31,7 @@ def addEditWords():
     width = min(sizes.APIwidth,monWidth)
     height = min(sizes.APIheight,monHeight)
 
-    # Determine enter text box widths
+    # Determine enter text box widths for adding new words and definitions
     availableWidth = width - (sizes.padding_large*3)
     width_addWord = availableWidth / 4
     width_addDefinition = availableWidth - width_addWord
@@ -81,7 +72,7 @@ def addEditWords():
 
     lowestPoint = editTextBoxes_addWord.addDefInput.y() + editTextBoxes_addWord.addDefInput.height()
 
-    # 'Add' button
+    # 'Add' button - for adding new word/definition when user enters it
     text = 'Add'      
     position = (sizes.padding_large,lowestPoint+sizes.padding_large,0,0)
     pushButton_Add = PushButton(window,fonts.font_mediumLarge,text,position) 
@@ -107,7 +98,7 @@ def addEditWords():
 
     lowestPoint = y_start
 
-    # Edit words title
+    # Edit words title - new big section
     text = 'Edit words'
     textAlignment = Qt.AlignCenter
     textPos = (sizes.padding_large, lowestPoint + sizes.padding_large, 0, 0)

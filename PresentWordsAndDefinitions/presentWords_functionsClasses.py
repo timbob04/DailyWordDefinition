@@ -1,3 +1,4 @@
+import os
 import json
 from datetime import datetime
 
@@ -184,6 +185,13 @@ def getDateForTitle():
     # Format the date with the correct suffix
     formatted_date = today.strftime(f"%d{suffix} %B %Y")
     return formatted_date
+
+def getTimeToRunApplicationPath():
+    # Get path of accessory files
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
+    # Path to json file for words and definitions
+    return os.path.join(accessoryFiles_dir, 'timeToRunApplication.txt')
                      
         
         

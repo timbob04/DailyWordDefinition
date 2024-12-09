@@ -1,9 +1,11 @@
+import json
+import os
 from PyQt5.QtWidgets import QLineEdit, QCheckBox, QScrollArea, QWidget, QFrame, QDialog
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontMetrics
-import json
 from commonClassesFunctions.functionsClasses import StaticText, PushButton, centerWindowOnScreen
 
+# Some common sizes used to make the API
 class Sizes_addEditWords:
     def __init__(self):
         self.padding_small = None
@@ -21,6 +23,7 @@ class Sizes_addEditWords:
         self.APIheight = 1000
         self.width_toggle = 22
 
+# For the edit text boxes to add new words and definitions to the list
 class addNewWordTextBoxes:
     def __init__(self,window,sizes,fonts,dataIn,jsonFileName):
         self.window = window
@@ -69,13 +72,19 @@ class addNewWordTextBoxes:
     def clearEditTextBoxes(self):
         self.addWordInput.clear()
         self.addDefInput.clear()
-
+    
     def AddButtonPressed(self):
         self.getNewWordDef()
         self.addWordToJSONfile()        
-        self.clearEditTextBoxes()        
+        self.clearEditTextBoxes()   
 
-        
+def getWordListPath():
+    # Get path of accessory files
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
+    # Path to json file for words and definitions
+    return os.path.join(accessoryFiles_dir, 'WordsDefsCodes.json')             
+    
 class makeWordList:    
     def __init__(self,dataIn,fonts,sizes,APIwidth,APIheight,startY,window,jsonFileName):
         # Inputs
@@ -87,34 +96,33 @@ class makeWordList:
         self.startY = startY
         self.window = window
         self.jsonFileName = jsonFileName        
-        # Predefined sizes
+        # API spacing/sizes to use
         self.Vspacing_wordDefs = 50 # the vertical spacing between each word/def
         self.Hspacing = 15 # horizontal spacing for the word/def lines    
         self.textMaxWidth_PW = 30 # priority word title max with
         self.buttonPadding = 7
         self.VspaceAfterSmallTitles = 9
-        # Predefined fonts
+        # Fonts to use
         self.font_priortyWordTitle = fonts.font_small
         self.font_deleteButton = fonts.font_medium  
         self.font_wordAndDef = fonts.font_medium   
-        # Other        
-        self.numWordDefs = len(dataIn)
-        # Initialize dictionary for holding details for each row (word/def with buttons, etc)
-        self.wordDefDetails = [{} for _ in range(self.numWordDefs)]
-        # Run starter functions
-        self.getHorizontalSpacing() # Figure out how wide things are and where they will start (left to right)
-        self.singleLineTextHeight() # Get the height of a single line of text 
-        self.makeDict() # Initialize dictionary to hold all the handles (and details) for the current words/defs list
-        self.putEachWordDefsInOneLine()
-        self.getAllWordDefHeights()
+        # Current number of words/definitions in list   
+        self.numWordDefs = len(dataIn)                
+        # Run methods to make API
+        self.getHorizontalSpacing() # For the main word list, figure out how wide things are and where they will start (left to right)
+        self.getSingleLineTextHeight() # Get the height of a single line of text - for vertical spacing later
+        self.makeDict() # Initialize dictionary to hold all the handles/details for the current words/defs list
+        self.putEachWordAndDefInOneLine()
+        self.getAllWordDefHeights() # get vertical heights for each word/def
         self.getTotalTextAreaHeight()
         self.makeTitles()
-        self.getWordListYStart()
+        self.getWordListYStart() # top starting position for word list
         self.makeScrollableArea()            
         self.makeInitialWordList()            
         self.addScrollableContent()
         # Anything after this is done when the user does something (clicks a button, etc)
     
+    # For the main word list, figure out how wide each made part is for toggles/buttons/text/etc
     def getHorizontalSpacing(self):        
         # Priority word toggle title width, height and starting x position
         curText = "Priority word"
@@ -128,8 +136,8 @@ class makeWordList:
         bounding_rect = fontMetrics.boundingRect(0,0,0,0, Qt.AlignCenter, curText)
         self.width_deleteButton = bounding_rect.width()
         height_deleteButton = bounding_rect.height()
-        self.height_wPad_delButton = height_deleteButton + (self.buttonPadding*2) # width with button padding
-        width_wPad_delButton = self.width_deleteButton + (self.buttonPadding*2) # height with button padding
+        self.height_wPad_delButton = height_deleteButton + (self.buttonPadding*2) # height with button padding
+        width_wPad_delButton = self.width_deleteButton + (self.buttonPadding*2) # width with button padding
         self.startX_delButton = self.sizes.padding_large + self.width_priorityWord + self.Hspacing
         # Edit button width
         curText = "Edit"
@@ -146,17 +154,17 @@ class makeWordList:
         # Starting position of word and definition area
         self.startX_wordAndDef = width_excludeWordDef - (self.sizes.padding_large*2)
   
-    def singleLineTextHeight(self):        
-        # Height of a sigle line piece of text                
+    def getSingleLineTextHeight(self):                            
         fontMetrics = QFontMetrics(self.font_wordAndDef)       
         bounding_rect = fontMetrics.boundingRect(0,0,int(self.width_wordDef),0, Qt.AlignCenter, "A")       
         self.singleLineTextHeight = bounding_rect.height()  
 
     def makeDict(self):
+        self.wordDefDetails = [{} for _ in range(self.numWordDefs)]
         for i in range(self.numWordDefs):
             self.wordDefDetails[i]['ID'] = i
 
-    def putEachWordDefsInOneLine(self):        
+    def putEachWordAndDefInOneLine(self):        
         for i in range(self.numWordDefs):
             wordDef = self.dataIn[i]["word"] + ": " + self.dataIn[i]["definition"]
             wordDef_withHyphens = self.softHypenLongWords(wordDef)
@@ -188,7 +196,7 @@ class makeWordList:
 
     def getTotalTextAreaHeight(self):
         self.totalTextheight = 0
-        for i in range(self.numWordDefs - 1, -1, -1): # reverse order because the most recent word is at the top of the list in the API
+        for i in range(self.numWordDefs - 1, -1, -1): # reverse order because the most recently added word is at the top of the list in the API
             curRowHeight = max(self.wordDefDetails[i]['textHeight'],self.height_wPad_delButton) # the minimum row height is the size of the delete button
             if i < self.numWordDefs - 1: # if not the last word, add the vertical spacing between words/defs
                 self.totalTextheight += (curRowHeight + self.Vspacing_wordDefs)
@@ -201,17 +209,17 @@ class makeWordList:
         textAlignment = Qt.AlignCenter
         centerH = self.sizes.padding_large + (self.width_priorityWord/2)
         textPos = (centerH, self.startY, self.width_priorityWord, 0)
-        self.ST_priorityWordTitle = StaticText(self.window,self.font_priortyWordTitle,text,textPos,textAlignment)         
-        self.ST_priorityWordTitle.centerAlign_H()
-        self.ST_priorityWordTitle.makeTextObject()
-        self.bottomOfPWtitle = self.ST_priorityWordTitle.positionAdjust[1] + self.ST_priorityWordTitle.positionAdjust[3]
+        ST_priorityWordTitle = StaticText(self.window,self.font_priortyWordTitle,text,textPos,textAlignment)         
+        ST_priorityWordTitle.centerAlign_H()
+        ST_priorityWordTitle.makeTextObject()
+        self.bottomOfPWtitle = ST_priorityWordTitle.positionAdjust[1] + ST_priorityWordTitle.positionAdjust[3]
         # 'Word: definition
         text = 'Word: definition'
         textAlignment = Qt.AlignVCenter | Qt.AlignLeft                
         textPos = (self.startX_wordAndDef+4, self.bottomOfPWtitle, self.width_wordDef, 0)
-        self.ST_wordDefTitle = StaticText(self.window,self.font_priortyWordTitle,text,textPos,textAlignment)         
-        self.ST_wordDefTitle.alignBottom()
-        self.ST_wordDefTitle.makeTextObject()
+        ST_wordDefTitle = StaticText(self.window,self.font_priortyWordTitle,text,textPos,textAlignment)         
+        ST_wordDefTitle.alignBottom()
+        ST_wordDefTitle.makeTextObject()
         
     def getWordListYStart(self):
         self.topOfScrollArea = self.bottomOfPWtitle

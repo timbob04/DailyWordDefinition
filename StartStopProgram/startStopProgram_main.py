@@ -3,8 +3,8 @@
 # To check, I can use the binary boolean file, and also the psutil library to check to see if an exe file is currently running or not - do both to be sure
 
 import sys
-from StartStopProgram.startProgram import startProgram
-from StartStopProgram.stopProgram import stopProgram
+from StartStopProgram.startProgram_generateAPI import startProgram
+from StartStopProgram.stopProgram_generateAPI import stopProgram
 from commonClassesFunctions.functionsClasses import PID
 from PresentWordsAndDefinitions.presentWords_runProgram import runApplicationTimingLoop
 

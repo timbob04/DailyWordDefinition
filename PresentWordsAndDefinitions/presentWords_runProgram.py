@@ -1,11 +1,10 @@
+import sys
+from datetime import datetime
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
-import sys
 from commonClassesFunctions.functionsClasses import PID, centerWindowOnScreen
-import os
-from datetime import datetime
 from PresentWordsAndDefinitions.presentWords_generateAPI import getAndMakeAPIcontent
-from PresentWordsAndDefinitions.presentWords_functionsClasses import getDateForTitle
+from PresentWordsAndDefinitions.presentWords_functionsClasses import getDateForTitle, getTimeToRunApplicationPath
 
 def runApplicationTimingLoop():
 
@@ -47,7 +46,7 @@ class TimingControl():
         # Get time to show API (decided by user)
         self.timeToShowDailyWord = self.getTimeToShowAPI()
 
-        # Minute of that day that this code last ran, for not running code below within the same minute
+        # Get minute of day this code last ran, do prevent the code below running twice within the same target minute
         current_time = datetime.now().time() 
 
         if self.checkIfTimeMatches() and (current_time.hour, current_time.minute) != self.lastRunTime:
@@ -80,11 +79,7 @@ class TimingControl():
         return current_time.hour == self.timeToShowDailyWord.hour and current_time.minute == self.timeToShowDailyWord.minute    
     
     def getTimeToShowAPI(self):
-        # Get path of accessory files
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
-        # Path to json file for words and definitions
-        time_dir = os.path.join(accessoryFiles_dir, 'timeToRunApplication.txt')
+        time_dir = getTimeToRunApplicationPath()
         with open(time_dir, 'r') as file:
             time_str = file.read().strip()  # Read the time string and remove any extra whitespace
             return datetime.strptime(time_str, "%H:%M").time()
