@@ -33,7 +33,7 @@ def startProgram():
     rightMostPoint = ST_chooseTime.positionAdjust[0] + ST_chooseTime.positionAdjust[2]
     centerV = ST_chooseTime.Vcenter
 
-    # Object to check if HH and MM entered correctly
+    # Object to check if HH and MM fields are entered correctly
     checkTimeEntered = CheckTimeEntered_start()
 
     # Edit text box - enter hours (top right)    
