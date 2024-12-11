@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import QLineEdit, QCheckBox, QScrollArea, QWidget, QFrame, QDialog
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontMetrics
-from commonClassesFunctions.functionsClasses import StaticText, PushButton, centerWindowOnScreen
+from commonClassesFunctions.functionsClasses import StaticText, PushButton, centerWindowOnScreen, readJSONfile
 
 # Some common sizes used to make the API
 class Sizes_addEditWords:
@@ -25,16 +25,15 @@ class Sizes_addEditWords:
 
 # For the edit text boxes to add new words and definitions to the list
 class addNewWordTextBoxes:
-    def __init__(self,window,sizes,fonts,dataIn,jsonFileName):
+    def __init__(self,window,sizes,fonts):
         self.window = window
         self.sizes = sizes
-        self.fonts = fonts 
-        self.dataIn = dataIn        
-        self.jsonFileName = jsonFileName
+        self.fonts = fonts                         
         self.addWordInput = None
         self.addDefInput = None   
         self.newWord = None
-        self.newDefinition = None        
+        self.newDefinition = None   
+        self.jsonFileName = getWordListPath()        
 
     def makeAddWordEditTextBox(self,left,top,width):    
         self.addWordInput = QLineEdit(self.window)    
@@ -54,7 +53,8 @@ class addNewWordTextBoxes:
         self.newWord = self.addWordInput.text()
         self.newDefinition = self.addDefInput.text()            
     
-    def addWordToJSONfile(self):            
+    def addWordToJSONfile(self):      
+        self.dataIn = readJSONfile(self.jsonFileName)      
         # Make the new word/def json entry
         new_entry = {
             "word": self.newWord,
@@ -64,7 +64,10 @@ class addNewWordTextBoxes:
             "POD_shown": False
             }
         # Append new word/def to current word/def json list
-        self.dataIn.append(new_entry)
+        if self.dataIn is not None:
+            self.dataIn.append(new_entry)
+        else:
+            self.dataIn = [new_entry]
         # Save new list with new word/def
         with open(self.jsonFileName, 'w') as file:
             json.dump(self.dataIn, file, indent=4) 
@@ -86,16 +89,15 @@ def getWordListPath():
     return os.path.join(accessoryFiles_dir, 'WordsDefsCodes.json')             
     
 class makeWordList:    
-    def __init__(self,dataIn,fonts,sizes,APIwidth,APIheight,startY,window,jsonFileName):
-        # Inputs
-        self.dataIn = dataIn
+    def __init__(self,fonts,sizes,APIwidth,APIheight,startY,window):
+        # Inputs        
         self.fonts = fonts
         self.sizes = sizes
         self.APIwidth = APIwidth
         self.APIheight = APIheight
         self.startY = startY
         self.window = window
-        self.jsonFileName = jsonFileName        
+        self.jsonFileName = getWordListPath()                
         # API spacing/sizes to use
         self.Vspacing_wordDefs = 50 # the vertical spacing between each word/def
         self.Hspacing = 15 # horizontal spacing for the word/def lines    
@@ -105,10 +107,10 @@ class makeWordList:
         # Fonts to use
         self.font_priortyWordTitle = fonts.font_small
         self.font_deleteButton = fonts.font_medium  
-        self.font_wordAndDef = fonts.font_medium   
-        # Current number of words/definitions in list   
-        self.numWordDefs = len(dataIn)                
+        self.font_wordAndDef = fonts.font_medium                
         # Run methods to make API
+        self.getDataIn()
+        self.getNumberOfWordsInList()
         self.getHorizontalSpacing() # For the main word list, figure out how wide things are and where they will start (left to right)
         self.getSingleLineTextHeight() # Get the height of a single line of text - for vertical spacing later
         self.makeDict() # Initialize dictionary to hold all the handles/details for the current words/defs list
@@ -121,7 +123,16 @@ class makeWordList:
         self.makeInitialWordList()            
         self.addScrollableContent()
         # Anything after this is done when the user does something (clicks a button, etc)
-    
+
+    def getDataIn(self):
+        self.dataIn = readJSONfile(self.jsonFileName)
+
+    def getNumberOfWordsInList(self):
+        if self.dataIn is not None:
+            self.numWordDefs = len(self.dataIn)
+        else:
+            self.numWordDefs = 0
+
     # For the main word list, figure out how wide each made part is for toggles/buttons/text/etc
     def getHorizontalSpacing(self):        
         # Priority word toggle title width, height and starting x position
@@ -253,7 +264,7 @@ class makeWordList:
         curToggleHandle = QCheckBox('', self.scrollable_content)                    
         curToggleHandle.setGeometry(*(int(x) for x in togglePos))
         curToggleHandle.setStyleSheet(f"QCheckBox::indicator {{ width: {self.sizes.width_toggle}px; height: {self.sizes.width_toggle}px; }}")            
-        # Set toggle to checked (is_pod == true) or unchecked
+        # Set toggle to checked (is_pod == true) or unchecked        
         if self.dataIn[ind]['is_POD']:
             curToggleHandle.setChecked(True)
         else:
@@ -318,6 +329,7 @@ class makeWordList:
             curRowTop = curRowTop + rowHeight + self.Vspacing_wordDefs              
 
     def updateAPIwithNewEntry(self,newWord,newDef):
+        self.dataIn = readJSONfile(self.jsonFileName)
         # What is run when the 'Add' button at the top of the API is pressed, to add a new word and definition
         # Update number of words
         self.numWordDefs += 1   
@@ -330,7 +342,7 @@ class makeWordList:
         newWordHeight = self.wordDefDetails[self.numWordDefs-1]['textHeight']
         nudge = max(newWordHeight,self.height_wPad_delButton) + self.Vspacing_wordDefs
         indicesToNudge = range(self.numWordDefs-1) # the words to nudge down (everything underneath the newly added word, whih is all other words, because the new word is added to the top)
-        self.nudgeRowsUpOrDown(nudge,indicesToNudge)             
+        self.nudgeRowsUpOrDown(nudge,indicesToNudge)        
         # Add new word/def and related things (buttons, toggle) to top row
         self.makeWordDefText(self.VspaceAfterSmallTitles,self.numWordDefs-1)
         self.makeToggle(self.VspaceAfterSmallTitles,self.numWordDefs-1)
@@ -351,7 +363,7 @@ class makeWordList:
                      'EditButtons': None,
                      'wordAndDefTextOb': None                     
                      }
-        # Add entry
+        # Add entry        
         self.wordDefDetails.append(new_entry)               
     
     def nudgeRowsUpOrDown(self,nudge,indicesToNudge):
@@ -398,7 +410,16 @@ class makeWordList:
             self.numWordDefs -= 1
             # Update scroll area
             self.getTotalTextAreaHeight()
-            self.updateScrollAreaHeight()           
+            self.updateScrollAreaHeight()  
+
+    def makeNewDataIn(self,newWord,newDef):
+        self.dataIn = [{
+            "word": newWord,
+            "definition": newDef,
+            "WOD_shown": False,
+            "is_POD": False,
+            "POD_shown": False
+            }]        
 
     def writeToJson(self):
         with open(self.jsonFileName, 'w') as file:

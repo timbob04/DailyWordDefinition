@@ -2,8 +2,8 @@ import  os
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtGui import QPainter, QPen
 from PyQt5.QtCore import Qt
-from commonClassesFunctions.functionsClasses import centerWindowOnScreen, getScreenWidthHeight, Fonts, StaticText, readJSONfile, PushButton
-from addEditWords.addEditWords_functionsClasses import Sizes_addEditWords, addNewWordTextBoxes, makeWordList, getWordListPath
+from commonClassesFunctions.functionsClasses import centerWindowOnScreen, getScreenWidthHeight, Fonts, StaticText, PushButton
+from addEditWords.addEditWords_functionsClasses import Sizes_addEditWords, addNewWordTextBoxes, makeWordList
 
 def addEditWords():
 
@@ -18,11 +18,6 @@ def addEditWords():
     # Predefined sizes of things
     sizes = Sizes_addEditWords()
     sizes.defineSizes() 
-
-    # Get path of word list   
-    curFilePath = getWordListPath()
-    # Read WordsDefsCodes.json
-    data = readJSONfile(curFilePath)
 
     # Get the monitor width and height
     monWidth, monHeight = getScreenWidthHeight()
@@ -66,7 +61,7 @@ def addEditWords():
     lowestPoint = ST_addDefLabel.positionAdjust[1] + ST_addDefLabel.positionAdjust[3]
 
     # Make edit text boxes to add a new word and definition
-    editTextBoxes_addWord = addNewWordTextBoxes(window,sizes,fonts,data,curFilePath)
+    editTextBoxes_addWord = addNewWordTextBoxes(window,sizes,fonts)
     editTextBoxes_addWord.makeAddWordEditTextBox(sizes.padding_large,lowestPoint+sizes.padding_small, width_addWord)
     editTextBoxes_addWord.makeAddDefEditTextBox(leftPos,lowestPoint+sizes.padding_small,width_addDefinition)
 
@@ -109,7 +104,7 @@ def addEditWords():
 
     # Make the word list in the edit words section, and handle all its actions
     startingY = lowestPoint + sizes.padding_large*2
-    wordList = makeWordList(data,fonts,sizes,width,height,startingY,window,curFilePath)
+    wordList = makeWordList(fonts,sizes,width,height,startingY,window)
        
     # Center the window - put in the function (pass it 'window' and 'app')
     centerWindowOnScreen(window)
