@@ -1,8 +1,8 @@
 import sys
-from StartStopProgram.startProgram_generateAPI import startProgram
-from StartStopProgram.stopProgram_generateAPI import stopProgram
+from StartStopProgram.startStopProgram_startProgramAPI import startProgram
+from StartStopProgram.startStopProgram_stopProgramAPI import stopProgram
 from commonClassesFunctions.functionsClasses import PID
-from PresentWordsAndDefinitions.presentWords_runProgram import runApplicationTimingLoop
+from RunProgram.runProgram_main import runApplicationTimingLoop
 
 def startStopEditProgram():
 

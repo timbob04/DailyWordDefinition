@@ -1,40 +1,9 @@
-import sys
-from datetime import datetime
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
-from commonClassesFunctions.functionsClasses import PID, centerWindowOnScreen
-from PresentWordsAndDefinitions.presentWords_generateAPI import getAndMakeAPIcontent
-from PresentWordsAndDefinitions.presentWords_functionsClasses import getDateForTitle, getTimeToRunApplicationPath
-
-def runApplicationTimingLoop():
-
-    # Start an application
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(False)  # Prevent the app from quitting when the window is closed
-
-    # Create PID for current QApplication
-    pid = PID()
-    pid.createPID()    
-
-    # Make a current window
-    window = QMainWindow()
-    dateForTitle = getDateForTitle()
-    window.setWindowTitle("Word of the day.  " + dateForTitle) 
-
-    # Crete timer to check time periodically and generate API if time to present API is reached
-    timer = QTimer()
-    timingControl = TimingControl(window) # Class to determine if time to present API is reached
-    timer.timeout.connect(timingControl.timeReached)
-    timer.start(1000)    
-
-    # Run application's event loop
-    exit_code = app.exec_()
-
-    # Delete programs PID on program exit
-    pid.cleanUpPID()
-
-    # Exit application
-    sys.exit(exit_code)
+import os
+from datetime import datetime, time
+from PyQt5.QtWidgets import QWidget
+from commonClassesFunctions.functionsClasses import centerWindowOnScreen
+from RunProgram.runProgram_generateAPI import getAndMakeAPIcontent
+from RunProgram.runProgram_functionsClasses import getTimeToRunApplicationPath
 
 class TimingControl():
     def __init__(self,window):
@@ -49,10 +18,10 @@ class TimingControl():
         # Get minute of day this code last ran, do prevent the code below running twice within the same target minute
         current_time = datetime.now().time() 
 
-        if self.checkIfTimeMatches() and (current_time.hour, current_time.minute) != self.lastRunTime:
+        if self.checkIfTimeIsReached() and not self.isDateLastRunToday():
 
-            # Update the last run minute
-            self.lastRunTime = (current_time.hour, current_time.minute)
+            # Update the dateLastRun text file
+            self.writeNewDate()
 
             # Close previous day's word window, if present
             if self.window:
@@ -72,14 +41,46 @@ class TimingControl():
             # Center the window - put in the function (pass it 'window' and 'app')
             centerWindowOnScreen(self.window)
 
-    def checkIfTimeMatches(self):
+    def checkIfTimeIsReached(self):
         # Get the current time of day
         current_time = datetime.now().time()
         # Compare the current time to the target time
-        return current_time.hour == self.timeToShowDailyWord.hour and current_time.minute == self.timeToShowDailyWord.minute    
+        return self.timeToShowDailyWord <= current_time <= time(23, 59)
     
     def getTimeToShowAPI(self):
         time_dir = getTimeToRunApplicationPath()
         with open(time_dir, 'r') as file:
             time_str = file.read().strip()  # Read the time string and remove any extra whitespace
             return datetime.strptime(time_str, "%H:%M").time()
+        
+    def getDateLastRunPath(self):             
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        common_dir = os.path.join(base_dir, '..', 'accessoryFiles')    
+        return os.path.join(common_dir, 'dataLastRun.txt')  
+    
+    def readDateLastRun(self):
+        file_path = self.getDateLastRunPath()
+        if not os.path.exists(file_path):
+            return None  # Return None if file doesn't exist
+        with open(file_path, 'r') as file:
+            try:
+                date_str = file.read().strip()
+                return datetime.strptime(date_str, "%m/%d/%Y").date()
+            except Exception:
+                return None
+        
+    def isDateLastRunToday(self):
+        dateLastRun = self.readDateLastRun()
+        if dateLastRun is None:
+            return False
+        return dateLastRun == datetime.now().date()
+    
+    def writeNewDate(self):
+        file_path = self.getDateLastRunPath()
+        current_date = datetime.now().strftime("%m/%d/%Y")  
+        with open(file_path, 'w') as file:
+            file.write(current_date)
+
+
+    
+

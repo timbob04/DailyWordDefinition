@@ -1,5 +1,5 @@
 import os
-from PresentWordsAndDefinitions.presentWords_functionsClasses import WODandDef, PODandDef, Sizes_presentWODAPI, saveToggleChoice, getDateForTitle
+from RunProgram.runProgram_functionsClasses import WODandDef, PODandDef, Sizes_presentWODAPI, saveToggleChoice, getDateForTitle
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QCheckBox
 from commonClassesFunctions.functionsClasses import Fonts, readJSONfile, MakeTextWithMaxHeight, StaticText, PushButton

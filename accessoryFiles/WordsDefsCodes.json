@@ -14,15 +14,22 @@
         "POD_shown": false
     },
     {
-        "word": "fifth",
+        "word": "fifthsas",
         "definition": "sadas",
-        "WOD_shown": true,
+        "WOD_shown": false,
         "is_POD": false,
         "POD_shown": false
     },
     {
         "word": "dsad",
-        "definition": "sad",
+        "definition": "dsads",
+        "WOD_shown": false,
+        "is_POD": false,
+        "POD_shown": false
+    },
+    {
+        "word": "sad",
+        "definition": "dsdas",
         "WOD_shown": false,
         "is_POD": false,
         "POD_shown": false

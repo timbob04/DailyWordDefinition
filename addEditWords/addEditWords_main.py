@@ -3,7 +3,8 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtGui import QPainter, QPen
 from PyQt5.QtCore import Qt
 from commonClassesFunctions.functionsClasses import centerWindowOnScreen, getScreenWidthHeight, Fonts, StaticText, PushButton
-from addEditWords.addEditWords_functionsClasses import Sizes_addEditWords, addNewWordTextBoxes, makeWordList
+from addEditWords.addEditWords_functionsClasses import Sizes_addEditWords, addNewWordTextBoxes
+from addEditWords.addEditWords_makeWordList import MakeWordList
 
 def addEditWords():
 
@@ -104,7 +105,7 @@ def addEditWords():
 
     # Make the word list in the edit words section, and handle all its actions
     startingY = lowestPoint + sizes.padding_large*2
-    wordList = makeWordList(fonts,sizes,width,height,startingY,window)
+    wordList = MakeWordList(fonts,sizes,width,height,startingY,window)
        
     # Center the window - put in the function (pass it 'window' and 'app')
     centerWindowOnScreen(window)
