@@ -249,9 +249,9 @@ def startButtonPressed(window,checkTimeEntered,HH,MM,startupToggle,startupFolOb)
         curFilePath = os.path.join(common_dir, 'startupFolder.txt') # write the startup folder to here
         if startupToggle.isChecked():
             startupFolder = startupFolOb.startupFolder
-            tempFile = r"C:\Users\timot\OneDrive\Desktop\tempLinkStartupFile.txt"
-            print("\nThis is where I will get the exe folder when finished everything else")
-            create_startup_shortcut(tempFile, startupFolder)
+            # exeFilePath = r"C:\Users\timot\OneDrive\Desktop\tempLinkStartupFile.txt" # For testing
+            exeFilePath = get_exe_path()
+            create_startup_shortcut(exeFilePath, startupFolder)
         else:
             startupFolder = "" # will make the startup folder .txt empty
         # Save startup folder text
@@ -261,6 +261,19 @@ def startButtonPressed(window,checkTimeEntered,HH,MM,startupToggle,startupFolOb)
         window.runProgram = True        
         # Close window
         window.close() 
+
+def get_exe_path():
+    # Base directory where executables will be installed - not where the script is, but where the exe file is run from when made
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    exe_dir = os.path.join(base_dir, 'bin')  # Adjust 'bin' as per your installer setup
+    # Get OS-specific extension
+    system = platform.system()
+    if system == 'Windows':
+        extension = '.exe'
+    else:
+        extension = ''  # No extension for macOS/Linux
+    # Construct the full path to the executable
+    return os.path.join(exe_dir, f'presentWords_background{extension}')   
 
 # Shows/hides startup path if the startup folder toggle button is pressed
 def startupTogglePressed(h_toggle, h_changeButton, h_startupTextObject):
