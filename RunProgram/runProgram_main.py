@@ -35,3 +35,7 @@ def runApplicationTimingLoop():
 
     # Exit application
     sys.exit(exit_code)
+
+# Run the main function if this script is executed directly
+if __name__ == "__main__":
+    runApplicationTimingLoop()

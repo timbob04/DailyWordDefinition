@@ -20,5 +20,5 @@ def startStopEditProgram():
         if runProgram_YN:            
             runApplicationTimingLoop()
 
-startStopEditProgram()
-
+if __name__ == "__main__":
+    startStopEditProgram()
