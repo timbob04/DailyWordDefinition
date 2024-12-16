@@ -12,6 +12,7 @@ class runInstaller_windows():
         self.getPathsForExecutables()
         self.getDependencyFolderPaths()
         self.createSubprocessArgsForDependencies()
+        self.getDependencies()
         self.createExececutable_userIput()
         self.createExcecutable_runProgram()
         self.runInstaller_inno()
@@ -33,27 +34,33 @@ class runInstaller_windows():
             [f'--add-data "{path};{os.path.basename(path)}"' for path in self.dependencyFolderPaths]
         )
 
-    def createExececutable_userIput(self):        
+    def getDependencies(self):
+        # List of dynamic dependencies to collect
+        dependencies = ['PyQt5', 'psutil', 'win32com.client', 'platform', 'json', 'os', 'time', 'datetime', 're', 'subprocess']        
+        # Generate --collect-all arguments dynamically
+        self.dependencyArgs =  " ".join([f'--collect-all {dep}' for dep in dependencies])    
+
+    def createExececutable_userIput(self):                                
         subprocess.run(
-            f'pyinstaller --onefile {self.addDependenciesArgs} '
+            f'pyinstaller --onedir {self.addDependenciesArgs} '
+            f'{self.dependencyArgs} '
+            f'--debug=imports '  # Debugging mode to analyze missing dependencies
             f'"{self.dir_userInput}" --distpath "{self.dir_executable_userInput}" '
             f'--name "{self.exeName_userInput}"',
-            shell=True
-        )
-
+                shell=True
+            )
+        
     def createExcecutable_runProgram(self):        
         subprocess.run(
-            f'pyinstaller --onefile {self.addDependenciesArgs} '
+            f'pyinstaller --onedir {self.addDependenciesArgs} '        
+            f'{self.dependencyArgs} '
+            f'--debug=imports '  # Debugging mode to analyze missing dependencies    
             f'"{self.dir_runProgram}" --distpath "{self.dir_executable_runProgram}" '
             f'--name "{self.exeName_runProgram}"',
             shell=True
         )
         
     def runInstaller_inno(self):
-
-        print('\n\n\nRunning inno installer\n\n')
-        time.sleep(2)
-        
         # Path to Inno Setup Compiler
         inno_compiler_path = r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" # or path of inno installer program
         # Path to .iss file

@@ -12,8 +12,12 @@ SolidCompression=yes
 
 ; Define the files to install
 [Files]
-Source: "..\dist\UserInput.exe"; DestDir: "{app}\program"; Flags: ignoreversion
-Source: "..\dist\Background.exe"; DestDir: "{app}\program"; Flags: ignoreversion
+; Source: "..\dist\UserInput.exe"; DestDir: "{app}\program"; Flags: ignoreversion
+Source: "..\dist\UserInput\*"; DestDir: "{app}\program\UserInput"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\dist\UserInput\_internal\python312.dll"; DestDir: "{app}\program\UserInput"; Flags: ignoreversion
+; Source: "..\dist\Background.exe"; DestDir: "{app}\program"; Flags: ignoreversion
+Source: "..\dist\Background\*"; DestDir: "{app}\program\Background"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\dist\Background\_internal\python312.dll"; DestDir: "{app}\program\Background"; Flags: ignoreversion
 Source: "..\accessoryFiles\*"; DestDir: "{app}\accessoryFiles"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\README_postInstallation.txt"; DestDir: "{app}"; Flags: ignoreversion
 
