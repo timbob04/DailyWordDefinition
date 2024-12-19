@@ -2,7 +2,7 @@ import os
 from RunProgram.runProgram_functionsClasses import WODandDef, PODandDef, Sizes_presentWODAPI, saveToggleChoice, getDateForTitle
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QCheckBox
-from commonClassesFunctions.functionsClasses import Fonts, readJSONfile, MakeTextWithMaxHeight, StaticText, PushButton
+from commonClassesFunctions.functionsClasses import Fonts, readJSONfile, MakeTextWithMaxHeight, StaticText, PushButton, getBaseDir
 
 def getAndMakeAPIcontent(window):
 
@@ -15,7 +15,7 @@ def getAndMakeAPIcontent(window):
     sizes.defineSizes()    
     
     # Get path of accessory files
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = getBaseDir()
     accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
     # Path to json file for words and definitions
     curFilePath = os.path.join(accessoryFiles_dir, 'WordsDefsCodes.json')

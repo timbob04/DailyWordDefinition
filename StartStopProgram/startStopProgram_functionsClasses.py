@@ -5,6 +5,7 @@ import platform
 import os
 import re
 from win32com.client import Dispatch
+from commonClassesFunctions.functionsClasses import getBaseDir
 
 class Fonts:
     def __init__(self):
@@ -239,7 +240,7 @@ def startButtonPressed(window,checkTimeEntered,HH,MM,startupToggle,startupFolOb)
     checkTimeEntered.showOrHideText()
     if checkTimeEntered.correctYN_both:        
         # Get path of accessory files
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        base_dir = getBaseDir()
         common_dir = os.path.join(base_dir, '..', 'accessoryFiles')
         # Write time to run program to .txt file
         curFilePath = os.path.join(common_dir, 'timeToRunApplication.txt')
@@ -264,7 +265,7 @@ def startButtonPressed(window,checkTimeEntered,HH,MM,startupToggle,startupFolOb)
 
 def get_exe_path(exeName):    
     # Location of current execetuable
-    exe_dir = os.path.dirname(os.path.abspath(__file__))    
+    exe_dir = getBaseDir()    
     # Get OS-specific extension
     system = platform.system()
     if system == 'Windows':
@@ -427,7 +428,7 @@ def OkButtonPressed(window,checkTimeEntered,stopProgramToggle,HH,MM):
     checkTimeEntered.showOrHideText()
 
     # Get path of accessory files
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = getBaseDir()
     common_dir = os.path.join(base_dir, '..', 'accessoryFiles')
 
     if stopProgramToggle.isChecked():
@@ -467,7 +468,7 @@ class RemoveStartupFolderShortcut:
 
     def startUpFolderTxtFileName(self):
         # Get path of accessory files
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        base_dir = getBaseDir()
         accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
         # Path to json file for words and definitions
         self.startUpFolderTxtPath = os.path.join(accessoryFiles_dir, 'startupFolder.txt')
@@ -480,7 +481,7 @@ class RemoveStartupFolderShortcut:
 
     def startUpFolderTxtFileName(self):
         # Get path of accessory files
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        base_dir = getBaseDir()
         accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
         # Path to json file for words and definitions
         self.startUpFolderTxtPath = os.path.join(accessoryFiles_dir, 'startupFolder.txt')

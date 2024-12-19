@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QFont, QTextDocument, QFontMetrics
-from PyQt5.QtWidgets import QLabel, QScrollArea, QPushButton, QApplication, QFrame
+from PyQt5.QtWidgets import QLabel, QScrollArea, QPushButton, QApplication
 from PyQt5.QtCore import Qt
 import json
 import os
@@ -8,6 +8,7 @@ import signal
 import platform
 import subprocess
 import time
+import sys
 
 class Fonts:
     def __init__(self):
@@ -266,7 +267,7 @@ class PID:
         self.PIDfilePath = None          
         self.PIDfileExists = False      
         self.PID = None
-        self.PIDrunning = False  
+        self.PIDrunning = False
         # Starter methds
         self.getPIDfilePath()
         self.doesPIDfileExist()
@@ -274,7 +275,7 @@ class PID:
 
     def getPIDfilePath(self):
         # Get path of accessory files
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        base_dir = getBaseDir()
         accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
         # Path to save PID
         self.PIDfilePath = os.path.join(accessoryFiles_dir, "PresentWordsAndDefinitions.pid") 
@@ -325,3 +326,17 @@ class PID:
     def cleanUpPID(self):
         if os.path.exists(self.PIDfilePath):
                 os.remove(self.PIDfilePath)     
+
+def getBaseDir():
+    # Check if the program is running as a PyInstaller executable
+    if getattr(sys, 'frozen', False):
+        # If yes, sys._MEIPASS is the temporary folder where the executable is unpacked
+        print(f"\n\nExecutable temp path: {sys.executable}\n\n")
+        time.sleep(3)
+        return os.path.dirname(sys.executable)
+    else:
+        # Otherwise get the location of the exe file in the designated folder        
+        print(f"\n\nExecutable after install path: {os.path.dirname(os.path.abspath(__file__))}\n\n")
+        time.sleep(3)
+        return os.path.dirname(os.path.abspath(__file__))
+        

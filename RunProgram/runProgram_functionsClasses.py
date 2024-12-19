@@ -1,6 +1,7 @@
 import os
 import json
 from datetime import datetime
+from commonClassesFunctions.functionsClasses import getBaseDir
 
 class Sizes_presentWODAPI:
     def __init__(self):
@@ -188,7 +189,7 @@ def getDateForTitle():
 
 def getTimeToRunApplicationPath():
     # Get path of accessory files
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = getBaseDir()
     accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
     # Path to json file for words and definitions
     return os.path.join(accessoryFiles_dir, 'timeToRunApplication.txt')

@@ -1,5 +1,6 @@
 import subprocess
 import os
+from commonClassesFunctions.functionsClasses import getBaseDir
 import time
 
 class runInstaller_windows():
@@ -8,6 +9,7 @@ class runInstaller_windows():
         self.exeName_runProgram = 'Background' # name of installed exe file for background (runProgram) stuff
         self.exeName_userInput = 'UserInput' # name of installed exe file for the user input stuff (start/stop/edit program, etc)
         self.dependencyFolders = ['addEditWords', 'RunProgram', 'commonClassesFunctions', 'StartStopProgram'] # name of all main folders in project, where functions/classes are grabbed from
+        self.installerPath = r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
         # Methods
         self.getPathsForExecutables()
         self.getDependencyFolderPaths()
@@ -18,7 +20,9 @@ class runInstaller_windows():
         self.runInstaller_inno()
 
     def getPathsForExecutables(self):
-        self.curDir = os.path.dirname(os.path.abspath(__file__))
+        print('\n\nGetting exe path\n\n')
+        time.sleep(1) 
+        self.curDir = getBaseDir()
         # User input executable paths
         self.dir_userInput = os.path.join(self.curDir, '..', 'StartStopProgram','startStopProgram_main.py') # path of python file to be made into executable
         self.dir_executable_userInput = os.path.join(self.curDir, '..', 'dist') # path for excecutable
@@ -40,31 +44,39 @@ class runInstaller_windows():
         # Generate --collect-all arguments dynamically
         self.dependencyArgs =  " ".join([f'--collect-all {dep}' for dep in dependencies])    
 
-    def createExececutable_userIput(self):                                
+    def createExececutable_userIput(self):
+        print('\n\nCreating userInput.exe\n\n')
+        time.sleep(1)        
         subprocess.run(
-            f'pyinstaller --onedir {self.addDependenciesArgs} '
+            f'pyinstaller --onefile --noconsole {self.addDependenciesArgs} '
             f'{self.dependencyArgs} '
-            f'--debug=imports '  # Debugging mode to analyze missing dependencies
+            # f'--debug=imports '  # Debugging mode to analyze missing dependencies
             f'"{self.dir_userInput}" --distpath "{self.dir_executable_userInput}" '
             f'--name "{self.exeName_userInput}"',
                 shell=True
             )
-        
-    def createExcecutable_runProgram(self):        
+                
+    def createExcecutable_runProgram(self):    
+        print('\n\nCreating runProgram.exe\n\n')
+        time.sleep(1)            
         subprocess.run(
-            f'pyinstaller --onedir {self.addDependenciesArgs} '        
+            f'pyinstaller --onefile --noconsole {self.addDependenciesArgs} '        
             f'{self.dependencyArgs} '
-            f'--debug=imports '  # Debugging mode to analyze missing dependencies    
+            #f'--debug=imports '  # Debugging mode to analyze missing dependencies    
             f'"{self.dir_runProgram}" --distpath "{self.dir_executable_runProgram}" '
             f'--name "{self.exeName_runProgram}"',
             shell=True
         )
         
     def runInstaller_inno(self):
+        print('\n\nRunning inno installer\n\n')
+        time.sleep(1)            
         # Path to Inno Setup Compiler
-        inno_compiler_path = r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" # or path of inno installer program
+        inno_compiler_path = self.installerPath
         # Path to .iss file
-        iss_file_path = os.path.join(self.curDir,"installer_windows_inno.iss")
+        iss_file_path = os.path.join(self.curDir, '..', 'Installation', 'installer_windows_inno.iss')
+        print(f"\n\iss_file_path path: {iss_file_path}\n\n")
+        time.sleep(2)            
         subprocess.run([inno_compiler_path, iss_file_path])
 
 if __name__ == "__main__":

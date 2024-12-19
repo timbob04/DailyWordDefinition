@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, time
 from PyQt5.QtWidgets import QWidget
-from commonClassesFunctions.functionsClasses import centerWindowOnScreen
+from commonClassesFunctions.functionsClasses import centerWindowOnScreen, getBaseDir
 from RunProgram.runProgram_generateAPI import getAndMakeAPIcontent
 from RunProgram.runProgram_functionsClasses import getTimeToRunApplicationPath
 
@@ -54,7 +54,7 @@ class TimingControl():
             return datetime.strptime(time_str, "%H:%M").time()
         
     def getDateLastRunPath(self):             
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        base_dir = getBaseDir()
         common_dir = os.path.join(base_dir, '..', 'accessoryFiles')    
         return os.path.join(common_dir, 'dataLastRun.txt')  
     

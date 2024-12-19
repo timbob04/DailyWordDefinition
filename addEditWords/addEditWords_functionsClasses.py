@@ -2,7 +2,7 @@ import json
 import os
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtCore import Qt
-from commonClassesFunctions.functionsClasses import readJSONfile
+from commonClassesFunctions.functionsClasses import readJSONfile, getBaseDir
 
 # Some common sizes used to make the API
 class Sizes_addEditWords:
@@ -82,7 +82,8 @@ class addNewWordTextBoxes:
 
 def getWordListPath():
     # Get path of accessory files
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = getBaseDir()
+    print(f"\n\nPath is {base_dir} \n\n")
     accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
     # Path to json file for words and definitions
     return os.path.join(accessoryFiles_dir, 'WordsDefsCodes.json')             
