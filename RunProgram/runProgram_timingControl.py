@@ -15,9 +15,6 @@ class TimingControl():
         # Get time to show API (decided by user)
         self.timeToShowDailyWord = self.getTimeToShowAPI()
 
-        # Get minute of day this code last ran, do prevent the code below running twice within the same target minute
-        current_time = datetime.now().time() 
-
         if self.checkIfTimeIsReached() and not self.isDateLastRunToday():
 
             # Update the dateLastRun text file
