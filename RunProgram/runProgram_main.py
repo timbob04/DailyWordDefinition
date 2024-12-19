@@ -1,40 +1,26 @@
-import sys
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QMainWindow
-from commonClassesFunctions.functionsClasses import PID
-from RunProgram.runProgram_functionsClasses import getDateForTitle
 from RunProgram.runProgram_timingControl import TimingControl
+import time
+from commonClassesFunctions.functionsClasses import PID
+from RunProgram.runProgram_generateAPI import getAndMakeAPIcontent
 
 def runApplicationTimingLoop():
 
-    # Start an application
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(False)  # Prevent the app from quitting when the window is closed
+    # For checking when the API should be presented
+    timingControl = TimingControl()
+    
+    # Make PID to indicate that this code's timing loop is running
+    pid = PID("TimingLoop")
+    pid.createPID()
 
-    # Create PID for current QApplication
-    pid = PID()
-    pid.createPID()    
-
-    # Make a current window
-    window = QMainWindow()
-    dateForTitle = getDateForTitle()
-    window.setWindowTitle("Word of the day.  " + dateForTitle) 
-
-    # Crete timer to check time periodically and generate API if time to present API is reached
-    timer = QTimer()
-    timingControl = TimingControl(window) # Class to determine if time to present API is reached
-    timer.timeout.connect(timingControl.timeReached)
-    timer.start(1000) 
-    # timer.start(60000)    
-
-    # Run application's event loop
-    exit_code = app.exec_()
-
-    # Delete programs PID on program exit
-    pid.cleanUpPID()
-
-    # Exit application
-    sys.exit(exit_code)
+    while True:                
+        if timingControl.checkIfTimeToRunProgram():
+            # Close any previous instances of main API to show words/definitions
+            pid = PID("PresentWordsAndDefinitions")            
+            if pid.checkIfPIDisRunning():
+                pid.killProgram()
+            # Make API to show today's word and definition
+            getAndMakeAPIcontent()     
+        time.sleep(60)
 
 # Run the main function if this script is executed directly
 if __name__ == "__main__":

@@ -1,54 +1,34 @@
 import os
 from datetime import datetime, time
-from PyQt5.QtWidgets import QWidget
-from commonClassesFunctions.functionsClasses import centerWindowOnScreen, getBaseDir
-from RunProgram.runProgram_generateAPI import getAndMakeAPIcontent
-from RunProgram.runProgram_functionsClasses import getTimeToRunApplicationPath
+from commonClassesFunctions.functionsClasses import getBaseDir
 
 class TimingControl():
-    def __init__(self,window):
-        self.window = window
-        self.lastRunTime = None
 
-    def timeReached(self):
-
-        # Get time to show API (decided by user)
-        self.timeToShowDailyWord = self.getTimeToShowAPI()
-
+    def checkIfTimeToRunProgram(self):
         if self.checkIfTimeIsReached() and not self.isDateLastRunToday():
-
-            # Update the dateLastRun text file
-            self.writeNewDate()
-
-            # Close previous day's word window, if present
-            if self.window:
-                self.window.close()                
-                if self.window.centralWidget() is not None:  # Check if central widget exists
-                    self.window.centralWidget().deleteLater()  # Safely delete the central widget
-                    self.window.setCentralWidget(None) # Clear all previous window content                
-                for child in self.window.findChildren(QWidget):  # Find all child widgets
-                    child.deleteLater()
-
-            # Make API's new daily content
-            getAndMakeAPIcontent(self.window)                
-
-            # Show window
-            self.window.show()
-
-            # Center the window - put in the function (pass it 'window' and 'app')
-            centerWindowOnScreen(self.window)
-
+            self.writeNewDate() # Update the dateLastRun text file
+            return True           
+            
     def checkIfTimeIsReached(self):
         # Get the current time of day
         current_time = datetime.now().time()
+        # Get time to show word
+        timeToShowDailyWord = self.getTimeToShowAPI()
         # Compare the current time to the target time
-        return self.timeToShowDailyWord <= current_time <= time(23, 59)
+        return timeToShowDailyWord <= current_time <= time(23, 59)
     
     def getTimeToShowAPI(self):
-        time_dir = getTimeToRunApplicationPath()
+        time_dir = self.getTimeToRunApplicationPath()
         with open(time_dir, 'r') as file:
             time_str = file.read().strip()  # Read the time string and remove any extra whitespace
             return datetime.strptime(time_str, "%H:%M").time()
+        
+    def getTimeToRunApplicationPath(self):
+        # Get path of accessory files
+        base_dir = getBaseDir()
+        accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
+        # Path to json file for words and definitions
+        return os.path.join(accessoryFiles_dir, 'timeToRunApplication.txt')    
         
     def getDateLastRunPath(self):             
         base_dir = getBaseDir()

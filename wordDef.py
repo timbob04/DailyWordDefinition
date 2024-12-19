@@ -9,14 +9,19 @@ import subprocess
 def startStopEditProgram():
 
     # Check if the program is currently running using its PID
-    pid = PID()
-    PIDrunning = pid.checkIfPIDisRunning()
-
-    if PIDrunning:                
+    pid_timing = PID("TimingLoop")
+    PIDrunning = pid_timing.checkIfPIDisRunning()
+    
+    if PIDrunning:    
+        # Will be an exe in programs            
         stopProgram_YN = stopProgram()
         if stopProgram_YN:
-            pid.killProgram()
-            sys.exit()        
+            # Kill timing loop
+            pid_timing.killProgram()
+            # Kill any instances of the main API to present words and definitions
+            pid_runProgram = PID("PresentWordsAndDefinitions")
+            if pid_runProgram.checkIfPIDisRunning():
+                pid_runProgram.killProgram() 
     else:                
         runProgram_YN = startProgram()           
         if runProgram_YN:            

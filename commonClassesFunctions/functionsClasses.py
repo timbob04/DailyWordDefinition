@@ -262,8 +262,9 @@ def readJSONfile(filepath):
         return None
     
 class PID:
-    def __init__(self): 
-        # Starter variables      
+    def __init__(self,pidFileName): 
+        # Starter variables  
+        self.pidFileName = pidFileName    
         self.PIDfilePath = None          
         self.PIDfileExists = False      
         self.PID = None
@@ -278,7 +279,7 @@ class PID:
         base_dir = getBaseDir()
         accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
         # Path to save PID
-        self.PIDfilePath = os.path.join(accessoryFiles_dir, "PresentWordsAndDefinitions.pid") 
+        self.PIDfilePath = os.path.join(accessoryFiles_dir, f"{self.pidFileName}.pid") 
 
     def doesPIDfileExist(self): 
         self.PIDfileExists = os.path.exists(self.PIDfilePath)
@@ -329,14 +330,8 @@ class PID:
 
 def getBaseDir():
     # Check if the program is running as a PyInstaller executable
-    if getattr(sys, 'frozen', False):
-        # If yes, sys._MEIPASS is the temporary folder where the executable is unpacked
-        print(f"\n\nExecutable temp path: {sys.executable}\n\n")
-        time.sleep(3)
+    if getattr(sys, 'frozen', False):                
         return os.path.dirname(sys.executable)
-    else:
-        # Otherwise get the location of the exe file in the designated folder        
-        print(f"\n\nExecutable after install path: {os.path.dirname(os.path.abspath(__file__))}\n\n")
-        time.sleep(3)
+    else:        
         return os.path.dirname(os.path.abspath(__file__))
         

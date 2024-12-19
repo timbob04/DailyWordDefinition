@@ -1,12 +1,23 @@
 import os
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow
 from RunProgram.runProgram_functionsClasses import WODandDef, PODandDef, Sizes_presentWODAPI, saveToggleChoice, getDateForTitle
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QCheckBox
-from commonClassesFunctions.functionsClasses import Fonts, readJSONfile, MakeTextWithMaxHeight, StaticText, PushButton, getBaseDir
+from commonClassesFunctions.functionsClasses import Fonts, readJSONfile, MakeTextWithMaxHeight, StaticText, PushButton, getBaseDir, PID, centerWindowOnScreen
 
-def getAndMakeAPIcontent(window):
+def getAndMakeAPIcontent():
 
-    # Update window title with today's date
+    # Start an application
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(False)  # Prevent the app from quitting when the window is closed
+
+    # Create PID for current QApplication
+    pid = PID("PresentWordsAndDefinitions")
+    pid.createPID()
+
+    # Make a current window
+    window = QMainWindow()
     dateForTitle = getDateForTitle()
     window.setWindowTitle("Word of the day.  " + dateForTitle) 
 
@@ -153,3 +164,18 @@ def getAndMakeAPIcontent(window):
 
     # Resize window
     window.resize(int(rightMostPoint_all+sizes.padding_large), int(lowestPoint+sizes.padding_large))
+
+    # Show window
+    window.show()
+
+    # Center the window - put in the function (pass it 'window' and 'app')
+    centerWindowOnScreen(window)
+
+    # Run application's event loop
+    exit_code = app.exec_()
+
+    # Delete programs PID on program exit
+    pid.cleanUpPID()
+
+    # Exit application
+    sys.exit(exit_code)
