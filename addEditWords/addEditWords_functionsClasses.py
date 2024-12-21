@@ -83,7 +83,6 @@ class addNewWordTextBoxes:
 def getWordListPath():
     # Get path of accessory files
     base_dir = getBaseDir()
-    print(f"\n\nPath is {base_dir} \n\n")
     accessoryFiles_dir = os.path.join(base_dir, '..', 'accessoryFiles')
     # Path to json file for words and definitions
     return os.path.join(accessoryFiles_dir, 'WordsDefsCodes.json')             

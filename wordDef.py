@@ -1,19 +1,17 @@
-import sys
+import os
 from StartStopProgram.startStopProgram_startProgramAPI import startProgram
 from StartStopProgram.startStopProgram_stopProgramAPI import stopProgram
-from StartStopProgram.startStopProgram_functionsClasses import get_exe_path
-from commonClassesFunctions.functionsClasses import PID
-# from RunProgram.runProgram_main import runApplicationTimingLoop
+from commonClassesFunctions.functionsClasses import PID, get_exe_path
+from RunProgram.runProgram_timingLoop import runApplicationTimingLoop
 import subprocess
 
 def startStopEditProgram():
 
-    # Check if the program is currently running using its PID
-    pid_timing = PID("TimingLoop")
-    PIDrunning = pid_timing.checkIfPIDisRunning()
+    # Check if the program is currently running using its PID - the first point of entry is the timing loop code
+    pid_timing = PID("TimingLoop")    
     
-    if PIDrunning:    
-        # Will be an exe in programs            
+    if pid_timing.checkIfPIDisRunning():    
+        # Will be an exe in programs
         stopProgram_YN = stopProgram()
         if stopProgram_YN:
             # Kill timing loop
@@ -24,8 +22,9 @@ def startStopEditProgram():
                 pid_runProgram.killProgram() 
     else:                
         runProgram_YN = startProgram()           
-        if runProgram_YN:            
-            exeFilePath = get_exe_path('Background')
+        if runProgram_YN:     
+            path = os.path.join('bin','TimingLoop')       
+            exeFilePath = get_exe_path(path)
             subprocess.run([exeFilePath], capture_output=True, text=True)
             # runApplicationTimingLoop() # Before installation
 

@@ -334,4 +334,16 @@ def getBaseDir():
         return os.path.dirname(sys.executable)
     else:        
         return os.path.dirname(os.path.abspath(__file__))
+    
+def get_exe_path(exeName):    
+    # Location of current execetuable
+    exe_dir = getBaseDir()    
+    # Get OS-specific extension
+    system = platform.system()
+    if system == 'Windows':
+        extension = '.exe'
+    else:
+        extension = ''  # No extension for macOS/Linux
+    # Construct the full path to the executable
+    return os.path.join(exe_dir, f'{exeName}{extension}')
         

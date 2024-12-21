@@ -1,7 +1,8 @@
-from RunProgram.runProgram_timingControl import TimingControl
 import time
-from commonClassesFunctions.functionsClasses import PID
+from RunProgram.runProgram_timingControl import TimingControl
+from commonClassesFunctions.functionsClasses import PID, get_exe_path
 from RunProgram.runProgram_generateAPI import getAndMakeAPIcontent
+import subprocess
 
 def runApplicationTimingLoop():
 
@@ -12,15 +13,17 @@ def runApplicationTimingLoop():
     pid = PID("TimingLoop")
     pid.createPID()
 
-    while True:                
+    while True:                    
         if timingControl.checkIfTimeToRunProgram():
             # Close any previous instances of main API to show words/definitions
-            pid = PID("PresentWordsAndDefinitions")            
+            pid = PID("WordDefAPI")                        
             if pid.checkIfPIDisRunning():
                 pid.killProgram()
             # Make API to show today's word and definition
-            getAndMakeAPIcontent()     
-        time.sleep(60)
+            exeFilePath = get_exe_path('WordDefAPI')
+            subprocess.run([exeFilePath], capture_output=True, text=True)
+            # getAndMakeAPIcontent()         
+        time.sleep(5)
 
 # Run the main function if this script is executed directly
 if __name__ == "__main__":

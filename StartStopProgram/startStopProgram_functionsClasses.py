@@ -5,7 +5,7 @@ import platform
 import os
 import re
 from win32com.client import Dispatch
-from commonClassesFunctions.functionsClasses import getBaseDir
+from commonClassesFunctions.functionsClasses import getBaseDir, get_exe_path
 
 class Fonts:
     def __init__(self):
@@ -262,18 +262,6 @@ def startButtonPressed(window,checkTimeEntered,HH,MM,startupToggle,startupFolOb)
         window.runProgram = True        
         # Close window
         window.close() 
-
-def get_exe_path(exeName):    
-    # Location of current execetuable
-    exe_dir = getBaseDir()    
-    # Get OS-specific extension
-    system = platform.system()
-    if system == 'Windows':
-        extension = '.exe'
-    else:
-        extension = ''  # No extension for macOS/Linux
-    # Construct the full path to the executable
-    return os.path.join(exe_dir, f'{exeName}{extension}')
 
 # Shows/hides startup path if the startup folder toggle button is pressed
 def startupTogglePressed(h_toggle, h_changeButton, h_startupTextObject):
