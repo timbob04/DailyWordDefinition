@@ -1,72 +1,86 @@
 import subprocess
 import os
-from commonClassesFunctions.functionsClasses import getBaseDir
+from commonClassesFunctions.functionsClasses import getBaseDir, getImports_recursive
 import time
 
 class runInstaller_windows():
     def __init__(self):
-        # Parameters
-        self.exeName_runProgram = 'Background' # name of installed exe file for background (runProgram) stuff
-        self.exeName_userInput = 'UserInput' # name of installed exe file for the user input stuff (start/stop/edit program, etc)
-        self.dependencyFolders = ['addEditWords', 'RunProgram', 'commonClassesFunctions', 'StartStopProgram'] # name of all main folders in project, where functions/classes are grabbed from
-        self.installerPath = r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+        # Parameters - exe file names (to be installed)
+        self.exeName_DailyWordDefinition = 'DailyWordDefinition' 
+        self.exeName_WordDefAPI = 'WordDefAPI'
+        self.exeName_TimingLoop = 'TimingLoop'
+        # Parameters - paths to python files relative to project folder - files that are being made into exe files
+        self.pyPath_DailyWordDefinition = 'DailyWordDefinition.py'
+        self.pyPath_WordDefAPI = 'RunProgram\runProgram_generateAPI.py'
+        self.pyPath_TimingLoop = 'RunProgram\runProgram_timingLoop.py'
+        # Parameters - other
+        self.installerPath = r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" # inno installer path
         # Methods
         self.getPathsForExecutables()
-        self.getDependencyFolderPaths()
-        self.createSubprocessArgsForDependencies()
         self.getDependencies()
-        self.createExececutable_userIput()
-        self.createExcecutable_runProgram()
+        self.createExececutable_wordDef()
+        self.createExececutable_wordDefAPI()
+        self.createExececutable_TimingLoop()
         self.runInstaller_inno()
 
     def getPathsForExecutables(self):
         print('\n\nGetting exe path\n\n')
         time.sleep(1) 
         self.curDir = getBaseDir()
-        # User input executable paths
-        self.dir_userInput = os.path.join(self.curDir, '..', 'StartStopProgram','startStopProgram_main.py') # path of python file to be made into executable
-        self.dir_executable_userInput = os.path.join(self.curDir, '..', 'dist') # path for excecutable
-        # Program running executable paths
-        self.dir_runProgram = os.path.join(self.curDir, '..', 'RunProgram','runProgram_main.py') # path of python file to be made into executable
-        self.dir_executable_runProgram = os.path.join(self.curDir, '..', 'dist') # path for excecutable        
+        # DailyWordDefinition exe paths (where from and where to)
+        self.pyPathFull_DailyWordDefinition = os.path.join(self.curDir, '..',self.pyPath_DailyWordDefinition) # path of python file to be made into executable
+        self.exePath_DailyWordDefinition = os.path.join(self.curDir, '..', 'bin') # path for excecutable
+        # WordDefAPI exe paths (where from and where to)
+        self.pyPathFull_WordDefAPI = os.path.join(self.curDir, '..', self.pyPath_WordDefAPI) # path of python file to be made into executable
+        self.exePath_WordDefAPI = os.path.join(self.curDir, '..', 'bin') # path for excecutable        
+        # TimingLoop exe paths (where from and where to)
+        self.pyPathFull_TimingLoop = os.path.join(self.curDir, '..', self.pyPath_TimingLoop) # path of python file to be made into executable
+        self.exePath_TimingLoop = os.path.join(self.curDir, '..', 'bin') # path for excecutable        
 
-    def getDependencyFolderPaths(self):        
-        self.dependencyFolderPaths = [os.path.join(self.curDir, '..', folder) for folder in self.dependencyFolders] # list comprehension        
-
-    def createSubprocessArgsForDependencies(self):
-        self.addDependenciesArgs = " ".join(
-            [f'--add-data "{path};{os.path.basename(path)}"' for path in self.dependencyFolderPaths]
-        )
-
-    def getDependencies(self):
+    def getDependencies(self, file_path):
         # List of dynamic dependencies to collect
-        dependencies = ['PyQt5', 'psutil', 'win32com.client', 'platform', 'json', 'os', 'time', 'datetime', 're', 'subprocess']        
+        dependencies = getImports_recursive(file_path)
         # Generate --collect-all arguments dynamically
-        self.dependencyArgs =  " ".join([f'--collect-all {dep}' for dep in dependencies])    
+        return " ".join([f'--hidden-import {dep}' for dep in dependencies])    
 
-    def createExececutable_userIput(self):
-        print('\n\nCreating userInput.exe\n\n')
+    def createExececutable_wordDef(self):
+        print('\n\nCreating DailyWordDefinition.exe\n\n')
         time.sleep(1)        
+        dependencyArguments = self.getDependencies(self.pyPathFull_DailyWordDefinition)
         subprocess.run(
-            f'pyinstaller --onefile --noconsole {self.addDependenciesArgs} '
-            f'{self.dependencyArgs} '
+            f'pyinstaller --onefile --noconsole '
+            f'{dependencyArguments} '
             # f'--debug=imports '  # Debugging mode to analyze missing dependencies
-            f'"{self.dir_userInput}" --distpath "{self.dir_executable_userInput}" '
-            f'--name "{self.exeName_userInput}"',
+            f'"{self.pyPathFull_DailyWordDefinition}" --distpath "{self.exePath_DailyWordDefinition}" '
+            f'--name "{self.exeName_DailyWordDefinition}"',
                 shell=True
             )
-                
-    def createExcecutable_runProgram(self):    
-        print('\n\nCreating runProgram.exe\n\n')
-        time.sleep(1)            
+
+    def createExececutable_wordDefAPI(self):
+        print('\n\nCreating WordDefAPI.exe\n\n')
+        time.sleep(1)        
+        dependencyArguments = self.getDependencies(self.pyPathFull_WordDefAPI)
         subprocess.run(
-            f'pyinstaller --onefile --noconsole {self.addDependenciesArgs} '        
-            f'{self.dependencyArgs} '
-            #f'--debug=imports '  # Debugging mode to analyze missing dependencies    
-            f'"{self.dir_runProgram}" --distpath "{self.dir_executable_runProgram}" '
-            f'--name "{self.exeName_runProgram}"',
-            shell=True
-        )
+            f'pyinstaller --onefile --noconsole '
+            f'{dependencyArguments} '
+            # f'--debug=imports '  # Debugging mode to analyze missing dependencies
+            f'"{self.pyPathFull_WordDefAPI}" --distpath "{self.exePath_WordDefAPI}" '
+            f'--name "{self.exeName_WordDefAPI}"',
+                shell=True
+            )    
+        
+    def createExececutable_TimingLoop(self):
+        print('\n\nCreating TimingLoop.exe\n\n')
+        time.sleep(1)        
+        dependencyArguments = self.getDependencies(self.pyPathFull_TimingLoop)
+        subprocess.run(
+            f'pyinstaller --onefile --noconsole '
+            f'{dependencyArguments} '
+            # f'--debug=imports '  # Debugging mode to analyze missing dependencies
+            f'"{self.pyPathFull_TimingLoop}" --distpath "{self.exePath_TimingLoop}" '
+            f'--name "{self.exeName_TimingLoop}"',
+                shell=True
+            )    
         
     def runInstaller_inno(self):
         print('\n\nRunning inno installer\n\n')

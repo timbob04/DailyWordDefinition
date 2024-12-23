@@ -8,9 +8,9 @@ Compression=lzma
 SolidCompression=yes
 
 [Files]
-Source: "..\dist\Daily word definition.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\dist\TimingLoop.exe"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "..\dist\WordDefAPI.exe"; DestDir: "{app}\bin"; Flags: ignoreversion
+Source: "..\bin\DailyWordDefinition.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\bin\TimingLoop.exe"; DestDir: "{app}\bin"; Flags: ignoreversion
+Source: "..\bin\WordDefAPI.exe"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "..\accessoryFiles\*"; DestDir: "{app}\accessoryFiles"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\README_postInstallation.txt"; DestDir: "{app}"; Flags: ignoreversion
 

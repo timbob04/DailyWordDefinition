@@ -9,6 +9,7 @@ import platform
 import subprocess
 import time
 import sys
+import ast
 
 class Fonts:
     def __init__(self):
@@ -347,3 +348,27 @@ def get_exe_path(exeName):
     # Construct the full path to the executable
     return os.path.join(exe_dir, f'{exeName}{extension}')
         
+def getImports_recursive(file_path, visited=None):
+    if visited is None:
+        visited = set()
+    if file_path in visited:
+        return []
+    visited.add(file_path)
+
+    with open(file_path, "r") as file:
+        tree = ast.parse(file.read())
+
+    imports = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                imports.append(alias.name)
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module
+            for alias in node.names:  # Fix: Loop through `node.names` here
+                imports.append(f"{module}.{alias.name}" if module else alias.name)
+                # Check if module refers to a local file
+                if module and os.path.exists(f"{module.replace('.', '/')}.py"):
+                    imports += get_imports_recursive(f"{module.replace('.', '/')}.py", visited)
+
+    return list(set(imports)) # remove any duplicates and remake into a list

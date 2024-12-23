@@ -2,7 +2,7 @@ import os
 from StartStopProgram.startStopProgram_startProgramAPI import startProgram
 from StartStopProgram.startStopProgram_stopProgramAPI import stopProgram
 from commonClassesFunctions.functionsClasses import PID, get_exe_path
-from RunProgram.runProgram_timingLoop import runApplicationTimingLoop
+# from RunProgram.runProgram_timingLoop import runApplicationTimingLoop
 import subprocess
 
 def startStopEditProgram():
