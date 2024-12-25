@@ -11,13 +11,12 @@ class runInstaller_windows():
         self.exeName_TimingLoop = 'TimingLoop'
         # Parameters - paths to python files relative to project folder - files that are being made into exe files
         self.pyPath_DailyWordDefinition = 'DailyWordDefinition.py'
-        self.pyPath_WordDefAPI = 'RunProgram\runProgram_generateAPI.py'
-        self.pyPath_TimingLoop = 'RunProgram\runProgram_timingLoop.py'
+        self.pyPath_WordDefAPI = os.path.join('RunProgram','runProgram_generateAPI.py')
+        self.pyPath_TimingLoop = os.path.join('RunProgram','runProgram_timingLoop.py')
         # Parameters - other
         self.installerPath = r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" # inno installer path
         # Methods
         self.getPathsForExecutables()
-        self.getDependencies()
         self.createExececutable_wordDef()
         self.createExececutable_wordDefAPI()
         self.createExececutable_TimingLoop()
@@ -31,10 +30,10 @@ class runInstaller_windows():
         self.pyPathFull_DailyWordDefinition = os.path.join(self.curDir, '..',self.pyPath_DailyWordDefinition) # path of python file to be made into executable
         self.exePath_DailyWordDefinition = os.path.join(self.curDir, '..', 'bin') # path for excecutable
         # WordDefAPI exe paths (where from and where to)
-        self.pyPathFull_WordDefAPI = os.path.join(self.curDir, '..', self.pyPath_WordDefAPI) # path of python file to be made into executable
+        self.pyPathFull_WordDefAPI = os.path.join(os.path.join(self.curDir, '..', self.pyPath_WordDefAPI)) # path of python file to be made into executable
         self.exePath_WordDefAPI = os.path.join(self.curDir, '..', 'bin') # path for excecutable        
         # TimingLoop exe paths (where from and where to)
-        self.pyPathFull_TimingLoop = os.path.join(self.curDir, '..', self.pyPath_TimingLoop) # path of python file to be made into executable
+        self.pyPathFull_TimingLoop = os.path.join(os.path.join(self.curDir, '..', self.pyPath_TimingLoop)) # path of python file to be made into executable
         self.exePath_TimingLoop = os.path.join(self.curDir, '..', 'bin') # path for excecutable        
 
     def getDependencies(self, file_path):

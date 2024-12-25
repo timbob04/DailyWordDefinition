@@ -369,6 +369,6 @@ def getImports_recursive(file_path, visited=None):
                 imports.append(f"{module}.{alias.name}" if module else alias.name)
                 # Check if module refers to a local file
                 if module and os.path.exists(f"{module.replace('.', '/')}.py"):
-                    imports += get_imports_recursive(f"{module.replace('.', '/')}.py", visited)
+                    imports += getImports_recursive(f"{module.replace('.', '/')}.py", visited)
 
     return list(set(imports)) # remove any duplicates and remake into a list
