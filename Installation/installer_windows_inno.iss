@@ -1,7 +1,7 @@
 [Setup]
 AppName=Daily word definition
 AppVersion=1.0
-DefaultDirName={userdocs}\Daily word definition ; Default to their documents folder
+DefaultDirName={userdocs}\Daily word definition
 DefaultGroupName=Daily word definition
 OutputBaseFilename=installer_dailyWord
 Compression=lzma
@@ -14,13 +14,8 @@ Source: "..\bin\WordDefAPI.exe"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "..\accessoryFiles\*"; DestDir: "{app}\accessoryFiles"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\README_postInstallation.txt"; DestDir: "{app}"; Flags: ignoreversion
 
-; Define shortcuts (only for UserInput)
 [Icons]
 Name: "{userdesktop}\Daily word definition"; Filename: "{app}\program\UserInput.exe"; IconFilename: "{app}\accessoryFiles\icon.ico"; Tasks: desktopicon
 
-; Define additional tasks
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop icon for this application"; GroupDescription: "Additional icons:"; Flags: unchecked
-
-[Dirs]
-Name: "{userdocs}\Daily word definition"; Attrib: normal ; Creates the directory if it doesn't exist.
