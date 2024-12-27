@@ -1,7 +1,7 @@
 [Setup]
 AppName=Daily word definition
 AppVersion=1.0
-DefaultDirName={localappdata}\Daily word definition
+DefaultDirName={userdocs}\Daily word definition ; Default to their documents folder
 DefaultGroupName=Daily word definition
 OutputBaseFilename=installer_dailyWord
 Compression=lzma
@@ -22,3 +22,5 @@ Name: "{userdesktop}\Daily word definition"; Filename: "{app}\program\UserInput.
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop icon for this application"; GroupDescription: "Additional icons:"; Flags: unchecked
 
+[Dirs]
+Name: "{userdocs}\Daily word definition"; Attrib: normal ; Creates the directory if it doesn't exist.
