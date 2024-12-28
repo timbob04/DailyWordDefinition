@@ -4,9 +4,9 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from RunProgram.runProgram_functionsClasses import WODandDef, PODandDef, Sizes_presentWODAPI, saveToggleChoice, getDateForTitle
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QCheckBox
-from commonClassesFunctions.functionsClasses import Fonts, readJSONfile, MakeTextWithMaxHeight, StaticText, PushButton, getBaseDir, PID, centerWindowOnScreen
+from commonClassesFunctions.functionsClasses import Fonts, readJSONfile, MakeTextWithMaxHeight, StaticText, PushButton, getBaseDir, PID, centerWindowOnScreen, setPyQt5path
 
-def getAndMakeAPIcontent():
+def getAndMakeAPIcontent():    
 
     # Start an application
     app = QApplication(sys.argv)
@@ -179,3 +179,7 @@ def getAndMakeAPIcontent():
 
     # Exit application
     sys.exit(exit_code)
+
+if __name__ == "__main__":
+    setPyQt5path()
+    getAndMakeAPIcontent()    

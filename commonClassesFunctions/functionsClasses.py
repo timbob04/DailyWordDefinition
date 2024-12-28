@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QFont, QTextDocument, QFontMetrics
 from PyQt5.QtWidgets import QLabel, QScrollArea, QPushButton, QApplication
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QLibraryInfo, QCoreApplication
 import json
 import os
 import psutil
@@ -282,13 +282,18 @@ class PID:
         # Path to save PID
         self.PIDfilePath = os.path.join(accessoryFiles_dir, f"{self.pidFileName}.pid") 
 
-    def doesPIDfileExist(self): 
+    def doesPIDfileExist(self):         
         self.PIDfileExists = os.path.exists(self.PIDfilePath)
+        if self.PIDfileExists:
+            print(f'This PID file exists: {self.PIDfilePath}')
+        else:
+            print(f'This PID file does not exist: {self.PIDfilePath}')
 
     def getPID(self):
         if self.PIDfileExists:            
             with open(self.PIDfilePath, "r") as f:
                 self.PID = int(f.read().strip())  # Read and parse the PID  
+        print(f'The PID file PID is {self.PID}')        
 
     def createPID(self):
         pid = os.getpid()
@@ -303,7 +308,8 @@ class PID:
                 self.PIDrunning = psutil.pid_exists(self.PID)        
             except Exception:
                 self.PIDrunning = False
-
+        
+        print(f'When checking if PID running, the answer is: {self.PIDrunning}')    
         return self.PIDrunning
     
     def killProgramGracefully(self):
@@ -330,7 +336,7 @@ class PID:
                 os.remove(self.PIDfilePath)     
 
 def getBaseDir():
-    # Check if the program is running as a PyInstaller executable
+    # Check if the program is running as an executable
     if getattr(sys, 'frozen', False):                
         return os.path.dirname(sys.executable)
     else:        
@@ -352,23 +358,39 @@ def getImports_recursive(file_path, visited=None):
     if visited is None:
         visited = set()
     if file_path in visited:
-        return []
+        return [], []
     visited.add(file_path)
 
     with open(file_path, "r") as file:
         tree = ast.parse(file.read())
 
     imports = []
+    local_files_and_folders = []
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
                 imports.append(alias.name)
         elif isinstance(node, ast.ImportFrom):
             module = node.module
-            for alias in node.names:  # Fix: Loop through `node.names` here
+            for alias in node.names:
                 imports.append(f"{module}.{alias.name}" if module else alias.name)
-                # Check if module refers to a local file
-                if module and os.path.exists(f"{module.replace('.', '/')}.py"):
-                    imports += getImports_recursive(f"{module.replace('.', '/')}.py", visited)
+                # Handle local module paths
+                module_path = module.replace('.', '/')
+                if os.path.exists(f"{module_path}.py"):
+                    local_files_and_folders.append(f"{module_path}.py")
+                elif os.path.isdir(module_path):  # Add directories if they exist
+                    local_files_and_folders.append(module_path)
 
-    return list(set(imports)) # remove any duplicates and remake into a list
+    # Recursively process local files and folders
+    for local_path in local_files_and_folders:
+        if os.path.exists(local_path):
+            sub_imports, sub_datas = getImports_recursive(local_path, visited)
+            imports.extend(sub_imports)
+            local_files_and_folders.extend(sub_datas)
+
+    return list(set(imports)), list(set(local_files_and_folders))
+
+def setPyQt5path():
+    plugin_path = QLibraryInfo.location(QLibraryInfo.PluginsPath)
+    os.environ["QT_PLUGIN_PATH"] = plugin_path
+    QCoreApplication.setLibraryPaths([plugin_path])

@@ -1,7 +1,6 @@
 import time
 from RunProgram.runProgram_timingControl import TimingControl
-from commonClassesFunctions.functionsClasses import PID, get_exe_path
-from RunProgram.runProgram_generateAPI import getAndMakeAPIcontent
+from commonClassesFunctions.functionsClasses import PID, get_exe_path, setPyQt5path
 import subprocess
 
 def runApplicationTimingLoop():
@@ -21,10 +20,11 @@ def runApplicationTimingLoop():
                 pid.killProgram()
             # Make API to show today's word and definition
             exeFilePath = get_exe_path('WordDefAPI')
-            subprocess.run([exeFilePath], capture_output=True, text=True)
+            subprocess.run([exeFilePath], shell=True, stdin=None, stdout=None, stderr=None)
             # getAndMakeAPIcontent()         
         time.sleep(5)
 
 # Run the main function if this script is executed directly
 if __name__ == "__main__":
+    setPyQt5path()
     runApplicationTimingLoop()
