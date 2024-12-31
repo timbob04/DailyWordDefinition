@@ -6,6 +6,7 @@ DefaultGroupName=Daily word definition
 OutputBaseFilename=installer_dailyWord
 Compression=lzma
 SolidCompression=yes
+UninstallFilesDir={app}\Uninstall
 
 [Files]
 Source: "..\bin\Daily_Word_Definition.exe"; DestDir: "{app}"; Flags: ignoreversion

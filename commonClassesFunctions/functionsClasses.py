@@ -307,8 +307,7 @@ class PID:
             try:        
                 self.PIDrunning = psutil.pid_exists(self.PID)        
             except Exception:
-                self.PIDrunning = False
-        
+                self.PIDrunning = False        
         print(f'When checking if PID running, the answer is: {self.PIDrunning}')    
         return self.PIDrunning
     

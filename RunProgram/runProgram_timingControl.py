@@ -33,7 +33,7 @@ class TimingControl():
     def getDateLastRunPath(self):             
         base_dir = getBaseDir()
         common_dir = os.path.join(base_dir, '..', 'accessoryFiles')    
-        return os.path.join(common_dir, 'dataLastRun.txt')  
+        return os.path.join(common_dir, 'dateLastRun.txt')  
     
     def readDateLastRun(self):
         file_path = self.getDateLastRunPath()

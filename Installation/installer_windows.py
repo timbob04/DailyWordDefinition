@@ -27,7 +27,7 @@ class runInstaller_windows():
         self.runInstaller_inno()
 
     def getPathsForExecutables(self):
-        print('\n\nGetting exe paths\n\n')
+        print('\nGetting exe paths')
         time.sleep(1) 
         self.curDir = getBaseDir()
         # userEntryPoints exe paths (where from and where to)
@@ -89,7 +89,7 @@ class runInstaller_windows():
         return f"{hidden_imports_cmd} {datas_cmd}"
 
     def createExececutable_userEntryPoint(self):
-        print('\n\nCreating Daily Word Definition.exe\n\n')
+        print('\nCreating Daily Word Definition.exe')
         time.sleep(1)        
         dependencyArguments = self.getDependencies(self.pyPathFull_userEntryPoint)
         result = subprocess.run(
@@ -105,7 +105,7 @@ class runInstaller_windows():
         self.printResult(result,self.exeName_userEntryPoint)
 
     def createExececutable_startStopEditProgram(self):
-        print('\n\nCreating StartStopEditProgram.exe\n\n')
+        print('\nCreating StartStopEditProgram.exe')
         time.sleep(1)        
         dependencyArguments = self.getDependencies(self.pyPathFull_startStopEditProgram)
         result = subprocess.run(
@@ -122,7 +122,7 @@ class runInstaller_windows():
 
 
     def createExececutable_wordDefAPI(self):
-        print('\n\nCreating WordDefAPI.exe\n\n')
+        print('\nCreating WordDefAPI.exe')
         time.sleep(1)        
         dependencyArguments = self.getDependencies(self.pyPathFull_WordDefAPI)
         result = subprocess.run(
@@ -139,7 +139,7 @@ class runInstaller_windows():
         self.printResult(result,self.exeName_WordDefAPI)
                     
     def createExececutable_TimingLoop(self):
-        print('\n\nCreating TimingLoop.exe\n\n')
+        print('\nCreating TimingLoop.exe')
         time.sleep(1)        
         dependencyArguments = self.getDependencies(self.pyPathFull_TimingLoop)
         result = subprocess.run(
@@ -163,13 +163,13 @@ class runInstaller_windows():
 
         
     def runInstaller_inno(self):
-        print('\n\nRunning inno installer\n\n')
+        print('\nRunning inno installer')
         time.sleep(1)            
         # Path to Inno Setup Compiler
         inno_compiler_path = self.installerPath
         # Path to .iss file
         iss_file_path = os.path.join(self.curDir, '..', 'Installation', 'installer_windows_inno.iss')
-        print(f"\n\iss_file_path path: {iss_file_path}\n\n")
+        print(f"\n\\iss_file_path path: {iss_file_path}\n\n")
         time.sleep(2)            
         subprocess.run([inno_compiler_path, iss_file_path])
 

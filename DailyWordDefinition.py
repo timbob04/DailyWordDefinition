@@ -9,7 +9,7 @@ def runProgram():
     curPath = os.path.join('bin','StartStopEditProgram')
     exeFilePath = get_exe_path(curPath)
     print(f'\nRunning this exe using subprocess now:{exeFilePath}')
-    time.sleep(1.5)
+    time.sleep(4)
     # subprocess.run([exeFilePath], shell=True, stdin=None, stdout=None, stderr=None)
     subprocess.Popen([exeFilePath], creationflags=subprocess.CREATE_NEW_CONSOLE)
 
