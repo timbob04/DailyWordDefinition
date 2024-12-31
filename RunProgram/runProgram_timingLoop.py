@@ -11,16 +11,22 @@ def runApplicationTimingLoop():
     # Make PID to indicate that this code's timing loop is running
     pid = PID("TimingLoop")
     pid.createPID()
+    print("\nCreating PID for timing loop (this exe).")
 
     while True:                    
         if timingControl.checkIfTimeToRunProgram():
             # Close any previous instances of main API to show words/definitions
             pid = PID("WordDefAPI")                        
             if pid.checkIfPIDisRunning():
+                print("\nEven though not supposed to, PID for WordDefAPI.exe is running, so killing this exe using its PID.")
+                time.sleep(1.5)
                 pid.killProgram()
             # Make API to show today's word and definition
             exeFilePath = get_exe_path('WordDefAPI')
-            subprocess.run([exeFilePath], shell=True, stdin=None, stdout=None, stderr=None)
+            print(f'\nRunning this exe using subprocess now:{exeFilePath}')
+            time.sleep(1.5)
+            subprocess.Popen([exeFilePath], creationflags=subprocess.CREATE_NEW_CONSOLE)
+            # subprocess.Popen([exeFilePath], creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_CONSOLE)
             # getAndMakeAPIcontent()         
         time.sleep(5)
 

@@ -15,6 +15,7 @@ def getAndMakeAPIcontent():
     # Create PID for current QApplication
     pid = PID("WordDefAPI")
     pid.createPID()
+    print("\nCreating PID for WordDefAPI (this exe).")
 
     # Make a current window
     window = QMainWindow()
