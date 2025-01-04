@@ -393,3 +393,33 @@ def setPyQt5path():
     plugin_path = QLibraryInfo.location(QLibraryInfo.PluginsPath)
     os.environ["QT_PLUGIN_PATH"] = plugin_path
     QCoreApplication.setLibraryPaths([plugin_path])
+
+def get_needed_imports(file_path):
+    """
+    Identify only the directly needed imports for a given file.
+    Returns a set of required imports (modules and symbols).
+    """
+    with open(file_path, "r") as file:
+        tree = ast.parse(file.read())
+
+    # Extract all used names (symbols) in the file
+    used_names = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
+    needed_imports = set()
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                # Include only if the module name is used
+                if alias.name.split('.')[0] in used_names:
+                    needed_imports.add(alias.name)
+
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module
+            for alias in node.names:
+                full_name = f"{module}.{alias.name}" if module else alias.name
+                # Include only if the imported name is used
+                if alias.name in used_names or (module and module.split('.')[0] in used_names):
+                    needed_imports.add(full_name)
+
+    return needed_imports
+

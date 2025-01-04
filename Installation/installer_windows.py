@@ -1,6 +1,6 @@
 import subprocess
 import os
-from commonClassesFunctions.functionsClasses import getBaseDir, getImports_recursive
+from commonClassesFunctions.functionsClasses import getBaseDir, getImports_recursive, get_needed_imports
 import time
 
 class runInstaller_windows():
@@ -43,7 +43,7 @@ class runInstaller_windows():
         self.pyPathFull_TimingLoop = os.path.join(os.path.join(self.curDir, '..', self.pyPath_TimingLoop)) # path of python file to be made into executable
         self.exePath_TimingLoop = os.path.join(self.curDir, '..', 'bin') # path for excecutable        
 
-    def getDependencies(self, file_path):
+    def getDependencies_plusExtra(self, file_path):
         # List of specific subfolders to include
         subfolders = [
             "StartStopProgram",
@@ -84,10 +84,17 @@ class runInstaller_windows():
 
         # Debugging output
         print("Datas CMD:", datas_cmd)
-        print("Hidden Imports CMD:", hidden_imports_cmd)
+        print("\nHidden Imports CMD:", hidden_imports_cmd)
 
         return f"{hidden_imports_cmd} {datas_cmd}"
-
+    
+    def getDependencies(self,file_path):
+        dynamic_hidden_imports = get_needed_imports(file_path)
+        hidden_imports_cmd = " ".join([f'--hidden-import={dep}' for dep in dynamic_hidden_imports])
+        print("Hidden Imports CMD:", hidden_imports_cmd)
+        time.sleep(4)
+        return hidden_imports_cmd
+        
     def createExececutable_userEntryPoint(self):
         print('\nCreating Daily Word Definition.exe')
         time.sleep(1)        
@@ -95,7 +102,7 @@ class runInstaller_windows():
         result = subprocess.run(
             f'pyinstaller --onefile --noupx --clean --console '
             f'{dependencyArguments} '
-            # f'--debug=imports '  # Debugging mode to analyze missing dependencies
+            f'--debug=imports '  # Debugging mode to analyze missing dependencies
             f'"{self.pyPathFull_userEntryPoint}" --distpath "{self.exePath_userEntryPoint}" '
             f'--name "{self.exeName_userEntryPoint}"',
                 shell=True,
@@ -107,7 +114,7 @@ class runInstaller_windows():
     def createExececutable_startStopEditProgram(self):
         print('\nCreating StartStopEditProgram.exe')
         time.sleep(1)        
-        dependencyArguments = self.getDependencies(self.pyPathFull_startStopEditProgram)
+        dependencyArguments = self.getDependencies_plusExtra(self.pyPathFull_startStopEditProgram)
         result = subprocess.run(
             f'pyinstaller --onefile --noupx --clean --console '
             f'{dependencyArguments} '
@@ -124,7 +131,7 @@ class runInstaller_windows():
     def createExececutable_wordDefAPI(self):
         print('\nCreating WordDefAPI.exe')
         time.sleep(1)        
-        dependencyArguments = self.getDependencies(self.pyPathFull_WordDefAPI)
+        dependencyArguments = self.getDependencies_plusExtra(self.pyPathFull_WordDefAPI)
         result = subprocess.run(
             #f'pyinstaller --onefile --noconsole '
             f'pyinstaller --onefile --noupx --clean --console '

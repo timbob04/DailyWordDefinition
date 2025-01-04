@@ -1,6 +1,6 @@
 import os
 import subprocess
-from commonClassesFunctions.functionsClasses import get_exe_path, setPyQt5path
+from commonClassesFunctions.functionsClasses import get_exe_path
 import time
 
 def runProgram():
@@ -13,6 +13,5 @@ def runProgram():
     # subprocess.run([exeFilePath], shell=True, stdin=None, stdout=None, stderr=None)
     subprocess.Popen([exeFilePath], creationflags=subprocess.CREATE_NEW_CONSOLE)
 
-if __name__ == "__main__":
-    setPyQt5path()
+if __name__ == "__main__":    
     runProgram()
