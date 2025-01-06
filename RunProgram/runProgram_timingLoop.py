@@ -1,6 +1,6 @@
 import time
 from RunProgram.runProgram_timingControl import TimingControl
-from commonClassesFunctions.functionsClasses import PID, get_exe_path #, setPyQt5path
+from commonClassesFunctions.functionsClasses_utils import PID, get_exe_path
 import subprocess
 
 def runApplicationTimingLoop():
@@ -35,6 +35,5 @@ def runApplicationTimingLoop():
         time.sleep(5)
 
 # Run the main function if this script is executed directly
-if __name__ == "__main__":
-    # setPyQt5path()
+if __name__ == "__main__":    
     runApplicationTimingLoop()

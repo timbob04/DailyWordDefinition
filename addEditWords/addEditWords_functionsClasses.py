@@ -2,7 +2,7 @@ import json
 import os
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtCore import Qt
-from commonClassesFunctions.functionsClasses import readJSONfile, getBaseDir
+from commonClassesFunctions.functionsClasses_utils import readJSONfile, getBaseDir
 
 # Some common sizes used to make the API
 class Sizes_addEditWords:

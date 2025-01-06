@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtGui import QPainter, QPen
 from PyQt5.QtCore import Qt
-from commonClassesFunctions.functionsClasses import centerWindowOnScreen, getScreenWidthHeight, Fonts, StaticText, PushButton
+from commonClassesFunctions.functionsClasses_PyQt5 import centerWindowOnScreen, getScreenWidthHeight, Fonts, StaticText, PushButton
 from addEditWords.addEditWords_functionsClasses import Sizes_addEditWords, addNewWordTextBoxes
 from addEditWords.addEditWords_makeWordList import MakeWordList
 

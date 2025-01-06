@@ -1,6 +1,6 @@
 from StartStopProgram.startStopProgram_startProgramAPI import startProgram
 from StartStopProgram.startStopProgram_stopProgramAPI import stopProgram
-from commonClassesFunctions.functionsClasses import PID, get_exe_path, setPyQt5path
+from commonClassesFunctions.functionsClasses_utils import PID, get_exe_path
 # from RunProgram.runProgram_timingLoop import runApplicationTimingLoop
 import subprocess
 import time
@@ -43,6 +43,5 @@ def startStopEditProgram():
             subprocess.Popen([exeFilePath], creationflags=subprocess.CREATE_NEW_CONSOLE)
             # runApplicationTimingLoop() # Before installation
 
-if __name__ == "__main__":
-    setPyQt5path()
+if __name__ == "__main__":    
     startStopEditProgram()
