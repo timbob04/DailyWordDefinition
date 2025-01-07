@@ -251,7 +251,7 @@ def startButtonPressed(window,checkTimeEntered,HH,MM,startupToggle,startupFolOb)
         if startupToggle.isChecked():
             startupFolder = startupFolOb.startupFolder
             # exeFilePath = r"C:\Users\timot\OneDrive\Desktop\tempLinkStartupFile.txt" # For testing
-            exeFilePath = get_exe_path('Background')
+            exeFilePath = get_exe_path('TimingLoop')
             create_startup_shortcut(exeFilePath, startupFolder)
         else:
             startupFolder = "" # will make the startup folder .txt empty
@@ -317,7 +317,7 @@ class CheckTimeEntered_start():
 def create_startup_shortcut(file_path, startupFolder):
     system = platform.system()
     if system == 'Windows':
-        shortcut_path = os.path.join(startupFolder, "presentWords_runProgram_shortcut.lnk") # the full file path of the short cut to the input file, to go in the startup folder
+        shortcut_path = os.path.join(startupFolder, "DailyWordDefinition_shortcut.lnk") # the full file path of the short cut to the input file, to go in the startup folder
         shell = Dispatch('WScript.Shell') # Access the Windows Script Host to manage shortcuts
         shortcut = shell.CreateShortcut(shortcut_path) # Create shortcut file
         shortcut.TargetPath = file_path # Set the target path
@@ -325,16 +325,16 @@ def create_startup_shortcut(file_path, startupFolder):
         shortcut.Save() # save the shortcut file
     elif system in ['Darwin', 'Linux']:        
         os.makedirs(startupFolder, exist_ok=True)
-        desktop_file = os.path.join(startupFolder, "presentWords_runProgram_shortcut.desktop")
+        desktop_file = os.path.join(startupFolder, "DailyWordDefinition_shortcut.desktop")
         with open(desktop_file, "w") as file:
             file.write(f"""[Desktop Entry]
-Type=Application
-Exec={file_path}
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=true
-Name=Run Present Words Program
-""")
+                Type=Application
+                Exec={file_path}
+                Hidden=false
+                NoDisplay=false
+                X-GNOME-Autostart-enabled=true
+                Name=Run Present Words Program
+                """)
             
 # Predefined sizes for text boxes, etc
 class Sizes_stopProgram:
@@ -452,7 +452,7 @@ class RemoveStartupFolderShortcut:
     def shortcutPath_auto(self):
         # Link to shortcut using automatically found startup folder
         startupFolder_auto = getStartupFolder()
-        self.shortcut_auto = os.path.join(startupFolder_auto, f'presentWords_runProgram_shortcut{self.extension}')
+        self.shortcut_auto = os.path.join(startupFolder_auto, f'DailyWordDefinition_shortcut{self.extension}')
 
     def startUpFolderTxtFileName(self):
         # Get path of accessory files
@@ -465,7 +465,7 @@ class RemoveStartupFolderShortcut:
         if os.path.exists(self.startUpFolderTxtPath):
             with open(self.startUpFolderTxtPath, 'r') as file:
                 path = file.readline().strip()  
-            self.shortcut_selected = os.path.join(path, f'presentWords_runProgram_shortcut{self.extension}')
+            self.shortcut_selected = os.path.join(path, f'DailyWordDefinition_shortcut{self.extension}')
 
     def startUpFolderTxtFileName(self):
         # Get path of accessory files
