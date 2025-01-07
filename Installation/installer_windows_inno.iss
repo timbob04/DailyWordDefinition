@@ -7,6 +7,10 @@ OutputBaseFilename=installer_dailyWord
 Compression=lzma
 SolidCompression=yes
 UninstallFilesDir={app}\Uninstall
+; Ensure user gets the option to choose directory
+DisableDirPage=no
+DisableProgramGroupPage=no
+
 
 [Files]
 ; Place Daily_Word_Definition and its dependencies in bin
@@ -26,11 +30,12 @@ Source: "..\accessoryFiles\*"; DestDir: "{app}\accessoryFiles"; Flags: ignorever
 Source: "..\README_postInstallation.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-; Shortcut to the main entry executable on the desktop
-Name: "{userdesktop}\Daily Word Definition"; Filename: "{app}\bin\Daily_Word_Definition\Daily_Word_Definition.exe"; IconFilename: "{app}\accessoryFiles\icon.ico"; Tasks: desktopicon
+; Shortcut to Daily_Word_Definition.exe on the desktop
+Name: "{userdesktop}\Daily Word Definition"; Filename: "{app}\bin\Daily_Word_Definition.exe"; WorkingDir: "{app}\bin"; IconFilename: "{app}\accessoryFiles\icon.ico"; Tasks: desktopicon
 
-; Shortcut to the main entry executable in the main folder
-Name: "{app}\Daily Word Definition"; Filename: "{app}\bin\Daily_Word_Definition\Daily_Word_Definition.exe"; IconFilename: "{app}\accessoryFiles\icon.ico"
+; Shortcut to Daily_Word_Definition.exe in the main folder
+Name: "{app}\Daily Word Definition"; Filename: "{app}\bin\Daily_Word_Definition.exe"; WorkingDir: "{app}\bin"; IconFilename: "{app}\accessoryFiles\icon.ico"
+
 
 [Tasks]
 ; Option to create a desktop icon

@@ -163,3 +163,9 @@ cython_debug/
 
 # Add specific files to be ignored by Git
 extra/~$design.pptx
+
+# Custom folders to ignore
+Installation/Output/
+Installation/__pycache__/
+bin/
+build/
