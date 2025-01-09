@@ -8,6 +8,11 @@ import time
 import sys
 import ast
 
+class Config:
+    def __init__(self, **kwargs):
+        for name, value in kwargs.items():
+            setattr(self, name, value)
+
 def readJSONfile(filepath):
     try:
         with open(filepath, 'r') as file:

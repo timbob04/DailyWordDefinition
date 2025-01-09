@@ -161,10 +161,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Add specific files to be ignored by Git
-extra/~$design.pptx
-
 # Custom folders to ignore
+extra/
 Installation/Output/
 Installation/__pycache__/
 bin/

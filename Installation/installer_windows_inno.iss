@@ -7,35 +7,24 @@ OutputBaseFilename=installer_dailyWord
 Compression=lzma
 SolidCompression=yes
 UninstallFilesDir={app}\Uninstall
-; Ensure user gets the option to choose directory
+; Disalble option to choose installed location
 DisableDirPage=no
-DisableProgramGroupPage=no
-
+; Disalble option to choose installed file name (if yes, DefaultDirName used)
+DisableProgramGroupPage=yes
 
 [Files]
-; Place Daily_Word_Definition and its dependencies in bin
 Source: "..\bin\Daily_Word_Definition\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
-
-; Place StartStopEditProgram and its dependencies in bin
 Source: "..\bin\StartStopEditProgram\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
-
-; Place TimingLoop and its dependencies in bin
 Source: "..\bin\TimingLoop\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
-
-; Place WordDefAPI and its dependencies in bin
 Source: "..\bin\WordDefAPI\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
-
-; Accessory files and README
 Source: "..\accessoryFiles\*"; DestDir: "{app}\accessoryFiles"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\README_postInstallation.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 ; Shortcut to Daily_Word_Definition.exe on the desktop
-Name: "{userdesktop}\Daily Word Definition"; Filename: "{app}\bin\Daily_Word_Definition.exe"; WorkingDir: "{app}\bin"; IconFilename: "{app}\accessoryFiles\icon.ico"; Tasks: desktopicon
-
+Name: "{userdesktop}\Daily Word Definition"; Filename: "{app}\bin\Daily_Word_Definition.exe"; WorkingDir: "{app}\bin"; IconFilename: "{app}\accessoryFiles\icon_DailyWord.ico"; Tasks: desktopicon
 ; Shortcut to Daily_Word_Definition.exe in the main folder
-Name: "{app}\Daily Word Definition"; Filename: "{app}\bin\Daily_Word_Definition.exe"; WorkingDir: "{app}\bin"; IconFilename: "{app}\accessoryFiles\icon.ico"
-
+Name: "{app}\Daily Word Definition"; Filename: "{app}\bin\Daily_Word_Definition.exe"; WorkingDir: "{app}\bin"; IconFilename: "{app}\accessoryFiles\icon_DailyWord.ico"
 
 [Tasks]
 ; Option to create a desktop icon
