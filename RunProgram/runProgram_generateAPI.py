@@ -9,6 +9,8 @@ from commonClassesFunctions.functionsClasses_PyQt5 import Fonts, MakeTextWithMax
 
 def getAndMakeAPIcontent():    
 
+    print('\nWordDefAPI.exe running')
+
     # Start an application
     app = QApplication(sys.argv)
     #app.setQuitOnLastWindowClosed(False)  # Prevent the app from quitting when the window is closed

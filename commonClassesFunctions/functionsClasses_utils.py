@@ -43,16 +43,11 @@ class PID:
 
     def doesPIDfileExist(self):         
         self.PIDfileExists = os.path.exists(self.PIDfilePath)
-        if self.PIDfileExists:
-            print(f'This PID file exists: {self.PIDfilePath}')
-        else:
-            print(f'This PID file does not exist: {self.PIDfilePath}')
 
     def getPID(self):
         if self.PIDfileExists:            
             with open(self.PIDfilePath, "r") as f:
-                self.PID = int(f.read().strip())  # Read and parse the PID  
-        print(f'The PID file PID is {self.PID}')        
+                self.PID = int(f.read().strip())  # Read and parse the PID                
 
     def createPID(self):
         pid = os.getpid()
