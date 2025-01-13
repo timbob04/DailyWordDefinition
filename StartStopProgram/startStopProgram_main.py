@@ -1,9 +1,10 @@
 from StartStopProgram.startStopProgram_startProgramAPI import startProgram
 from StartStopProgram.startStopProgram_stopProgramAPI import stopProgram
-from commonClassesFunctions.functionsClasses_utils import PID, get_exe_path
-# from RunProgram.runProgram_timingLoop import runApplicationTimingLoop
+from commonClassesFunctions.functionsClasses_utils import PID, get_exe_path, getBaseDir, Depdenencies, RunExe
 import subprocess
 import time
+import platform
+import os
 
 def startStopEditProgram():
 
@@ -40,8 +41,8 @@ def startStopEditProgram():
             exeFilePath = get_exe_path('TimingLoop')
             print(f'\nRunning this exe using subprocess now:{exeFilePath}')
             time.sleep(4)
-            subprocess.Popen([exeFilePath], creationflags=subprocess.CREATE_NEW_CONSOLE)
-            # runApplicationTimingLoop() # Before installation
+            dep = Depdenencies(platform, getBaseDir, os, subprocess)
+            RunExe(exeFilePath, dep)
 
 if __name__ == "__main__":    
     startStopEditProgram()

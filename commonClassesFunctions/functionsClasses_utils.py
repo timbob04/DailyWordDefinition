@@ -8,10 +8,11 @@ import time
 import sys
 import ast
 
-class Config:
-    def __init__(self, **kwargs):
-        for name, value in kwargs.items():
-            setattr(self, name, value)
+class Depdenencies:
+    def __init__(self, *args):
+        for idx, value in enumerate(args):            
+            attr_name = getattr(value, "__name__", f"arg_{idx}")
+            setattr(self, attr_name, value)
 
 def readJSONfile(filepath):
     try:
@@ -171,4 +172,62 @@ def get_needed_imports(file_path):
                     needed_imports.add(full_name)
 
     return needed_imports
+
+class RunExe():
+    def __init__(self, exeFilePath, dep):
+        # parameters
+        self.exeFilePath = exeFilePath
+        self.dep = dep # class dependencies
+        # Methods
+        self.getOS()
+        self.console_YN = self.BringUpConsole_YN(dep)       
+        self.runExe()
+           
+    def getOS(self):
+        self.curOS = self.dep.platform.system()    
+
+    class BringUpConsole_YN():
+        def __init__(self,dep):
+            # parameters
+            self.dep = dep
+            self.openConsole_YN = False                           
+            # Methods
+            self.getPath()
+            self.loadDataFromPath()
+            self.isDataTrueOrFalse()
+
+        def getPath(self):
+            # Get path of accessory files
+            base_dir = self.dep.getBaseDir()
+            accessoryFiles_dir = self.dep.os.path.join(base_dir, '..', 'accessoryFiles')
+            # Path to save PID
+            self.filePath = self.dep.os.path.join(accessoryFiles_dir, "openConsoleForExe_YN.txt") 
+    
+        def loadDataFromPath(self):
+            self.data = 0
+            if self.dep.os.path.exists(self.filePath):            
+                with open(self.filePath, "r") as f:
+                    self.data = int(f.read().strip())
+
+        def isDataTrueOrFalse(self):
+            if self.data == 1:
+                self.openConsole_YN = True
+                
+    def runExe(self):        
+        if self.curOS == 'Windows':
+            if self.console_YN.openConsole_YN:
+                self.dep.subprocess.Popen([self.exeFilePath], creationflags=self.dep.subprocess.CREATE_NEW_CONSOLE)                                
+            else:
+                self.dep.subprocess.Popen([self.exeFilePath], creationflags=self.dep.subprocess.DETACHED_PROCESS)                
+        elif self.curOS == 'Darwin':
+            if self.console_YN.openConsole_YN:
+                self.dep.subprocess.Popen(["open", "-a", "Terminal", self.exeFilePath])
+            else:
+                self.dep.subprocess.Popen([self.exeFilePath], preexec_fn=self.dep.os.setsid)
+        elif self.curOS == 'Linux':
+            if self.console_YN.openConsole_YN:
+                self.dep.subprocess.Popen(["gnome-terminal", "--", self.exeFilePath])
+            else:
+                self.dep.subprocess.Popen([self.exeFilePath], preexec_fn=self.dep.os.setsid)                
+
 

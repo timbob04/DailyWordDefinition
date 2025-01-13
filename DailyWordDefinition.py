@@ -1,16 +1,19 @@
 import subprocess
-from commonClassesFunctions.functionsClasses_utils import get_exe_path
+from commonClassesFunctions.functionsClasses_utils import get_exe_path, Depdenencies, RunExe, getBaseDir
 import time
+import platform
+import os
 
 def runProgram():
     print('\nDaily_Word_Definition.exe running')
+    time.sleep(1)    
+    exeFilePath = get_exe_path('StartStopEditProgram')    
     time.sleep(1)
-    # curPath = os.path.join('bin','StartStopEditProgram')
-    exeFilePath = get_exe_path('StartStopEditProgram')
-    print(f'\nRunning this exe using subprocess now:{exeFilePath}')
-    time.sleep(1)
-    # subprocess.run([exeFilePath], shell=True, stdin=None, stdout=None, stderr=None)
-    subprocess.Popen([exeFilePath], creationflags=subprocess.CREATE_NEW_CONSOLE)
+    print(f'\nRunning this exe using subprocess now:{exeFilePath}')    
+    dep = Depdenencies(platform, getBaseDir, os, subprocess)
+    RunExe(exeFilePath, dep)  
+    print('\nStarting application...')
+    time.sleep(1)  
 
 if __name__ == "__main__":    
     runProgram()
