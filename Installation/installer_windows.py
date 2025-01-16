@@ -7,20 +7,23 @@ class runInstaller_windows():
     def __init__(self):
         # Parameters - exe file names (to be installed)
         self.exeName_userEntryPoint = 'Daily_Word_Definition'
+        self.exeName_loadingProgramConsole = 'LoadingProgramConsole'        
         self.exeName_startStopEditProgram = 'StartStopEditProgram' 
         self.exeName_WordDefAPI = 'WordDefAPI'
         self.exeName_TimingLoop = 'TimingLoop'
         # Parameters - paths to python files relative to project folder - files that are being made into exe files
         self.pyPath_userEntryPoint = 'DailyWordDefinition.py'
+        self.pyPath_loadingProgramConsole = os.path.join('RunProgram','runProgram_loading.py')
         self.pyPath_startStopEditProgram = os.path.join('StartStopProgram','startStopProgram_main.py')
         self.pyPath_WordDefAPI = os.path.join('RunProgram','runProgram_generateAPI.py')
         self.pyPath_TimingLoop = os.path.join('RunProgram','runProgram_timingLoop.py')
         # Parameters - other
         self.installerPath = r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" # inno installer path
-        self.vEnvFolder = r"C:\Users\timot\PythonProjects\WordDef\venv"
+        self.vEnvFolder = r"C:\Users\timot\PythonProjects\WordDef\venv"        
         # Methods
         self.getPathsForExecutables()
         self.createExececutable_userEntryPoint()
+        self.createExececutable_loadingProgramConsole()
         self.createExececutable_startStopEditProgram()
         self.createExececutable_wordDefAPI()
         self.createExececutable_TimingLoop()
@@ -33,6 +36,9 @@ class runInstaller_windows():
         # userEntryPoints exe paths (where from and where to)
         self.pyPathFull_userEntryPoint = os.path.join(self.curDir, '..' , self.pyPath_userEntryPoint) # path of python file to be made into executable
         self.exePath_userEntryPoint = os.path.join(self.curDir, '..', 'bin') # path for excecutable
+        # loadingProgramConsole exe paths (where from and where to)
+        self.pyPathFull_loadingProgramConsole = os.path.join(self.curDir, '..' , self.pyPath_loadingProgramConsole) # path of python file to be made into executable
+        self.exePath_loadingProgramConsole = os.path.join(self.curDir, '..', 'bin') # path for excecutable
         # startStopEditProgram exe paths (where from and where to)
         self.pyPathFull_startStopEditProgram = os.path.join(self.curDir, '..' , self.pyPath_startStopEditProgram) # path of python file to be made into executable
         self.exePath_startStopEditProgram = os.path.join(self.curDir, '..', 'bin') # path for excecutable                     
@@ -94,13 +100,13 @@ class runInstaller_windows():
         print("Hidden Imports CMD:", hidden_imports_cmd)
         time.sleep(4)
         return hidden_imports_cmd
-        
+
     def createExececutable_userEntryPoint(self):
         print('\nCreating Daily Word Definition.exe')
         time.sleep(1)        
         dependencyArguments = self.getDependencies(self.pyPathFull_userEntryPoint)
         result = subprocess.run(
-            f'pyinstaller --onedir --noupx --clean '
+            f'pyinstaller --onedir --noupx --clean --noconsole '
             f'{dependencyArguments} '
             # f'--debug=imports '  # Debugging mode to analyze missing dependencies
             f'"{self.pyPathFull_userEntryPoint}" --distpath "{self.exePath_userEntryPoint}" '
@@ -110,6 +116,22 @@ class runInstaller_windows():
                 text=True
             )
         self.printResult(result,self.exeName_userEntryPoint)
+
+    def createExececutable_loadingProgramConsole(self):
+        print('\nCreating LoadingProgramConsole.exe')
+        time.sleep(1)        
+        dependencyArguments = self.getDependencies(self.pyPathFull_loadingProgramConsole)
+        result = subprocess.run(
+            f'pyinstaller --onedir --noupx --clean '
+            f'{dependencyArguments} '
+            # f'--debug=imports '  # Debugging mode to analyze missing dependencies
+            f'"{self.pyPathFull_loadingProgramConsole}" --distpath "{self.exePath_loadingProgramConsole}" '
+            f'--name "{self.exeName_loadingProgramConsole}"',
+                shell=True,
+                capture_output=True,
+                text=True
+            )
+        self.printResult(result,self.exeName_loadingProgramConsole)
 
     def createExececutable_startStopEditProgram(self):
         print('\nCreating StartStopEditProgram.exe')
@@ -167,7 +189,6 @@ class runInstaller_windows():
             print(result.stderr)
         else:
             print(f"{exeName} created successfully.")
-
         
     def runInstaller_inno(self):
         print('\nRunning inno installer')

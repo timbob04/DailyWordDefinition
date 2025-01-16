@@ -7,6 +7,7 @@ import subprocess
 import time
 import sys
 import ast
+import ctypes
 
 class Depdenencies:
     def __init__(self, *args):
@@ -63,7 +64,7 @@ class PID:
                 self.PIDrunning = psutil.pid_exists(self.PID)        
             except Exception:
                 self.PIDrunning = False        
-        print(f'When checking if PID running, the answer is: {self.PIDrunning}')    
+        # print(f'When checking if PID running, the answer is: {self.PIDrunning}')    
         return self.PIDrunning
     
     def killProgramGracefully(self):
@@ -174,60 +175,31 @@ def get_needed_imports(file_path):
     return needed_imports
 
 class RunExe():
-    def __init__(self, exeFilePath, dep):
+    def __init__(self, exeFilePath, dep, includeConsole):
         # parameters
         self.exeFilePath = exeFilePath
         self.dep = dep # class dependencies
+        self.includeConsole = includeConsole
         # Methods
-        self.getOS()
-        self.console_YN = self.BringUpConsole_YN(dep)       
+        self.getOS()            
         self.runExe()
            
     def getOS(self):
-        self.curOS = self.dep.platform.system()    
-
-    class BringUpConsole_YN():
-        def __init__(self,dep):
-            # parameters
-            self.dep = dep
-            self.openConsole_YN = False                           
-            # Methods
-            self.getPath()
-            self.loadDataFromPath()
-            self.isDataTrueOrFalse()
-
-        def getPath(self):
-            # Get path of accessory files
-            base_dir = self.dep.getBaseDir()
-            accessoryFiles_dir = self.dep.os.path.join(base_dir, '..', 'accessoryFiles')
-            # Path to save PID
-            self.filePath = self.dep.os.path.join(accessoryFiles_dir, "openConsoleForExe_YN.txt") 
-    
-        def loadDataFromPath(self):
-            self.data = 0
-            if self.dep.os.path.exists(self.filePath):            
-                with open(self.filePath, "r") as f:
-                    self.data = int(f.read().strip())
-
-        def isDataTrueOrFalse(self):
-            if self.data == 1:
-                self.openConsole_YN = True
-                
+        self.curOS = self.dep.platform.system()
+                 
     def runExe(self):        
         if self.curOS == 'Windows':
-            if self.console_YN.openConsole_YN:
+            if self.includeConsole:
                 self.dep.subprocess.Popen([self.exeFilePath], creationflags=self.dep.subprocess.CREATE_NEW_CONSOLE)                                
             else:
                 self.dep.subprocess.Popen([self.exeFilePath], creationflags=self.dep.subprocess.DETACHED_PROCESS)                
         elif self.curOS == 'Darwin':
-            if self.console_YN.openConsole_YN:
+            if self.includeConsole:
                 self.dep.subprocess.Popen(["open", "-a", "Terminal", self.exeFilePath])
             else:
                 self.dep.subprocess.Popen([self.exeFilePath], preexec_fn=self.dep.os.setsid)
         elif self.curOS == 'Linux':
-            if self.console_YN.openConsole_YN:
+            if self.includeConsole:
                 self.dep.subprocess.Popen(["gnome-terminal", "--", self.exeFilePath])
             else:
-                self.dep.subprocess.Popen([self.exeFilePath], preexec_fn=self.dep.os.setsid)                
-
-
+                self.dep.subprocess.Popen([self.exeFilePath], preexec_fn=self.dep.os.setsid)

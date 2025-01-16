@@ -11,7 +11,9 @@ def startStopEditProgram():
     print('\nStartStopEditProgram.exe running')
     
     time.sleep(1) 
-    
+
+    pid_loading = PID("LoadingProgram")
+        
     # Check if the program is currently running using its PID - the first point of entry is the timing loop code
     pid_timing = PID("TimingLoop") 
     
@@ -20,6 +22,8 @@ def startStopEditProgram():
         print("\nPID for TimingLoop.exe is running, so running stopProgram API")  
         time.sleep(1) 
         # Will be an exe in programs
+        # Kill loading exe        
+        pid_loading.killProgram() # kill loading console when opening API
         stopProgram_YN = stopProgram()
         if stopProgram_YN:
             # Kill timing loop
@@ -36,13 +40,15 @@ def startStopEditProgram():
     else:                
         print("\nPID for TimingLoop.exe is not running, so starting up startProgram API")
         time.sleep(1)
+        pid_loading.killProgram() # kill loading console when opening API
         runProgram_YN = startProgram()           
         if runProgram_YN:                  
             exeFilePath = get_exe_path('TimingLoop')
             print(f'\nRunning this exe using subprocess now:{exeFilePath}')
             time.sleep(4)
             dep = Depdenencies(platform, getBaseDir, os, subprocess)
-            RunExe(exeFilePath, dep)
+            openConsole = False
+            RunExe(exeFilePath, dep, openConsole)
 
 if __name__ == "__main__":    
     startStopEditProgram()

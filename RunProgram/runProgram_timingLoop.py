@@ -35,7 +35,8 @@ def runApplicationTimingLoop():
             print(f'\nRunning this exe using subprocess now:{exeFilePath}\n')
             time.sleep(1)
             dep = Depdenencies(platform, getBaseDir, os, subprocess)
-            RunExe(exeFilePath, dep)
+            openConsole = False
+            RunExe(exeFilePath, dep, openConsole)
     
             # getAndMakeAPIcontent()         
         time.sleep(5)

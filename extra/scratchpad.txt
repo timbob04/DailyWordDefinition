@@ -1,16 +1,39 @@
-In the startStop folder, start making the main script that will be the exe file that runs when the icon is pressed.
 
-This will first check if a program is already running (using the PID)
+Make a function for ctypes.windll.kernel132.AllocConsole(), and mac and Linux alternatives.
 
-If yes, the API to stop the program will come up.
+Get the PID for the entry level exe and only run the program if it is not running.
 
-If the user wants to stop the program, use the PID to stop the program.
+When actually running the program (condition above is false), first create an entry level exe PID.
 
-If the program is not already running, then run the startProgram API.
+Then, run the loading console exe (not the startStop exe).
 
-If the user says yes, then running the program (the main running program script, which will be the other main script) - 'user input' (icon), and 'running'.
+In this loading exe, create a PID for itself.
+
+Then subprocess the startStop exe.
+
+Then, start the 'Loading...' loop (dot every 0.7 seconds or so).
+
+Then, in the startStop exe, just before the startProgram or stopProgram lines will be run, kill the loading exe.
+
+Then, in the startProgram and stopProgram exes, when either the Start of Ok buttons are pressed, open a console and print the required stuff.
+
+For the Start program, have it print:
+	> The program will now run in the background. [relevant pause]
+	> A word and its definition will appear daily at .... [relevant pause]
+	> To stop the program, edit the word list, or change the time in which the word appears, run the main program (Daily Word Definition) again. [relevant pause + ending pause]
+	> ---- Goodbye ----
+	[quickish pause]
+
+For the stop program, for the edit time part, have it print:
+	> The program is still running.
+	> The daily word and definition will now appear at .... [longish pause]
+	> ---- Goodbye ----
+	[quickish pause]
+	
+For the stop program, for the ending of the program, have it print:
+	> The program has now stopped running [longish pause]
+	> ---- Goodbye ----
+	[quickish pause]
 
 
-
-The next thing to do AFTER all of this, is to get the startup folder stuff working - adding or removing the script to the startup folder when the user starts (and hits the toggle to add to startup folder) or stops the program.
 
