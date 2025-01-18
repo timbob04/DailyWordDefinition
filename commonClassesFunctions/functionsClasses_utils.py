@@ -7,7 +7,6 @@ import subprocess
 import time
 import sys
 import ast
-import ctypes
 
 class Depdenencies:
     def __init__(self, *args):

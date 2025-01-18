@@ -5,12 +5,17 @@ import os
 import time
 
 def loadingProgam():   
-
-    pid = PID("LoadingProgram")
-
-    if not pid.checkIfPIDisRunning():        
-        print('\nLoading program', end="")  
+    
+    pid_startStop = PID("StartStopEditProgram")
+    if pid_startStop.checkIfPIDisRunning():
+        print('\nThe application is already open.')        
+        time.sleep(3)
+        print('\nAborting this attempt to open the application.')
+        time.sleep(2)
+    else:
+        pid = PID("LoadingProgramConsole")
         pid.createPID()
+        print('\nLoading program', end="")  
         # Run exe for StartStopEditProgram
         exeFilePath = get_exe_path('StartStopEditProgram')        
         dep = Depdenencies(platform, getBaseDir, os, subprocess)
@@ -21,5 +26,5 @@ def loadingProgam():
             print(".", end="", flush=True)
             time.sleep(1)  
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     loadingProgam()

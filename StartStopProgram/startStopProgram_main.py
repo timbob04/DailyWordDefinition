@@ -9,27 +9,25 @@ import os
 def startStopEditProgram():
 
     print('\nStartStopEditProgram.exe running')
-    
-    time.sleep(1) 
-
-    pid_loading = PID("LoadingProgram")
-        
+    pid_startStop = PID("StartStopEditProgram")
+    pid_startStop.createPID()
+                    
     # Check if the program is currently running using its PID - the first point of entry is the timing loop code
     pid_timing = PID("TimingLoop") 
+
+    time.sleep(2)   
+    pid_loading = PID("LoadingProgramConsole") 
+    pid_loading.killProgram()
+    pid_loading.cleanUpPID()
     
     print('\nChecking if TimingLoop.exe is running using its PID') 
     if pid_timing.checkIfPIDisRunning(): 
-        print("\nPID for TimingLoop.exe is running, so running stopProgram API")  
-        time.sleep(1) 
-        # Will be an exe in programs
-        # Kill loading exe        
-        pid_loading.killProgram() # kill loading console when opening API
+        print("\nPID for TimingLoop.exe is running, so running stopProgram API")                  
         stopProgram_YN = stopProgram()
         if stopProgram_YN:
             # Kill timing loop
             pid_timing.killProgram()
-            print("\nKilling TimingLoop.exe using its PID")  
-            time.sleep(1) 
+            print("\nKilling TimingLoop.exe using its PID")              
             # Kill any instances of the main API to present words and definitions
             pid_runProgram = PID("WordDefAPI")            
             if pid_runProgram.checkIfPIDisRunning():
@@ -40,7 +38,6 @@ def startStopEditProgram():
     else:                
         print("\nPID for TimingLoop.exe is not running, so starting up startProgram API")
         time.sleep(1)
-        pid_loading.killProgram() # kill loading console when opening API
         runProgram_YN = startProgram()           
         if runProgram_YN:                  
             exeFilePath = get_exe_path('TimingLoop')
@@ -49,6 +46,9 @@ def startStopEditProgram():
             dep = Depdenencies(platform, getBaseDir, os, subprocess)
             openConsole = False
             RunExe(exeFilePath, dep, openConsole)
+
+    time.sleep(2)
+    pid_startStop.cleanUpPID()
 
 if __name__ == "__main__":    
     startStopEditProgram()
