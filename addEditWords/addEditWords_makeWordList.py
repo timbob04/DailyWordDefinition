@@ -2,8 +2,8 @@ import json
 from PyQt5.QtWidgets import QLineEdit, QCheckBox, QScrollArea, QWidget, QFrame, QDialog
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontMetrics
-from commonClassesFunctions.functionsClasses_utils import readJSONfile
-from commonClassesFunctions.functionsClasses_PyQt5 import StaticText, PushButton, centerWindowOnScreen
+from commonClassesFunctions.utils import readJSONfile
+from commonClassesFunctions.PyQt5_functions import StaticText, PushButton, centerWindowOnScreen
 from addEditWords.addEditWords_functionsClasses import getWordListPath
 
 class MakeWordList:    

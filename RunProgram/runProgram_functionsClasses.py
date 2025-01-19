@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import datetime
-from commonClassesFunctions.functionsClasses_utils import getBaseDir
+from commonClassesFunctions.utils import getBaseDir
 
 class Sizes_presentWODAPI:
     def __init__(self):

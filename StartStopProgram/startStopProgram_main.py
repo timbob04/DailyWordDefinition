@@ -1,6 +1,6 @@
 from StartStopProgram.startStopProgram_startProgramAPI import startProgram
 from StartStopProgram.startStopProgram_stopProgramAPI import stopProgram
-from commonClassesFunctions.functionsClasses_utils import PID, get_exe_path, getBaseDir, Depdenencies, RunExe
+from commonClassesFunctions.utils import PID, get_exe_path, getBaseDir, Depdenencies, RunExe
 import subprocess
 import time
 import platform

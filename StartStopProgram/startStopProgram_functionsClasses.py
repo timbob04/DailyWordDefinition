@@ -5,7 +5,7 @@ import platform
 import os
 import re
 from win32com.client import Dispatch
-from commonClassesFunctions.functionsClasses_utils import getBaseDir, get_exe_path
+from commonClassesFunctions.utils import getBaseDir, get_exe_path
 
 class Fonts:
     def __init__(self):

@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, time
-from commonClassesFunctions.functionsClasses_utils import getBaseDir
+from commonClassesFunctions.utils import getBaseDir
 
 class TimingControl():
 

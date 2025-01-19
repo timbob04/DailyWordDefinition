@@ -1,1 +1,1 @@
-from commonClassesFunctions.functionsClasses_utils import Fonts
+from commonClassesFunctions.utils import Fonts
