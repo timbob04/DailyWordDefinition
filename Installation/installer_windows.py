@@ -14,7 +14,7 @@ class runInstaller_windows():
         # Parameters - paths to python files relative to project folder - files that are being made into exe files
         self.pyPath_userEntryPoint = 'DailyWordDefinition.py'
         self.pyPath_loadingProgramConsole = os.path.join('RunProgram','loadingProgram.py')
-        self.pyPath_startStopEditProgram = os.path.join('StartStopProgram','startStopProgram_main.py')
+        self.pyPath_startStopEditProgram = os.path.join('StartStopProgram','main.py')
         self.pyPath_WordDefAPI = os.path.join('RunProgram','generateAPI.py')
         self.pyPath_TimingLoop = os.path.join('RunProgram','backgroudTimingLoop.py')
         # Parameters - other
