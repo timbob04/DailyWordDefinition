@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontMetrics
 from commonClassesFunctions.utils import readJSONfile
 from commonClassesFunctions.PyQt5_functions import StaticText, PushButton, centerWindowOnScreen
-from addEditWords.addEditWords_functionsClasses import getWordListPath
+from addEditWords.functionsClasses import getWordListPath
 
 class MakeWordList:    
     def __init__(self,fonts,sizes,APIwidth,APIheight,startY,window):
