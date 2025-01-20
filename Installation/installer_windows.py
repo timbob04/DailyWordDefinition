@@ -13,10 +13,10 @@ class runInstaller_windows():
         self.exeName_TimingLoop = 'TimingLoop'
         # Parameters - paths to python files relative to project folder - files that are being made into exe files
         self.pyPath_userEntryPoint = 'DailyWordDefinition.py'
-        self.pyPath_loadingProgramConsole = os.path.join('RunProgram','runProgram_loading.py')
+        self.pyPath_loadingProgramConsole = os.path.join('RunProgram','loadingProgram.py')
         self.pyPath_startStopEditProgram = os.path.join('StartStopProgram','startStopProgram_main.py')
-        self.pyPath_WordDefAPI = os.path.join('RunProgram','runProgram_generateAPI.py')
-        self.pyPath_TimingLoop = os.path.join('RunProgram','runProgram_timingLoop.py')
+        self.pyPath_WordDefAPI = os.path.join('RunProgram','generateAPI.py')
+        self.pyPath_TimingLoop = os.path.join('RunProgram','backgroudTimingLoop.py')
         # Parameters - other
         self.installerPath = r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" # inno installer path
         self.vEnvFolder = r"C:\Users\timot\PythonProjects\WordDef\venv"        

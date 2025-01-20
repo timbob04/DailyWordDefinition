@@ -1,5 +1,5 @@
 import time
-from RunProgram.runProgram_timingControl import TimingControl
+from RunProgram.checkIfTimeToRunProgam import TimingControl
 from commonClassesFunctions.utils import PID, get_exe_path, getBaseDir, Depdenencies, RunExe
 import subprocess
 import os
