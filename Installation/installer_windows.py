@@ -9,12 +9,14 @@ class runInstaller_windows():
         self.exeName_userEntryPoint = 'Daily_Word_Definition'
         self.exeName_loadingProgramConsole = 'LoadingProgramConsole'        
         self.exeName_startStopEditProgram = 'StartStopEditProgram' 
+        self.exeName_startingProgramConsole = 'StartingProgramConsole'
         self.exeName_WordDefAPI = 'WordDefAPI'
         self.exeName_TimingLoop = 'TimingLoop'
         # Parameters - paths to python files relative to project folder - files that are being made into exe files
         self.pyPath_userEntryPoint = 'DailyWordDefinition.py'
         self.pyPath_loadingProgramConsole = os.path.join('RunProgram','loadingProgram.py')
         self.pyPath_startStopEditProgram = os.path.join('StartStopProgram','main.py')
+        self.pyPath_startingProgramConsole = os.path.join('RunProgram','startingProgramConsole.py')
         self.pyPath_WordDefAPI = os.path.join('RunProgram','generateAPI.py')
         self.pyPath_TimingLoop = os.path.join('RunProgram','backgroudTimingLoop.py')
         # Parameters - other
@@ -25,6 +27,7 @@ class runInstaller_windows():
         self.createExececutable_userEntryPoint()
         self.createExececutable_loadingProgramConsole()
         self.createExececutable_startStopEditProgram()
+        self.createExececutable_startingProgramConsole()
         self.createExececutable_wordDefAPI()
         self.createExececutable_TimingLoop()
         self.runInstaller_inno()
@@ -42,6 +45,11 @@ class runInstaller_windows():
         # startStopEditProgram exe paths (where from and where to)
         self.pyPathFull_startStopEditProgram = os.path.join(self.curDir, '..' , self.pyPath_startStopEditProgram) # path of python file to be made into executable
         self.exePath_startStopEditProgram = os.path.join(self.curDir, '..', 'bin') # path for excecutable                     
+        
+        # startingProgramConsole exe paths (where from and where to)
+        self.pyPathFull_startingProgramConsole = os.path.join(self.curDir, '..' , self.pyPath_startingProgramConsole) # path of python file to be made into executable
+        self.exePath_startingProgramConsole = os.path.join(self.curDir, '..', 'bin') # path for excecutable
+        
         # WordDefAPI exe paths (where from and where to)
         self.pyPathFull_WordDefAPI = os.path.join(os.path.join(self.curDir, '..', self.pyPath_WordDefAPI)) # path of python file to be made into executable
         self.exePath_WordDefAPI = os.path.join(self.curDir, '..', 'bin') # path for excecutable        
@@ -149,6 +157,21 @@ class runInstaller_windows():
             )
         self.printResult(result,self.exeName_startStopEditProgram)
 
+    def createExececutable_startingProgramConsole(self):
+        print('\nCreating startingProgramConsole.exe')
+        time.sleep(1)        
+        dependencyArguments = self.getDependencies(self.pyPathFull_startingProgramConsole)
+        result = subprocess.run(
+            f'pyinstaller --onedir --noupx --clean '
+            f'{dependencyArguments} '
+            # f'--debug=imports '  # Debugging mode to analyze missing dependencies
+            f'"{self.pyPathFull_startingProgramConsole}" --distpath "{self.exePath_startingProgramConsole}" '
+            f'--name "{self.exeName_startingProgramConsole}"',
+                shell=True,
+                capture_output=True,
+                text=True
+            )
+        self.printResult(result,self.exeName_startingProgramConsole)
 
     def createExececutable_wordDefAPI(self):
         print('\nCreating WordDefAPI.exe')

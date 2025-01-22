@@ -16,6 +16,7 @@ DisableProgramGroupPage=yes
 Source: "..\bin\Daily_Word_Definition\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\bin\LoadingProgramConsole\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\bin\StartStopEditProgram\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\bin\StartingProgramConsole\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\bin\TimingLoop\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\bin\WordDefAPI\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\accessoryFiles\*"; DestDir: "{app}\accessoryFiles"; Flags: ignoreversion recursesubdirs createallsubdirs

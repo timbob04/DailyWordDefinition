@@ -40,10 +40,16 @@ def startStopEditProgram():
         time.sleep(1)
         runProgram_YN = startProgram()           
         if runProgram_YN:                  
-            exeFilePath = get_exe_path('TimingLoop')
-            print(f'\nRunning this exe using subprocess now:{exeFilePath}')
-            time.sleep(4)
             dep = Depdenencies(platform, getBaseDir, os, subprocess)
+            # Run the console message to inform the user that the program is running in the background
+            exeFilePath = get_exe_path('StartingProgramConsole')
+            print(f'\nRunning this exe using subprocess now:{exeFilePath}')                        
+            openConsole = True
+            RunExe(exeFilePath, dep, openConsole)
+            time.sleep(13)
+            # Run the main timing loop, i.e., the main program in the background
+            exeFilePath = get_exe_path('TimingLoop')
+            print(f'\nRunning this exe using subprocess now:{exeFilePath}')                        
             openConsole = False
             RunExe(exeFilePath, dep, openConsole)
 
