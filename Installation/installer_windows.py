@@ -195,7 +195,7 @@ class runInstaller_windows():
         time.sleep(1)        
         dependencyArguments = self.getDependencies(self.pyPathFull_TimingLoop)
         result = subprocess.run(
-            f'pyinstaller --onedir --noupx --clean '
+            f'pyinstaller --onedir --noupx --clean --noconsole '
             f'{dependencyArguments} '
             # f'--debug=imports '  # Debugging mode to analyze missing dependencies
             f'"{self.pyPathFull_TimingLoop}" --distpath "{self.exePath_TimingLoop}" '

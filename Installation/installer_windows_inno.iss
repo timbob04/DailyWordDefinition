@@ -19,8 +19,8 @@ Source: "..\bin\StartStopEditProgram\*"; DestDir: "{app}\bin"; Flags: ignorevers
 Source: "..\bin\StartingProgramConsole\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\bin\TimingLoop\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\bin\WordDefAPI\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\accessoryFiles\*"; DestDir: "{app}\accessoryFiles"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\README_postInstallation.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\accessoryFiles\*"; DestDir: "{app}\accessoryFiles"; Excludes: "readme.txt"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\accessoryFiles\readme.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 ; Shortcut to Daily_Word_Definition.exe on the desktop

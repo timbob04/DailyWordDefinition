@@ -1,6 +1,3 @@
-
-Make a function for ctypes.windll.kernel132.AllocConsole(), and mac and Linux alternatives.
-
 Get the PID for the entry level exe and only run the program if it is not running.
 
 When actually running the program (condition above is false), first create an entry level exe PID.
