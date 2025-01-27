@@ -485,8 +485,14 @@ class RemoveStartupFolderShortcut:
             with open(self.startUpFolderTxtPath, 'w') as file:
                 file.write("")
   
-   
-   
+def clearDateLastRunFromTextFile():             
+    # Get file path
+    base_dir = getBaseDir()
+    fileDir = os.path.join(base_dir, '..', 'accessoryFiles')    
+    filePath = os.path.join(fileDir, 'dateLastRun.txt')
+    # Make text file empty (clear the date)
+    with open(filePath, 'w') as file:
+        file.write("")  
     
     
 

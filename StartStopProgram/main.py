@@ -1,5 +1,6 @@
 from StartStopProgram.API_startProgram import startProgram
 from StartStopProgram.API_stopProgram import stopProgram
+from StartStopProgram.utils import clearDateLastRunFromTextFile
 from commonClassesFunctions.utils import PID, get_exe_path, getBaseDir, Depdenencies, RunExe
 import subprocess
 import time
@@ -39,14 +40,17 @@ def startStopEditProgram():
         print("\nPID for TimingLoop.exe is not running, so starting up startProgram API")
         time.sleep(1)
         runProgram_YN = startProgram()           
-        if runProgram_YN:                  
+        if runProgram_YN:                              
             dep = Depdenencies(platform, getBaseDir, os, subprocess)
             # Run the console message to inform the user that the program is running in the background
             exeFilePath = get_exe_path('StartingProgramConsole')
             print(f'\nRunning this exe using subprocess now:{exeFilePath}')                        
             openConsole = True
             RunExe(exeFilePath, dep, openConsole)
-            time.sleep(13)
+            time.sleep(12)
+            # Clear the date last run from the text file, so it can run again if alredy run today
+            clearDateLastRunFromTextFile()
+            time.sleep(1)
             # Run the main timing loop, i.e., the main program in the background
             exeFilePath = get_exe_path('TimingLoop')
             print(f'\nRunning this exe using subprocess now:{exeFilePath}')                        
