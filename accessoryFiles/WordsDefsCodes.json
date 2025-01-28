@@ -24,7 +24,7 @@
         "word": "Portent",
         "definition": "a sign or warning that something, especially something momentous or calamitous, is likely to happen",
         "WOD_shown": true,
-        "is_POD": true,
+        "is_POD": false,
         "POD_shown": false
     },
     {

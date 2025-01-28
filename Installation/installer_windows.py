@@ -146,7 +146,7 @@ class runInstaller_windows():
         time.sleep(1)        
         dependencyArguments = self.getDependencies_plusExtra(self.pyPathFull_startStopEditProgram)
         result = subprocess.run(
-            f'pyinstaller --onedir --noupx --clean '
+            f'pyinstaller --onedir --noupx --clean --noconsole '
             f'{dependencyArguments} '
             # f'--debug=imports '  # Debugging mode to analyze missing dependencies
             f'"{self.pyPathFull_startStopEditProgram}" --distpath "{self.exePath_startStopEditProgram}" '

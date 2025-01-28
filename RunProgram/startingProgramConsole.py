@@ -12,7 +12,7 @@ def printConsoleMessage():
     time.sleep(2)    
     print(f'\nA word and its definition will appear daily at {programRunTimeOb.programRunTime.strftime("%H:%M")}')    
     time.sleep(2.5)
-    print("\nTo stop or edit the program, click on the same 'Daily Word Definition' icon you used to start it")
+    print("\nTo stop or edit the program, click on the same 'Daily Word Definition' icon you used to start the program")
     time.sleep(5)
     print('\n---- Goodbye ----\n')
     time.sleep(2)
