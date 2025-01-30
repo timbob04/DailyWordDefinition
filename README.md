@@ -6,6 +6,9 @@
 * Users define the words and their definitions.
 * To start, stop, or modify the app, click the 'Daily Word Definition' icon in the main folder or on the desktop (if a shortcut was created during installation).
 
+## Installer
+* An installer for the program can be found at: https://github.com/timbob04/DailyWordDefinition/releases/tag/v1.0
+
 ## Starting the program
 * Click the 'Daily Word Definition' icon to start the app.
 * A window will open, allowing you to set the time for the daily word to appear (in 24-hour format).
