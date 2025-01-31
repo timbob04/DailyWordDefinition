@@ -13,7 +13,6 @@ def getAndMakeAPIcontent():
 
     # Start an application
     app = QApplication(sys.argv)
-    #app.setQuitOnLastWindowClosed(False)  # Prevent the app from quitting when the window is closed
 
     # Create PID for current QApplication
     pid = PID("WordDefAPI")

@@ -66,6 +66,13 @@ class PID:
         # print(f'When checking if PID running, the answer is: {self.PIDrunning}')    
         return self.PIDrunning
     
+    def killProgram(self):
+        if self.PIDrunning:
+            self.killProgramGracefully()
+        self.checkIfPIDisRunning()
+        if self.PIDrunning: # only if the graceful killing didn't work
+            self.killProgramForcefully()
+
     def killProgramGracefully(self):
         os.kill(self.PID, signal.SIGTERM)        
         time.sleep(2) # to allow the graceful exit to happen before forcefully exiting
@@ -77,13 +84,6 @@ class PID:
         else:
             # Use SIGKILL on Unix-based systems
             os.kill(self.PID, signal.SIGKILL)        
-
-    def killProgram(self):
-        if self.PIDrunning:
-            self.killProgramGracefully()
-        self.checkIfPIDisRunning()
-        if self.PIDrunning: # only if the graceful killing didn't work
-            self.killProgramForcefully()
 
     def cleanUpPID(self):
         if os.path.exists(self.PIDfilePath):
