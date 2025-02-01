@@ -4,7 +4,7 @@ from commonClassesFunctions.utils import getBaseDir, getImports_recursive, get_n
 import time
 import sys
 
-class runInstaller_windows():
+class runInstaller_mac():
     def __init__(self):
         # Parameters - exe file names (to be installed)
         self.exeName_userEntryPoint = 'Daily_Word_Definition'
@@ -22,7 +22,7 @@ class runInstaller_windows():
         self.pyPath_TimingLoop = os.path.join('RunProgram','backgroudTimingLoop.py')
         # Parameters - other
         self.installerPath = r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" # inno installer path
-        self.vEnvFolder = r"C:\Users\timot\PythonProjects\WordDef\venv"        
+        self.vEnvFolder = os.path.expanduser("~/PythonProjects/WordDef/.venv")     
         # Methods
         self.getPathsForExecutables()
         self.createExececutable_userEntryPoint()
@@ -88,8 +88,6 @@ class runInstaller_windows():
             'PyQt5.QtGui',
             'PyQt5.Qt',
             'PyQt5.QtPrintSupport',
-            'win32com',
-            'win32com.client',
         ]
 
         # Combine dynamic and explicit imports
@@ -114,12 +112,11 @@ class runInstaller_windows():
         time.sleep(1)        
         dependencyArguments = self.getDependencies(self.pyPathFull_userEntryPoint)
         result = subprocess.run(
-            f'pyinstaller --onedir --noupx --clean --noconsole '
+            f'pyinstaller --onedir --noupx --clean --windowed '
             f'{dependencyArguments} '
-            # f'--debug=imports '  # Debugging mode to analyze missing dependencies
             f'"{self.pyPathFull_userEntryPoint}" --distpath "{self.exePath_userEntryPoint}" '
             f'--name "{self.exeName_userEntryPoint}"',
-                shell=True,
+                shell=False,
                 capture_output=True,
                 text=True
             )
@@ -132,10 +129,9 @@ class runInstaller_windows():
         result = subprocess.run(
             f'pyinstaller --onedir --noupx --clean '
             f'{dependencyArguments} '
-            # f'--debug=imports '  # Debugging mode to analyze missing dependencies
             f'"{self.pyPathFull_loadingProgramConsole}" --distpath "{self.exePath_loadingProgramConsole}" '
             f'--name "{self.exeName_loadingProgramConsole}"',
-                shell=True,
+                shell=False,
                 capture_output=True,
                 text=True
             )
@@ -146,12 +142,11 @@ class runInstaller_windows():
         time.sleep(1)        
         dependencyArguments = self.getDependencies_plusExtra(self.pyPathFull_startStopEditProgram)
         result = subprocess.run(
-            f'pyinstaller --onedir --noupx --clean --noconsole '
+            f'pyinstaller --onedir --noupx --clean --windowed '
             f'{dependencyArguments} '
-            # f'--debug=imports '  # Debugging mode to analyze missing dependencies
             f'"{self.pyPathFull_startStopEditProgram}" --distpath "{self.exePath_startStopEditProgram}" '
             f'--name "{self.exeName_startStopEditProgram}"',
-                shell=True,
+                shell=False,
                 capture_output=True,
                 text=True
             )
@@ -164,10 +159,9 @@ class runInstaller_windows():
         result = subprocess.run(
             f'pyinstaller --onedir --noupx --clean '
             f'{dependencyArguments} '
-            # f'--debug=imports '  # Debugging mode to analyze missing dependencies
             f'"{self.pyPathFull_startingProgramConsole}" --distpath "{self.exePath_startingProgramConsole}" '
             f'--name "{self.exeName_startingProgramConsole}"',
-                shell=True,
+                shell=False,
                 capture_output=True,
                 text=True
             )
@@ -178,13 +172,11 @@ class runInstaller_windows():
         time.sleep(1)        
         dependencyArguments = self.getDependencies_plusExtra(self.pyPathFull_WordDefAPI)
         result = subprocess.run(
-            #f'pyinstaller --onefile --noconsole '
             f'pyinstaller --onedir --noupx --clean '
             f'{dependencyArguments} '
-            # f'--debug=imports '  # Debugging mode to analyze missing dependencies
             f'"{self.pyPathFull_WordDefAPI}" --distpath "{self.exePath_WordDefAPI}" '
             f'--name "{self.exeName_WordDefAPI}"',
-                shell=True,
+                shell=False,
                 capture_output=True,
                 text=True
             )    
@@ -195,12 +187,11 @@ class runInstaller_windows():
         time.sleep(1)        
         dependencyArguments = self.getDependencies(self.pyPathFull_TimingLoop)
         result = subprocess.run(
-            f'pyinstaller --onedir --noupx --clean --noconsole '
+            f'pyinstaller --onedir --noupx --clean --windowed '
             f'{dependencyArguments} '
-            # f'--debug=imports '  # Debugging mode to analyze missing dependencies
             f'"{self.pyPathFull_TimingLoop}" --distpath "{self.exePath_TimingLoop}" '
             f'--name "{self.exeName_TimingLoop}"',
-                shell=True,
+                shell=False,
                 capture_output=True,
                 text=True
             )   
@@ -225,4 +216,4 @@ class runInstaller_windows():
         subprocess.run([inno_compiler_path, iss_file_path])
 
 if __name__ == "__main__":
-    runInstaller_windows()
+    runInstaller_mac()
