@@ -13,7 +13,7 @@ class runInstaller_mac():
         self.exeName_startingProgramConsole = 'StartingProgramConsole'
         self.exeName_WordDefAPI = 'WordDefAPI'
         self.exeName_TimingLoop = 'TimingLoop'
-        # Parameters - paths to python files relative to project folder - files that are being made into exe files
+        # Parameters - paths to python files that are being made into executables - paths relative to project folder
         self.pyPath_userEntryPoint = 'DailyWordDefinition.py'
         self.pyPath_loadingProgramConsole = os.path.join('RunProgram','loadingProgram.py')
         self.pyPath_startStopEditProgram = os.path.join('StartStopProgram','main.py')
@@ -104,7 +104,7 @@ class runInstaller_mac():
         dynamic_hidden_imports = get_needed_imports(file_path)
         hidden_imports_cmd = " ".join([f'--hidden-import={dep}' for dep in dynamic_hidden_imports])
         print("Hidden Imports CMD:", hidden_imports_cmd)
-        time.sleep(4)
+        time.sleep(1)
         return hidden_imports_cmd
 
     def createExececutable_userEntryPoint(self):
