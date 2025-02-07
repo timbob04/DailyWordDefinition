@@ -2,7 +2,7 @@ import subprocess
 import os
 from commonClassesFunctions.utils import getBaseDir, getImports_recursive, get_needed_imports
 import time
-import sys
+from PyQt5.QtCore import QLibraryInfo
 
 class runInstaller_mac():
     def __init__(self):
@@ -31,7 +31,7 @@ class runInstaller_mac():
         self.createExececutable_startingProgramConsole()
         self.createExececutable_wordDefAPI()
         self.createExececutable_TimingLoop()
-        self.runInstaller_inno()
+        # self.runInstaller_inno()
 
     def getPathsForExecutables(self):
         print('\nGetting exe paths')
@@ -69,14 +69,15 @@ class runInstaller_mac():
         project_root = os.path.abspath(os.path.join(getBaseDir(), ".."))
 
         # Add each subfolder
-        datas_cmd = " ".join([f'--add-data="{os.path.join(project_root, folder)}:{folder}"' for folder in subfolders])
+        datas_cmd = [f'--add-data={os.path.join(project_root, folder)}:{folder}' for folder in subfolders]
 
         # Include Qt plugins
-        python_version = f"python{sys.version_info.major}.{sys.version_info.minor}"
-        pyqt5_plugins_path = os.path.join(self.vEnvFolder, "lib", python_version, "site-packages", "PyQt5", "Qt", "plugins")
-        if not os.path.exists(pyqt5_plugins_path):
+        pyqt5_plugins_path = QLibraryInfo.location(QLibraryInfo.PluginsPath)
+        
+        if not pyqt5_plugins_path or not os.path.exists(pyqt5_plugins_path):
             raise FileNotFoundError(f"Qt plugins path not found: {pyqt5_plugins_path}")
-        datas_cmd += f' --add-data="{pyqt5_plugins_path}:PyQt5/Qt/plugins"'
+
+        datas_cmd.append(f'--add-data={pyqt5_plugins_path}:PyQt5/Qt5/plugins')
 
         # Dynamic hidden imports from getImports_recursive
         dynamic_hidden_imports, _ = getImports_recursive(file_path)
@@ -91,110 +92,91 @@ class runInstaller_mac():
         ]
 
         # Combine dynamic and explicit imports
-        hidden_imports = set(dynamic_hidden_imports).union(explicit_pyqt5_imports)
-        hidden_imports_cmd = " ".join([f'--hidden-import={dep}' for dep in hidden_imports])
+        hidden_imports_cmd = [f'--hidden-import={dep}' for dep in set(dynamic_hidden_imports).union(explicit_pyqt5_imports)]
 
         # Debugging output
         print("Datas CMD:", datas_cmd)
         print("\nHidden Imports CMD:", hidden_imports_cmd)
 
-        return f"{hidden_imports_cmd} {datas_cmd}"
+        return datas_cmd + hidden_imports_cmd
     
-    def getDependencies(self,file_path):
+    def getDependencies(self, file_path):
         dynamic_hidden_imports = get_needed_imports(file_path)
-        hidden_imports_cmd = " ".join([f'--hidden-import={dep}' for dep in dynamic_hidden_imports])
-        print("Hidden Imports CMD:", hidden_imports_cmd)
+        hidden_imports_list = [f'--hidden-import={dep}' for dep in dynamic_hidden_imports]
+        print("Hidden Imports List:", hidden_imports_list)  # Debugging
         time.sleep(1)
-        return hidden_imports_cmd
+        return hidden_imports_list
 
     def createExececutable_userEntryPoint(self):
         print('\nCreating Daily Word Definition executable')
         time.sleep(1)        
         dependencyArguments = self.getDependencies(self.pyPathFull_userEntryPoint)
-        result = subprocess.run(
-            f'pyinstaller --onedir --noupx --clean --windowed '
-            f'{dependencyArguments} '
-            f'"{self.pyPathFull_userEntryPoint}" --distpath "{self.exePath_userEntryPoint}" '
-            f'--name "{self.exeName_userEntryPoint}"',
-                shell=False,
-                capture_output=True,
-                text=True
-            )
+        result = subprocess.run([
+            "pyinstaller", "--onedir", "--noupx", "--clean", "--windowed",
+            "--name", self.exeName_userEntryPoint,
+            "--distpath", self.exePath_userEntryPoint,
+            self.pyPathFull_userEntryPoint
+        ] + dependencyArguments, capture_output=True, text=True)
         self.printResult(result,self.exeName_userEntryPoint)
 
     def createExececutable_loadingProgramConsole(self):
         print('\nCreating LoadingProgramConsole executable')
         time.sleep(1)        
         dependencyArguments = self.getDependencies(self.pyPathFull_loadingProgramConsole)
-        result = subprocess.run(
-            f'pyinstaller --onedir --noupx --clean '
-            f'{dependencyArguments} '
-            f'"{self.pyPathFull_loadingProgramConsole}" --distpath "{self.exePath_loadingProgramConsole}" '
-            f'--name "{self.exeName_loadingProgramConsole}"',
-                shell=False,
-                capture_output=True,
-                text=True
-            )
+        result = subprocess.run([
+            "pyinstaller", "--onedir", "--noupx", "--clean", "--windowed",
+            "--name", self.exeName_loadingProgramConsole,
+            "--distpath", self.exePath_loadingProgramConsole,
+            self.pyPathFull_loadingProgramConsole
+        ] + dependencyArguments, capture_output=True, text=True)
         self.printResult(result,self.exeName_loadingProgramConsole)
 
     def createExececutable_startStopEditProgram(self):
         print('\nCreating StartStopEditProgram executable')
         time.sleep(1)        
         dependencyArguments = self.getDependencies_plusExtra(self.pyPathFull_startStopEditProgram)
-        result = subprocess.run(
-            f'pyinstaller --onedir --noupx --clean --windowed '
-            f'{dependencyArguments} '
-            f'"{self.pyPathFull_startStopEditProgram}" --distpath "{self.exePath_startStopEditProgram}" '
-            f'--name "{self.exeName_startStopEditProgram}"',
-                shell=False,
-                capture_output=True,
-                text=True
-            )
+        result = subprocess.run([
+            "pyinstaller", "--onedir", "--noupx", "--clean", "--windowed",
+            "--name", self.exeName_startStopEditProgram,
+            "--distpath", self.exePath_startStopEditProgram,
+            self.pyPathFull_startStopEditProgram
+        ] + dependencyArguments, capture_output=True, text=True)
         self.printResult(result,self.exeName_startStopEditProgram)
 
     def createExececutable_startingProgramConsole(self):
         print('\nCreating startingProgramConsole executable')
         time.sleep(1)        
         dependencyArguments = self.getDependencies(self.pyPathFull_startingProgramConsole)
-        result = subprocess.run(
-            f'pyinstaller --onedir --noupx --clean '
-            f'{dependencyArguments} '
-            f'"{self.pyPathFull_startingProgramConsole}" --distpath "{self.exePath_startingProgramConsole}" '
-            f'--name "{self.exeName_startingProgramConsole}"',
-                shell=False,
-                capture_output=True,
-                text=True
-            )
+        result = subprocess.run([
+            "pyinstaller", "--onedir", "--noupx", "--clean", "--windowed",
+            "--name", self.exeName_startingProgramConsole,
+            "--distpath", self.exePath_startingProgramConsole,
+            self.pyPathFull_startingProgramConsole
+        ] + dependencyArguments, capture_output=True, text=True)
         self.printResult(result,self.exeName_startingProgramConsole)
 
     def createExececutable_wordDefAPI(self):
         print('\nCreating WordDefAPI executable')
         time.sleep(1)        
         dependencyArguments = self.getDependencies_plusExtra(self.pyPathFull_WordDefAPI)
-        result = subprocess.run(
-            f'pyinstaller --onedir --noupx --clean '
-            f'{dependencyArguments} '
-            f'"{self.pyPathFull_WordDefAPI}" --distpath "{self.exePath_WordDefAPI}" '
-            f'--name "{self.exeName_WordDefAPI}"',
-                shell=False,
-                capture_output=True,
-                text=True
-            )    
+        result = subprocess.run([
+            "pyinstaller", "--onedir", "--noupx", "--clean", "--windowed",
+            "--name", self.exeName_WordDefAPI,
+            "--distpath", self.exePath_WordDefAPI,
+            self.pyPathFull_WordDefAPI
+        ] + dependencyArguments, capture_output=True, text=True)  
         self.printResult(result,self.exeName_WordDefAPI)
                     
     def createExececutable_TimingLoop(self):
         print('\nCreating TimingLoop executable')
         time.sleep(1)        
         dependencyArguments = self.getDependencies(self.pyPathFull_TimingLoop)
-        result = subprocess.run(
-            f'pyinstaller --onedir --noupx --clean --windowed '
-            f'{dependencyArguments} '
-            f'"{self.pyPathFull_TimingLoop}" --distpath "{self.exePath_TimingLoop}" '
-            f'--name "{self.exeName_TimingLoop}"',
-                shell=False,
-                capture_output=True,
-                text=True
-            )   
+        result = subprocess.run([
+            "pyinstaller", "--onedir", "--noupx", "--clean", "--windowed",
+            "--name", self.exeName_TimingLoop,
+            "--distpath", self.exePath_TimingLoop,
+            self.pyPathFull_TimingLoop
+        ] + dependencyArguments, capture_output=True, text=True)
         self.printResult(result,self.exeName_TimingLoop)
 
     def printResult(self,result,exeName):
