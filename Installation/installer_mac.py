@@ -3,6 +3,7 @@ import os
 from commonClassesFunctions.utils import getBaseDir, getImports_recursive, get_needed_imports
 import time
 from PyQt5.QtCore import QLibraryInfo
+import shutil
 
 class runInstaller_mac():
     def __init__(self):
@@ -24,6 +25,7 @@ class runInstaller_mac():
         self.installerPath = r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" # inno installer path
         self.vEnvFolder = os.path.expanduser("~/PythonProjects/WordDef/.venv")     
         # Methods
+        self.deleteBinAndBuildFolders()
         self.getPathsForExecutables()
         self.createExececutable_userEntryPoint()
         self.createExececutable_loadingProgramConsole()
@@ -33,28 +35,31 @@ class runInstaller_mac():
         self.createExececutable_TimingLoop()
         # self.runInstaller_inno()
 
+    def deleteBinAndBuildFolders(self):
+        for folder in ["bin", "build"]:
+            if os.path.exists(folder) and os.path.isdir(folder):
+                shutil.rmtree(folder)
+        time.sleep(5)
+        print('\nContinue...')        
+
     def getPathsForExecutables(self):
         print('\nGetting exe paths')
         time.sleep(1) 
         self.curDir = getBaseDir()
+        # bin folder
+        self.binFol = os.path.join(self.curDir, '..', 'bin')
         # userEntryPoints exe paths (where from and where to)
         self.pyPathFull_userEntryPoint = os.path.join(self.curDir, '..' , self.pyPath_userEntryPoint) # path of python file to be made into executable
-        self.exePath_userEntryPoint = os.path.join(self.curDir, '..', 'bin') # path for excecutable
         # loadingProgramConsole exe paths (where from and where to)
         self.pyPathFull_loadingProgramConsole = os.path.join(self.curDir, '..' , self.pyPath_loadingProgramConsole) # path of python file to be made into executable
-        self.exePath_loadingProgramConsole = os.path.join(self.curDir, '..', 'bin') # path for excecutable
         # startStopEditProgram exe paths (where from and where to)
-        self.pyPathFull_startStopEditProgram = os.path.join(self.curDir, '..' , self.pyPath_startStopEditProgram) # path of python file to be made into executable
-        self.exePath_startStopEditProgram = os.path.join(self.curDir, '..', 'bin') # path for excecutable                     
+        self.pyPathFull_startStopEditProgram = os.path.join(self.curDir, '..' , self.pyPath_startStopEditProgram) # path of python file to be made into executable                 
         # startingProgramConsole exe paths (where from and where to)
         self.pyPathFull_startingProgramConsole = os.path.join(self.curDir, '..' , self.pyPath_startingProgramConsole) # path of python file to be made into executable
-        self.exePath_startingProgramConsole = os.path.join(self.curDir, '..', 'bin') # path for excecutable
         # WordDefAPI exe paths (where from and where to)
         self.pyPathFull_WordDefAPI = os.path.join(os.path.join(self.curDir, '..', self.pyPath_WordDefAPI)) # path of python file to be made into executable
-        self.exePath_WordDefAPI = os.path.join(self.curDir, '..', 'bin') # path for excecutable        
         # TimingLoop exe paths (where from and where to)
         self.pyPathFull_TimingLoop = os.path.join(os.path.join(self.curDir, '..', self.pyPath_TimingLoop)) # path of python file to be made into executable
-        self.exePath_TimingLoop = os.path.join(self.curDir, '..', 'bin') # path for excecutable        
 
     def getDependencies_plusExtra(self, file_path):
         # List of specific subfolders to include
@@ -114,7 +119,7 @@ class runInstaller_mac():
         result = subprocess.run([
             "pyinstaller", "--onedir", "--noupx", "--clean", "--windowed",
             "--name", self.exeName_userEntryPoint,
-            "--distpath", self.exePath_userEntryPoint,
+            "--distpath", self.binFol,
             self.pyPathFull_userEntryPoint
         ] + dependencyArguments, capture_output=True, text=True)
         self.printResult(result,self.exeName_userEntryPoint)
@@ -126,7 +131,7 @@ class runInstaller_mac():
         result = subprocess.run([
             "pyinstaller", "--onedir", "--noupx", "--clean", "--windowed",
             "--name", self.exeName_loadingProgramConsole,
-            "--distpath", self.exePath_loadingProgramConsole,
+            "--distpath", self.binFol,
             self.pyPathFull_loadingProgramConsole
         ] + dependencyArguments, capture_output=True, text=True)
         self.printResult(result,self.exeName_loadingProgramConsole)
@@ -138,7 +143,7 @@ class runInstaller_mac():
         result = subprocess.run([
             "pyinstaller", "--onedir", "--noupx", "--clean", "--windowed",
             "--name", self.exeName_startStopEditProgram,
-            "--distpath", self.exePath_startStopEditProgram,
+            "--distpath", self.binFol,
             self.pyPathFull_startStopEditProgram
         ] + dependencyArguments, capture_output=True, text=True)
         self.printResult(result,self.exeName_startStopEditProgram)
@@ -150,7 +155,7 @@ class runInstaller_mac():
         result = subprocess.run([
             "pyinstaller", "--onedir", "--noupx", "--clean", "--windowed",
             "--name", self.exeName_startingProgramConsole,
-            "--distpath", self.exePath_startingProgramConsole,
+            "--distpath", self.binFol,
             self.pyPathFull_startingProgramConsole
         ] + dependencyArguments, capture_output=True, text=True)
         self.printResult(result,self.exeName_startingProgramConsole)
@@ -162,7 +167,7 @@ class runInstaller_mac():
         result = subprocess.run([
             "pyinstaller", "--onedir", "--noupx", "--clean", "--windowed",
             "--name", self.exeName_WordDefAPI,
-            "--distpath", self.exePath_WordDefAPI,
+            "--distpath", self.binFol,
             self.pyPathFull_WordDefAPI
         ] + dependencyArguments, capture_output=True, text=True)  
         self.printResult(result,self.exeName_WordDefAPI)
@@ -174,7 +179,7 @@ class runInstaller_mac():
         result = subprocess.run([
             "pyinstaller", "--onedir", "--noupx", "--clean", "--windowed",
             "--name", self.exeName_TimingLoop,
-            "--distpath", self.exePath_TimingLoop,
+            "--distpath", self.binFol,
             self.pyPathFull_TimingLoop
         ] + dependencyArguments, capture_output=True, text=True)
         self.printResult(result,self.exeName_TimingLoop)

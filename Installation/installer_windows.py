@@ -3,6 +3,7 @@ import os
 from commonClassesFunctions.utils import getBaseDir, getImports_recursive, get_needed_imports
 import time
 import sys
+import shutil
 
 class runInstaller_windows():
     def __init__(self):
@@ -24,6 +25,7 @@ class runInstaller_windows():
         self.installerPath = r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" # inno installer path
         self.vEnvFolder = r"C:\Users\timot\PythonProjects\WordDef\venv"        
         # Methods
+        self.deleteBinAndBuildFolders()
         self.getPathsForExecutables()
         self.createExececutable_userEntryPoint()
         self.createExececutable_loadingProgramConsole()
@@ -32,6 +34,11 @@ class runInstaller_windows():
         self.createExececutable_wordDefAPI()
         self.createExececutable_TimingLoop()
         self.runInstaller_inno()
+
+    def deleteBinAndBuildFolders(self):
+        for folder in ["bin", "build"]:
+            if os.path.exists(folder) and os.path.isdir(folder):
+                shutil.rmtree(folder)
 
     def getPathsForExecutables(self):
         print('\nGetting exe paths')
