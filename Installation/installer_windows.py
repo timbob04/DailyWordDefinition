@@ -231,5 +231,11 @@ class runInstaller_windows():
         time.sleep(2)            
         subprocess.run([inno_compiler_path, iss_file_path])
 
+
+
+
+
+
 if __name__ == "__main__":
-    runInstaller_windows()
+    moveStuff()
+    #runInstaller_windows()

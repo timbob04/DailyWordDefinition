@@ -93,8 +93,14 @@ def getBaseDir():
     # Check if the program is running as an executable
     if getattr(sys, 'frozen', False):                
         return os.path.dirname(sys.executable)
-    else:        
-        return os.path.dirname(os.path.abspath(__file__))
+    
+    # If not, find where the function is being called from
+    caller_file = sys._getframe(1).f_globals.get("__file__", "")
+
+    if caller_file:  
+        return os.path.dirname(os.path.abspath(caller_file))  # Use the caller script's location
+    else:
+        return os.getcwd()  # Default to current working directory if __file__ is missing
     
 def get_exe_path(exeName):    
     # Location of current execetuable
