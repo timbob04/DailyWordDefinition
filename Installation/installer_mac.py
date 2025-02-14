@@ -29,10 +29,10 @@ class runInstaller_mac():
         self.getPathsForExecutables()
         self.createExececutable_userEntryPoint()
         self.createExececutable_loadingProgramConsole()
-        #self.createExececutable_startStopEditProgram()
-        #self.createExececutable_startingProgramConsole()
-        #self.createExececutable_wordDefAPI()
-        #self.createExececutable_TimingLoop()
+        self.createExececutable_startStopEditProgram()
+        self.createExececutable_startingProgramConsole()
+        self.createExececutable_wordDefAPI()
+        self.createExececutable_TimingLoop()
         # self.runInstaller_inno()
 
     def deleteBinAndBuildFolders(self):
@@ -200,66 +200,50 @@ class runInstaller_mac():
         time.sleep(2)            
         subprocess.run([inno_compiler_path, iss_file_path])
 
-
-
 def moveStuff():
+
+    print(f'\nRearranging files in /bin')
 
     # /bin and /bin/_interal paths
     curDir = getBaseDir()
     bin_dir = os.path.join(curDir,'..', 'bin')
-    print(f'\nbin path is {bin_dir}')
-    time.sleep(2)
     internal_dir = os.path.join(bin_dir,'_internal')
-    print(f'\ninternal path is {internal_dir}\n')
-    time.sleep(2)
 
     # Make _internal folder in /bin
-    print('Making main _internal...')
     os.makedirs(internal_dir, exist_ok=True)
-    time.sleep(2)
-    print('done')
 
     # Loop through all folders in bin/
     for folder in os.listdir(bin_dir):
         folder_path = os.path.join(bin_dir, folder)
-        exe_path = os.path.join(folder_path, folder)
-        internalInternalFolder = os.path.join(bin_dir,folder,'_internal')
 
         if folder_path == internal_dir:
             continue
 
         # Delete any .app folders
         if folder.endswith(".app") and os.path.isdir(folder_path):
-            print(f'\nRemoving this .app file {folder_path}...')
-            time.sleep(2)
             shutil.rmtree(folder_path)
-            print('done')
             continue
 
         if os.path.isdir(folder_path):    
             os.rename(folder_path, folder_path + "_temp")
             folder_path += "_temp"
-            print(f'\nNew temp folder: {folder_path}')
-            time.sleep(5)
+            exe_path = os.path.join(folder_path, folder)
+            internalInternalFolder = os.path.join(folder_path,'_internal')
 
         # Move the executable to the bin folder
         if os.path.exists(exe_path) and os.path.isfile(exe_path):
-            print(f'\nMoving this executable {exe_path} to \bin...')
-            time.sleep(2)
             shutil.move(exe_path, bin_dir)
-            print('done')
 
         # Move all executable internal files into /bin/_internal
         if os.path.isdir(internalInternalFolder):
-            print(f'\nMoving internal files to main _internal for {folder}...')
-            time.sleep(2)
             for file in os.listdir(internalInternalFolder):
-                shutil.move(os.path.join(internalInternalFolder, file), internal_dir)
-            print('done')
+                curFilePath = os.path.join(internalInternalFolder, file)
+                destFile = os.path.join(internal_dir,file)
+                if not os.path.exists(destFile):
+                    shutil.move(curFilePath, internal_dir)
 
         # Now remove the remainder of the executable folder
         if os.path.isdir(folder_path):
-            print(f'\nDeleting this folder: {folder_path}...')
             shutil.rmtree(folder_path)
 
 

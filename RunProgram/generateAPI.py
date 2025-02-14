@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import QCheckBox
 from commonClassesFunctions.utils import readJSONfile, getBaseDir, PID
 from commonClassesFunctions.PyQt5_functions import Fonts, MakeTextWithMaxHeight, StaticText, PushButton, centerWindowOnScreen, setPyQt5path
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "_internal"))
+
 def getAndMakeAPIcontent():    
 
     print('\nWordDefAPI.exe running')

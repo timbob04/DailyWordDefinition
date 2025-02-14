@@ -4,6 +4,9 @@ from commonClassesFunctions.utils import PID, get_exe_path, getBaseDir, Depdenen
 import subprocess
 import os
 import platform
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "_internal"))
 
 def runApplicationTimingLoop():
 

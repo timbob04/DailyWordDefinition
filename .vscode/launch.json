@@ -6,6 +6,14 @@
             "name": "Debug an API",
             "type": "debugpy",
             "request": "launch",
+            "module": "Installation.installer_mac",  // Main module
+            "cwd": "${workspaceFolder}",  // Working directory
+            "justMyCode": true  // Allows debugging external libraries if needed
+        },
+        {
+            "name": "Debug an API",
+            "type": "debugpy",
+            "request": "launch",
             "module": "StartStopProgram.startStopProgram_main",  // Main module
             "cwd": "${workspaceFolder}",  // Working directory
             "justMyCode": false  // Allows debugging external libraries if needed
