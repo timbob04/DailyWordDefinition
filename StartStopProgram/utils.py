@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 import platform
 import os
 import re
-from win32com.client import Dispatch
 from commonClassesFunctions.utils import getBaseDir, get_exe_path
 
 class Fonts:
@@ -228,6 +227,7 @@ def create_startup_shortcut(file_path, startupFolder):
     system = platform.system()
     if system == 'Windows':
         shortcut_path = os.path.join(startupFolder, "DailyWordDefinition_shortcut.lnk") # the full file path of the short cut to the input file, to go in the startup folder
+        from win32com.client import Dispatch
         shell = Dispatch('WScript.Shell') # Access the Windows Script Host to manage shortcuts
         shortcut = shell.CreateShortcut(shortcut_path) # Create shortcut file
         shortcut.TargetPath = file_path # Set the target path

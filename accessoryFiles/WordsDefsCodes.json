@@ -30,7 +30,7 @@
     {
         "word": "Harbinger",
         "definition": "a person or thing that announces or signals the approach of another",
-        "WOD_shown": false,
+        "WOD_shown": true,
         "is_POD": false,
         "POD_shown": false
     }
